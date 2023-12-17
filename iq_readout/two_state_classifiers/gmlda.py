@@ -77,8 +77,8 @@ class TwoStateLinearClassifierFit:
     def __init__(self):
         self._pdf_function = simple_1d_gaussian_double_mixture
         self._param_names = [
+            "mu_0",
             "mu_1",
-            "mu_2",
             "sigma",
             "angle",  # this is not the rotation angle!
         ]
@@ -130,22 +130,19 @@ class TwoStateLinearClassifierFit:
         bounds = (
             (
                 np.min(shots_0_1d),
-                1e-10,
                 np.min(shots_1_1d),
                 1e-10,
                 0,
             ),
             (
                 np.max(shots_0_1d),
-                np.max(shots_0_1d),
                 np.max(shots_1_1d),
-                np.max(shots_1_1d),
-                np.pi,
+                np.max(all_shots),
+                np.pi / 2,
             ),
         )
         guess = (
             np.average(shots_0_1d),
-            np.std(shots_0_1d),
             np.average(shots_1_1d),
             np.std(shots_0_1d),
             np.pi / 4,
@@ -161,10 +158,10 @@ class TwoStateLinearClassifierFit:
         # get amplitudes of Gaussians for each state
         # PDF state 0
         pdf = lambda x, angle: self._pdf_function(x, *self._params_0[:-1], angle)
-        guess = [np.pi / 2]
+        guess = [np.pi / 2 - 0.01]  # avoid getting stuck in max bound
         counts, x = np.histogram(shots_0_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
-        popt, pcov = curve_fit(pdf, x, counts, p0=guess, bounds=(0, np.pi))
+        popt, pcov = curve_fit(pdf, x, counts, p0=guess, bounds=(0, np.pi / 2))
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=0 may not be accurate")
@@ -175,7 +172,7 @@ class TwoStateLinearClassifierFit:
         guess = [0.2255]
         counts, x = np.histogram(shots_1_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
-        popt, pcov = curve_fit(pdf, x, counts, p0=guess, bounds=(0, np.pi))
+        popt, pcov = curve_fit(pdf, x, counts, p0=guess, bounds=(0, np.pi / 2))
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=1 may not be accurate")
