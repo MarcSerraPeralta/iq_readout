@@ -44,7 +44,7 @@ which is a linear equation for the decision boundary. Noteworthy, the decision b
 ## Notes on the algorithm
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
-The projection axis corresponds to the vector $\vec{\mu}_0 - \vec{\mu}_1$. This can be estimated from the means of the data for each class $c$ ($\{\vec{x}^{(i)}_c\}_i$) given by
+The projection axis corresponds to the vector $\vec{\mu}_0 - \vec{\mu}_1$. This can be estimated from the means of the data for each class $c$ ($\\{\vec{x}^{(i)}_c\\}_i$) given by
 ```math 
 \vec{\nu}_c = \frac{1}{N}\sum_{i=1}^N \vec{x}^{(i)}_c, 
 ```
