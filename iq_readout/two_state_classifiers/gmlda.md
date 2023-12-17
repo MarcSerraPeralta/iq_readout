@@ -44,7 +44,11 @@ which is a linear equation for the decision boundary. Noteworthy, the decision b
 ## Notes on the algorithm
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
-The projection axis corresponds to the vector $\vec{\mu}_0 - \vec{\mu}_1$. This can be estimated from the means of the data for each class $c$, $\vec{\nu}_c = \sum_{i=1}^N \vec{x}^{(i)}_c / N$, because $\vec{\mu}_0 - \vec{\mu}_1 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification is that, given $\vec{x}_c \sim p(\vec{x}|c)$, the estimator of the mean $\vec{\nu}_c = \sin^2(\theta_c) \vec{\mu}_0 + \cos^2(\theta_c) \vec{\mu}_1$, thus $\vec{\nu}_1 - \vec{\nu}_0 = (\sin^2(\theta_1) - \sin^2(\theta_0)) (\vec{\mu}_1 - \vec{\mu}_0)$. 
+The projection axis corresponds to the vector $\vec{\mu}_0 - \vec{\mu}_1$. This can be estimated from the means of the data for each class $c$,
+```math 
+\vec{\nu}_c = \sum_{i=1}^N \vec{x}^{(i)}_c / N, 
+```
+because $\vec{\mu}_0 - \vec{\mu}_1 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification is that, given $\vec{x}_c \sim p(\vec{x}|c)$, the estimator of the mean $\vec{\nu}_c = \sin^2(\theta_c) \vec{\mu}_0 + \cos^2(\theta_c) \vec{\mu}_1$, thus $\vec{\nu}_1 - \vec{\nu}_0 = (\sin^2(\theta_1) - \sin^2(\theta_0)) (\vec{\mu}_1 - \vec{\mu}_0)$. 
 
 The algorithm uses the following tricks
 1. work with projects the data (to have more samples in each bin of the histogram)
