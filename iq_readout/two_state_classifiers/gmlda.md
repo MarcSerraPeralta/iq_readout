@@ -61,6 +61,6 @@ The algorithm can give $p(z|i)$ with $z$ the projection of $\vec{x}$ or $p(\vec{
 ```
 because $\vec{\mu}_{i,t} = 0$ and the $t^2$ terms cancel each other. We then just need to use that
 ```math
-p(z|i) = \int_{-\inf}^{+\inf} p(z,t|i) dt \propto \exp \left( -\frac{1}{2\sigma^2}(z - \vec{\mu}_{i,z})^2 \right)
+p(z|i) = \int_{-\\inf}^{+\\inf} p(z,t|i) dt \propto \exp \left( -\frac{1}{2\sigma^2}(z - \vec{\mu}_{i,z})^2 \right)
 ```
 leading to $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. 
