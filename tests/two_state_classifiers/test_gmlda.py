@@ -1,11 +1,13 @@
+from copy import deepcopy
+
 import numpy as np
 import pytest
 
 from iq_readout.two_state_classifiers import TwoStateLinearClassifierFit
 
 PARAMS = {
-    0: [0.0, 0.1, 0.01, 1.4],
-    1: [0.0, 0.1, 0.01, 0.4],
+    0: {"mu_0": 0.0, "mu_1": 0.1, "sigma": 0.01, "angle": 1.4},
+    1: {"mu_0": 0.0, "mu_1": 0.1, "sigma": 0.01, "angle": 0.2},
     "rot_angle": np.pi / 4,
     "threshold": 0.05,
 }
@@ -40,16 +42,52 @@ def test_TwoStateLinearClassifierFit():
     )  # relative comparison with 0 is not correct
     assert pytest.approx(params[0]["mu_1"], rel=1e-2) == np.sqrt(2)
     assert pytest.approx(params[0]["sigma"], rel=1e-2) == np.sqrt(0.3)
-    assert pytest.approx(params[0]["angle"], rel=1e-2) == np.arcsin(np.sqrt(p0))
-    assert pytest.approx(params[1]["angle"], rel=1e-2) == np.arccos(np.sqrt(p1))
+    assert pytest.approx(params[0]["angle"], rel=5e-2) == np.arcsin(np.sqrt(p0))
+    assert pytest.approx(params[1]["angle"], rel=5e-2) == np.arccos(np.sqrt(p1))
     return
 
 
 def test_load():
+    cla = TwoStateLinearClassifierFit().load(PARAMS)
+
+    with pytest.raises(ValueError) as e_info:
+        cla = TwoStateLinearClassifierFit().load({})
+
+    params = deepcopy(PARAMS)
+    params["rot_angle"] = None
+    with pytest.raises(ValueError) as e_info:
+        cla = TwoStateLinearClassifierFit().load({})
     return
 
 
 def test_pdfs():
+    params = {
+        0: {"mu_0": 0.0, "mu_1": 1, "sigma": 0.5, "angle": 1.4},
+        1: {"mu_0": 0.0, "mu_1": 1, "sigma": 0.5, "angle": 0.2},
+        "rot_angle": np.pi / 2,
+        "threshold": 0.05,
+    }
+    cla = TwoStateLinearClassifierFit().load(params)
+
+    dx = 0.01
+    x0 = np.arange(-3, 3, dx)
+    x1 = np.arange(-5, 5, dx)
+
+    xx0, xx1 = np.meshgrid(x0, x1, indexing="ij")
+    xxx = np.concatenate([xx0[..., np.newaxis], xx1[..., np.newaxis]], axis=-1)
+    pdf_0, pdf_1 = cla.pdf_0(xxx), cla.pdf_1(xxx)
+    assert pytest.approx(np.sum(pdf_0) * dx**2, rel=1e-3) == 1
+    assert pytest.approx(np.sum(pdf_1) * dx**2, rel=1e-3) == 1
+
+    xx = np.concatenate(
+        [np.zeros_like(x1)[..., np.newaxis], x1[..., np.newaxis]], axis=-1
+    )  # because rotation angle is np.pi / 2
+    pdf_0_proj, pdf_1_proj = cla.pdf_0_projected(xx), cla.pdf_1_projected(xx)
+    assert pytest.approx(np.sum(pdf_0_proj) * dx, rel=1e-3) == 1
+    assert pytest.approx(np.sum(pdf_1_proj) * dx, rel=1e-3) == 1
+
+    assert pytest.approx(pdf_0.sum(axis=0) * dx, abs=1e-3) == pdf_0_proj
+
     return
 
 

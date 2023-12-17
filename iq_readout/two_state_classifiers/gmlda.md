@@ -44,7 +44,7 @@ which is a linear equation for the decision boundary. Noteworthy, the decision b
 ## Notes on the algorithm
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
-The projection axis corresponds to the vector $\vec{\mu}_0 - \vec{\mu}_1$. This can be estimated from the means of the data for each class $c$ ($\\{\vec{x}^{(i)}_c\\}_i$) given by
+The projection axis ($z$) corresponds to the line with direction $\vec{\mu}_0 - \vec{\mu}_1$ that crosses these two means. This can be estimated from the means of the data for each class $c$ ($\\{\vec{x}^{(i)}_c\\}_i$) given by
 ```math 
 \vec{\nu}_c = \frac{1}{N}\sum_{i=1}^N \vec{x}^{(i)}_c, 
 ```
@@ -54,3 +54,13 @@ The algorithm uses the following tricks
 1. work with projects the data (to have more samples in each bin of the histogram)
 1. combine $\vec{x}_c$ from both classes to extract the means and standard deviation (to have more samples in each bin of the histogram). *Note: the parameters* $\theta_c$ *are extracted from each* $\vec{x}_c$ 
 1. the threshold for the projected data can be obtained exactly from projecting $(\vec{\mu}_0 - \vec{\mu}_1)/2$. *Note: although the threshold could be used for the predictions, it is not used in this algorithm*
+
+The algorithm can give $p(z|i)$ with $z$ the projection of $\vec{x}$ or $p(\vec{x}|i)$. Note that the two pdfs are related, i.e. $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{x} = (z, t)$, which gives
+```math 
+\frac{p(\vec{x}|0)}{p(\vec{x}|1)} = \exp \left( -\frac{1}{2\sigma^2}((z - \vec{\mu}_{0,z})^2 - (z - \vec{\mu}_{1,z})^2) \right)
+```
+because $\vec{\mu}_{i,t} = 0$ and the $t^2$ terms cancel each other. We then just need to use that
+```math
+p(z|i) = \int_{-\inf}^{+\inf} p(z,t|i) dt \propto \exp \left( -\frac{1}{2\sigma^2}(z - \vec{\mu}_{i,z})^2 \right)
+```
+leading to $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. 

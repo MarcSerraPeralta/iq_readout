@@ -69,13 +69,85 @@ def simple_1d_gaussian_double_mixture(
     return z
 
 
+def simple_2d_gaussian(
+    x: np.ndarray,
+    mu0: float,
+    mu1: float,
+    sigma: float,
+) -> np.ndarray:
+    """
+    Probability density function of a 2D Gaussian with
+    mean = (mu0, mu1) and covariance matrix = diag(sigma**2, sigma**2)
+
+    Params
+    ------
+    x
+        Points in the 2D space
+    mu0
+        Mean of the first coordinate
+    mu1
+        Mean of the second coordinate
+    sigma
+        Standard deviation of the two coordinates
+
+    Returns
+    -------
+    z
+        Values of the probability density function
+    """
+    check_2d_input(x)
+    x0, x1 = x[..., 0], x[..., 1]
+    x0_, x1_ = (x0 - mu0) / sigma, (x1 - mu1) / sigma
+    z = 1 / (2 * np.pi * sigma**2) * np.exp(-0.5 * (x0_**2 + x1_**2))
+    return z
+
+
+def simple_2d_gaussian_double_mixture(
+    x: np.ndarray,
+    mu0_1: float,
+    mu1_1: float,
+    mu0_2: float,
+    mu1_2: float,
+    sigma: float,
+    angle: float,
+) -> np.ndarray:
+    """
+    Probability density function corresponding to the sum of two
+    `simple_2d_gaussian`s
+
+    Parameters
+    ----------
+    x
+        Points in the 2D space
+    mu0_i
+        Mean of the first coordinate for the i^th Gaussian
+    mu1_i
+        Mean of the second coordinate for the i^th Gaussian
+    sigma_i
+        Standard deviation of the two coordinates for the i^th Gaussian
+    angle
+        Weight of the 1st Gaussian is sin(angle)**2 and
+        of the 2nd Gaussian is cos(angle)**2 to ensure that
+        the PDF is normalized
+    """
+    check_2d_input(x)
+    a1, a2 = np.sin(angle) ** 2, np.cos(angle) ** 2
+
+    z = a1 * simple_2d_gaussian(
+        x, mu0=mu0_1, mu1=mu1_1, sigma=sigma
+    ) + a2 * simple_2d_gaussian(x, mu0=mu0_2, mu1=mu1_2, sigma=sigma)
+
+    return z
+
+
 class TwoStateLinearClassifierFit:
     """
     Read `gmlda.md`
     """
 
     def __init__(self):
-        self._pdf_function = simple_1d_gaussian_double_mixture
+        self._pdf_function_proj = simple_1d_gaussian_double_mixture
+        self._pdf_function = simple_2d_gaussian_double_mixture
         self._param_names = [
             "mu_0",
             "mu_1",
@@ -148,7 +220,9 @@ class TwoStateLinearClassifierFit:
             np.pi / 4,
         )
 
-        popt, pcov = curve_fit(self._pdf_function, x, counts, p0=guess, bounds=bounds)
+        popt, pcov = curve_fit(
+            self._pdf_function_proj, x, counts, p0=guess, bounds=bounds
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
@@ -157,7 +231,7 @@ class TwoStateLinearClassifierFit:
 
         # get amplitudes of Gaussians for each state
         # PDF state 0
-        pdf = lambda x, angle: self._pdf_function(x, *self._params_0[:-1], angle)
+        pdf = lambda x, angle: self._pdf_function_proj(x, *self._params_0[:-1], angle)
         guess = [np.pi / 2 - 0.01]  # avoid getting stuck in max bound
         counts, x = np.histogram(shots_0_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
@@ -168,7 +242,7 @@ class TwoStateLinearClassifierFit:
         self._params_0[-1] = popt
 
         # PDF state 1
-        pdf = lambda x, angle: self._pdf_function(x, *self._params_1[:-1], angle)
+        pdf = lambda x, angle: self._pdf_function_proj(x, *self._params_1[:-1], angle)
         guess = [0.2255]
         counts, x = np.histogram(shots_1_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
@@ -207,7 +281,7 @@ class TwoStateLinearClassifierFit:
 
         self._check_params()
 
-        return
+        return self
 
     def project(self, x: np.ndarray):
         """
@@ -222,12 +296,51 @@ class TwoStateLinearClassifierFit:
         np.ndarray(...)
         """
         check_2d_input(x)
+        if self.rot_angle is None:
+            self._check_params()
         return rotate_data(x, self.rot_angle)[:, 0]
+
+    def pdf_0_projected(self, x: np.ndarray):
+        """
+        Returns the probability density function of state 0
+        for the projection of the given 2D values.
+        Note that p(x1,x2|0) != p(x_projected|0).
+
+        Parameters
+        ----------
+        x: np.ndarray(..., 2)
+
+        Returns
+        -------
+        np.ndarray(...)
+        """
+        self._check_params()
+        z = self.project(x)
+        return self._pdf_function_proj(z, *self._params_0)
+
+    def pdf_1_projected(self, x: np.ndarray):
+        """
+        Returns the probability density function of state 1
+        for the projection of the given 2D values.
+        Note that p(x1,x2|1) != p(x_projected|1).
+
+        Parameters
+        ----------
+        x: np.ndarray(..., 2)
+
+        Returns
+        -------
+        np.ndarray(...)
+        """
+        self._check_params()
+        z = self.project(x)
+        return self._pdf_function_proj(z, *self._params_1)
 
     def pdf_0(self, x: np.ndarray):
         """
         Returns the probability density function of state 0
-        for the specified 2D values.
+        for the given 2D values.
+        Note that p(x1,x2|0) != p(x_projected|0).
 
         Parameters
         ----------
@@ -237,13 +350,18 @@ class TwoStateLinearClassifierFit:
         -------
         np.ndarray(...)
         """
-        z = self.project(x)
-        return self._pdf_function(z, *self._params_0)
+        self._check_params()
+        check_2d_input(x)
+        mu_0 = rotate_data([[self._params_0[0], 0]], -self.rot_angle)[0]
+        mu_1 = rotate_data([[self._params_0[1], 0]], -self.rot_angle)[0]
+        params = [*mu_0, *mu_1, *self._params_0[-2:]]
+        return self._pdf_function(x, *params)
 
     def pdf_1(self, x: np.ndarray):
         """
         Returns the probability density function of state 1
-        for the specified 2D values.
+        for the given 2D values.
+        Note that p(x1,x2|1) != p(x_projected|1).
 
         Parameters
         ----------
@@ -253,8 +371,12 @@ class TwoStateLinearClassifierFit:
         -------
         np.ndarray(...)
         """
-        z = self.project(x)
-        return self._pdf_function(z, *self._params_1)
+        self._check_params()
+        check_2d_input(x)
+        mu_0 = rotate_data([[self._params_1[0], 0]], -self.rot_angle)[0]
+        mu_1 = rotate_data([[self._params_1[1], 0]], -self.rot_angle)[0]
+        params = [*mu_0, *mu_1, *self._params_1[-2:]]
+        return self._pdf_function(x, *params)
 
     def predict(self, x: np.ndarray):
         """
