@@ -3,7 +3,7 @@
 **Characteristics**:
 - 2-state classifier for 2D data
 - Uses max-likelihood classification
-- Decision boundary is a straing line (hence *linear*)
+- Decision boundary is a straight line (hence *linear*)
 - Assumes that the classes follow a Gaussian mixture that share the same covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$ and means $\vec{\mu}_0, \vec{\mu}_1$, i.e.
 ```math
 p(\vec{x}|0) = f_0(\vec{x}; \vec{\mu}_0, \vec{\mu}_1, \sigma, \theta_0) = \sin^2(\theta_0)\tilde{N}(\vec{x}; \vec{\mu}_0, \sigma) + 
