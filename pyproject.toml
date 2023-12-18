@@ -26,5 +26,5 @@ include = ["iq_readout"]  # package names should match these glob patterns (["*"
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [project.optional-dependencies]
-dev = ["pip-tools", "pytest"]
+dev = ["pip-tools", "pytest", "scalene"]
 
