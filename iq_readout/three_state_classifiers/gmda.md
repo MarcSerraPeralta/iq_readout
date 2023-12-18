@@ -34,7 +34,7 @@ Given $\vec{x}$, a max-likelihood classifier outputs the class $c$ that has larg
 
 ## Non-linearity
 
-As a counter example for linearity, given the three means $\mu_0 = (0,0)$, $\mu_1 = (-1,0)$ and $\mu_2 = (+1,0)$, the decision lines are obsviously not given by a straight line. 
+As a counter example for linearity, given the three means $\mu_0 = (0,0)$, $\mu_1 = (-1,0)$ and $\mu_2 = (+1,0)$ and the decision line for 0 and 1, if $p(\vec{x}|0) = \tilde{N}(\vec{x}; \vec{\mu}_0, \sigma)$ and $p(\vec{x}|1) = 0.75\tilde{N}(\vec{x}; \vec{\mu}_1, \sigma) + 0.25\tilde{N}(\vec{x}; \vec{\mu}_2, \sigma)$, the decision lines are not given by a straight line. 
 
 ## Notes on the algorithm
 
