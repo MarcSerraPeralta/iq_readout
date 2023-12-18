@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Tuple
 import warnings
 
 from copy import deepcopy
@@ -185,11 +184,15 @@ class TwoStateLinearClassifierFit:
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
+        if not isinstance(n_bins, int):
+            raise ValueError(f"n_bins must be int, but {type(n_bins)} given")
 
         # the mixture of 2 Gaussians does not affect the direction
-        # of \vec{mu1} - \vec{mu0}
-        mu_1, mu_2 = np.average(shots_0, axis=0), np.average(shots_1, axis=0)
-        self.rot_angle = get_angle(mu_2 - mu_1)
+        # of \vec{mu0} - \vec{mu1}
+        # Using \vec{mu1} - \vec{mu0} to have the projected 0 blob
+        # on the left of the 1 blob
+        mu_0, mu_1 = np.average(shots_0, axis=0), np.average(shots_1, axis=0)
+        self.rot_angle = get_angle(mu_1 - mu_0)
 
         # rotate and project data
         shots_0_1d, shots_1_1d = self.project(shots_0), self.project(shots_1)
@@ -258,10 +261,20 @@ class TwoStateLinearClassifierFit:
 
         return self
 
-    def params(self):
+    def params(self) -> dict:
         """
         Returns the fitted params. The output can be used to load
         a new class using the '.load' function.
+
+        Returns
+        -------
+        Dictionary with the following structure:
+        {
+            0: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
+            1: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
+            "rot_angle": float,
+            "threshold": float,
+        }
         """
         self._check_params()
 
@@ -274,7 +287,25 @@ class TwoStateLinearClassifierFit:
 
         return params
 
-    def load(self, params: dict):
+    def load(self, params: dict) -> TwoStateLinearClassifierFit:
+        """
+        Load the parameters for the PDFs.
+
+        Parameters
+        ----------
+        params
+            Dictionary with the following structure:
+            {
+                0: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
+                1: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
+                "rot_angle": float,
+                "threshold": float,
+            }
+
+        Returns
+        -------
+        TwoStateLinearClassifierFit
+        """
         if set(params) != set([0, 1, "rot_angle", "threshold"]):
             raise ValueError("params must have keys: [0, 1, 'rot_angle', 'threshold']")
 
@@ -287,7 +318,7 @@ class TwoStateLinearClassifierFit:
 
         return self
 
-    def project(self, x: np.ndarray):
+    def project(self, x: np.ndarray) -> np.ndarray:
         """
         Project the data in the 01 axis.
 
@@ -304,7 +335,7 @@ class TwoStateLinearClassifierFit:
             self._check_params()
         return rotate_data(x, -self.rot_angle)[:, 0]
 
-    def pdf_0_projected(self, x: np.ndarray):
+    def pdf_0_projected(self, x: np.ndarray) -> np.ndarray:
         """
         Returns the probability density function of state 0
         for the projection of the given 2D values.
@@ -322,7 +353,7 @@ class TwoStateLinearClassifierFit:
         z = self.project(x)
         return self._pdf_function_proj(z, *self._params_0)
 
-    def pdf_1_projected(self, x: np.ndarray):
+    def pdf_1_projected(self, x: np.ndarray) -> np.ndarray:
         """
         Returns the probability density function of state 1
         for the projection of the given 2D values.
@@ -340,7 +371,7 @@ class TwoStateLinearClassifierFit:
         z = self.project(x)
         return self._pdf_function_proj(z, *self._params_1)
 
-    def pdf_0(self, x: np.ndarray):
+    def pdf_0(self, x: np.ndarray) -> np.ndarray:
         """
         Returns the probability density function of state 0
         for the given 2D values.
@@ -361,7 +392,7 @@ class TwoStateLinearClassifierFit:
         params = [*mu_0, *mu_1, *self._params_0[-2:]]
         return self._pdf_function(x, *params)
 
-    def pdf_1(self, x: np.ndarray):
+    def pdf_1(self, x: np.ndarray) -> np.ndarray:
         """
         Returns the probability density function of state 1
         for the given 2D values.
@@ -382,7 +413,7 @@ class TwoStateLinearClassifierFit:
         params = [*mu_0, *mu_1, *self._params_1[-2:]]
         return self._pdf_function(x, *params)
 
-    def predict(self, x: np.ndarray):
+    def predict(self, x: np.ndarray) -> np.ndarray:
         """
         Returns the classes (0 or 1) for the specified 2D values.
 

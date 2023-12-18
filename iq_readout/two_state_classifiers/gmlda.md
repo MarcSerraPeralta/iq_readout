@@ -39,21 +39,23 @@ By taking the logarithm and simplifying, we obtain
 ```math
 |\vec{x} - \vec{\mu}_0| = |\vec{x} - \vec{\mu}_1|,
 ```
-which is a linear equation for the decision boundary. Noteworthy, the decision boundary does not depend on the weights of the Gaussian mixture, it crosses $\vec{x}=(\vec{\mu}_0 - \vec{\mu}_1)/2$, and it is perpendicular to the direction $\vec{\mu}_0 - \vec{\mu}_1$. 
+which is a linear equation for the decision boundary. Noteworthy, the decision boundary does not depend on the weights of the Gaussian mixture, it crosses $\vec{x}=(\vec{\mu}_1 - \vec{\mu}_0)/2$, and it is perpendicular to the direction $\vec{\mu}_1 - \vec{\mu}_0$. 
 
 ## Notes on the algorithm
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
-The projection axis ($z$) corresponds to the line with direction $\vec{\mu}_0 - \vec{\mu}_1$ that crosses these two means. This can be estimated from the means of the data for each class $c$ ($\\{\vec{x}^{(i)}_c\\}_i$) given by
+The projection axis ($z$) corresponds to the line with direction $\vec{\mu}_1 - \vec{\mu}_0$ that crosses these two means. 
+The direction is chosen this way to have the *blob* from state 0 on the left and the *blob* from state 1 on the right. 
+The projection axis be estimated from the means of the data for each class $c$ ($\\{\vec{x}^{(i)}_c\\}_i$) given by
 ```math 
 \vec{\nu}_c = \frac{1}{N}\sum_{i=1}^N \vec{x}^{(i)}_c, 
 ```
-because $\vec{\mu}_0 - \vec{\mu}_1 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification is that, given $\vec{x}_c \sim p(\vec{x}|c)$, the estimator of the mean $\vec{\nu}_c = \sin^2(\theta_c) \vec{\mu}_0 + \cos^2(\theta_c) \vec{\mu}_1$, thus $\vec{\nu}_1 - \vec{\nu}_0 = (\sin^2(\theta_1) - \sin^2(\theta_0)) (\vec{\mu}_1 - \vec{\mu}_0)$. 
+because $\vec{\mu}_1 - \vec{\mu}_0 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification is that, given $\vec{x}_c \sim p(\vec{x}|c)$, the estimator of the mean $\vec{\nu}_c = \sin^2(\theta_c) \vec{\mu}_0 + \cos^2(\theta_c) \vec{\mu}_1$, thus $\vec{\nu}_1 - \vec{\nu}_0 = (\sin^2(\theta_1) - \sin^2(\theta_0)) (\vec{\mu}_1 - \vec{\mu}_0)$. 
 
 The algorithm uses the following tricks
 1. work with projects the data (to have more samples in each bin of the histogram)
 1. combine $\vec{x}_c$ from both classes to extract the means and standard deviation (to have more samples in each bin of the histogram). *Note: the parameters* $\theta_c$ *are extracted from each* $\vec{x}_c$ 
-1. the threshold for the projected data can be obtained exactly from projecting $(\vec{\mu}_0 - \vec{\mu}_1)/2$. *Note: although the threshold could be used for the predictions, it is not used in this algorithm*
+1. the threshold for the projected data can be obtained exactly from projecting $(\vec{\mu}_1 - \vec{\mu}_0)/2$. *Note: although the threshold could be used for the predictions, it is not used in this algorithm*
 
 The algorithm can give $p(z|i)$ with $z$ the projection of $\vec{x}$ or $p(\vec{x}|i)$. Note that the two pdfs are related, i.e. $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{x} = (z, t)$, which gives
 ```math 
