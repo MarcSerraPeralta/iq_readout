@@ -30,7 +30,7 @@ def get_angle(vector: np.ndarray) -> float:
 
 def rotate_data(x: np.ndarray, theta: float) -> np.ndarray:
     """
-    Clock-wise rotation of x by an angle theta
+    Counterclock-wise rotation of x by an angle theta
 
     Parameters
     ----------
@@ -41,5 +41,5 @@ def rotate_data(x: np.ndarray, theta: float) -> np.ndarray:
     -------
     output: np.ndarray(N, 2)
     """
-    rot = np.array([[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]])
+    rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
     return np.einsum("ij,kj->ki", rot, x)

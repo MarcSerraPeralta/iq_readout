@@ -42,8 +42,8 @@ def test_TwoStateLinearClassifierFit():
     )  # relative comparison with 0 is not correct
     assert pytest.approx(params[0]["mu_1"], rel=1e-2) == np.sqrt(2)
     assert pytest.approx(params[0]["sigma"], rel=1e-2) == np.sqrt(0.3)
-    assert pytest.approx(params[0]["angle"], rel=5e-2) == np.arcsin(np.sqrt(p0))
-    assert pytest.approx(params[1]["angle"], rel=5e-2) == np.arccos(np.sqrt(p1))
+    assert pytest.approx(params[0]["angle"], rel=4e-2) == np.arcsin(np.sqrt(p0))
+    assert pytest.approx(params[1]["angle"], rel=4e-2) == np.arccos(np.sqrt(p1))
     return
 
 

@@ -221,8 +221,8 @@ class TwoStateLinearClassifierFit:
         )
 
         popt, pcov = curve_fit(
-            self._pdf_function_proj, x, counts, p0=guess, bounds=bounds
-        )
+            self._pdf_function_proj, x, counts, p0=guess, bounds=bounds, loss="soft_l1"
+        )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
@@ -235,7 +235,9 @@ class TwoStateLinearClassifierFit:
         guess = [np.pi / 2 - 0.01]  # avoid getting stuck in max bound
         counts, x = np.histogram(shots_0_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
-        popt, pcov = curve_fit(pdf, x, counts, p0=guess, bounds=(0, np.pi / 2))
+        popt, pcov = curve_fit(
+            pdf, x, counts, p0=guess, bounds=(0, np.pi / 2), loss="soft_l1"
+        )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=0 may not be accurate")
@@ -246,7 +248,9 @@ class TwoStateLinearClassifierFit:
         guess = [0.2255]
         counts, x = np.histogram(shots_1_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
-        popt, pcov = curve_fit(pdf, x, counts, p0=guess, bounds=(0, np.pi / 2))
+        popt, pcov = curve_fit(
+            pdf, x, counts, p0=guess, bounds=(0, np.pi / 2), loss="soft_l1"
+        )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=1 may not be accurate")
@@ -298,7 +302,7 @@ class TwoStateLinearClassifierFit:
         check_2d_input(x)
         if self.rot_angle is None:
             self._check_params()
-        return rotate_data(x, self.rot_angle)[:, 0]
+        return rotate_data(x, -self.rot_angle)[:, 0]
 
     def pdf_0_projected(self, x: np.ndarray):
         """
@@ -352,8 +356,8 @@ class TwoStateLinearClassifierFit:
         """
         self._check_params()
         check_2d_input(x)
-        mu_0 = rotate_data([[self._params_0[0], 0]], -self.rot_angle)[0]
-        mu_1 = rotate_data([[self._params_0[1], 0]], -self.rot_angle)[0]
+        mu_0 = rotate_data([[self._params_0[0], 0]], self.rot_angle)[0]
+        mu_1 = rotate_data([[self._params_0[1], 0]], self.rot_angle)[0]
         params = [*mu_0, *mu_1, *self._params_0[-2:]]
         return self._pdf_function(x, *params)
 
@@ -373,8 +377,8 @@ class TwoStateLinearClassifierFit:
         """
         self._check_params()
         check_2d_input(x)
-        mu_0 = rotate_data([[self._params_1[0], 0]], -self.rot_angle)[0]
-        mu_1 = rotate_data([[self._params_1[1], 0]], -self.rot_angle)[0]
+        mu_0 = rotate_data([[self._params_1[0], 0]], self.rot_angle)[0]
+        mu_1 = rotate_data([[self._params_1[1], 0]], self.rot_angle)[0]
         params = [*mu_0, *mu_1, *self._params_1[-2:]]
         return self._pdf_function(x, *params)
 
