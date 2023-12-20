@@ -129,7 +129,7 @@ def histogram_2d(
     return counts, xx0_centers, xx1_centers
 
 
-class ThreeStateLinearClassifier2D:
+class ThreeStateClassifier2D:
     """
     Read `gmda.md`
     """
@@ -159,7 +159,8 @@ class ThreeStateLinearClassifier2D:
         shots_1: np.ndarray,
         shots_2: np.ndarray,
         n_bins: list = [100, 100],
-    ) -> ThreeStateLinearClassifier2D:
+        **kargs,
+    ) -> ThreeStateClassifier2D:
         """
         Fits the given data to extract the best parameters for classification.
 
@@ -175,17 +176,103 @@ class ThreeStateLinearClassifier2D:
             List of two elements corresponding to the
             number of bins for the first and second coordinate
             used in the 2d histograms
+        kargs
+            Extra arguments for scipy.optimize.curve_fit
 
         Returns
         -------
-        `TwoStateLinearClassifierFit` containing the fitted parameters
+        `ThreeStateClassifier2D` containing the fitted parameters
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
         check_2d_input(shots_2, axis=1)
 
-        self._get_means_and_std(shots_0, shots_1, shots_2, n_bins=n_bins)
-        self._get_weights(shots_0, shots_1, shots_2, n_bins=n_bins)
+        # loss="soft_l1" leads to more stable fits
+        fit_kargs = {"loss": "soft_l1"}
+        fit_kargs.update(kargs)
+
+        all_shots = np.concatenate([shots_0, shots_1, shots_2])
+        counts, xx = self._flatten_hist(*histogram_2d(all_shots, n_bins=n_bins))
+
+        # in the first fit the shots_i are concatenated
+        # to extract the means and covariance matrices,
+        # thus the Gaussian weights are approx. 1/3.
+        guess = [
+            *np.average(shots_0, axis=0),
+            *np.average(shots_1, axis=0),
+            *np.average(shots_2, axis=0),
+            np.average(np.std(shots_0, axis=0)),
+            0.7854,
+            0.9553,
+        ]
+
+        bounds = (
+            (
+                *np.min(shots_0, axis=0),
+                *np.min(shots_1, axis=0),
+                *np.min(shots_2, axis=0),
+                1e-10,
+                0,
+                0,
+            ),
+            (
+                *np.max(shots_0, axis=0),
+                *np.max(shots_1, axis=0),
+                *np.max(shots_2, axis=0),
+                np.max(all_shots),
+                np.pi / 2,
+                np.pi / 2,
+            ),
+        )
+
+        popt, pcov = curve_fit(
+            self._pdf_function, xx, counts, p0=guess, bounds=bounds, **fit_kargs
+        )
+        perr = np.sqrt(np.diag(pcov))
+        if (perr / popt > 0.1).any():
+            warnings.warn("Fitted means and covariances may not be accurate")
+
+        self._params_0 = deepcopy(popt)
+        self._params_1 = deepcopy(popt)
+        self._params_2 = deepcopy(popt)
+
+        bounds = ((0, 0), (np.pi / 2, np.pi / 2))
+
+        # PDF state 0
+        pdf = lambda x, angle1, angle2: self._pdf_function(
+            x, *self._params_0[:-2], angle1, angle2
+        )
+        guess = [0.1, np.pi / 2 - 0.1]  # avoid getting stuck in max bound
+        counts, xx = self._flatten_hist(*histogram_2d(shots_0, n_bins=n_bins))
+        popt, pcov = curve_fit(pdf, xx, counts, p0=guess, bounds=bounds, **fit_kargs)
+        perr = np.sqrt(np.diag(pcov))
+        if (perr / popt > 0.1).any():
+            warnings.warn("Fitted means and covariances may not be accurate")
+        self._params_0[-2:] = popt
+
+        # PDF state 1
+        pdf = lambda x, angle1, angle2: self._pdf_function(
+            x, *self._params_1[:-2], angle1, angle2
+        )
+        guess = [1.4706, np.pi / 2 - 0.1]  # avoid getting stuck in max bound
+        counts, xx = self._flatten_hist(*histogram_2d(shots_1, n_bins=n_bins))
+        popt, pcov = curve_fit(pdf, xx, counts, p0=guess, bounds=bounds, **fit_kargs)
+        perr = np.sqrt(np.diag(pcov))
+        if (perr / popt > 0.1).any():
+            warnings.warn("Fitted means and covariances may not be accurate")
+        self._params_1[-2:] = popt
+
+        # PDF state 2
+        pdf = lambda x, angle1, angle2: self._pdf_function(
+            x, *self._params_2[:-2], angle1, angle2
+        )
+        guess = [np.pi / 4, 0.2255]
+        counts, xx = self._flatten_hist(*histogram_2d(shots_2, n_bins=n_bins))
+        popt, pcov = curve_fit(pdf, xx, counts, p0=guess, bounds=bounds, **fit_kargs)
+        perr = np.sqrt(np.diag(pcov))
+        if (perr / popt > 0.1).any():
+            warnings.warn("Fitted means and covariances may not be accurate")
+        self._params_2[-2:] = popt
 
         return self
 
@@ -219,25 +306,13 @@ class ThreeStateLinearClassifier2D:
 
         return params
 
-    def load(self, params: dict) -> ThreeStateLinearClassifier2D:
+    def load(self, params: dict) -> ThreeStateClassifier2D:
         """
         Load the parameters for the PDFs.
 
         Returns
         -------
-        params
-            Dictionary with the following structure:
-            {
-                0: {"mu0_1": float, "mu1_1": float, "mu0_2": float, "mu1_2": float,
-                    "mu0_3": float, "mu1_3": float, "sigma": float, "angle1": float,
-                    "angle2": float},
-                1: {"mu0_1": float, "mu1_1": float, "mu0_2": float, "mu1_2": float,
-                    "mu0_3": float, "mu1_3": float, "sigma": float, "angle1": float,
-                    "angle2": float},
-                2: {"mu0_1": float, "mu1_1": float, "mu0_2": float, "mu1_2": float,
-                    "mu0_3": float, "mu1_3": float, "sigma": float, "angle1": float,
-                    "angle2": float},
-            }
+        `ThreeStateClassifier2D` class with the loaded params
         """
         if set(params) != set([0, 1, 2]):
             raise ValueError("params must have keys: [0, 1, 2]")
@@ -315,147 +390,6 @@ class ThreeStateLinearClassifier2D:
         """
         probs = [self.pdf_0(x), self.pdf_1(x), self.pdf_2(x)]
         return np.argmax(probs, axis=0)
-
-    def _get_means_and_std(
-        self,
-        shots_0: np.ndarray,
-        shots_1: np.ndarray,
-        shots_2: np.ndarray,
-        n_bins: list = [100, 100],
-    ):
-        """
-        Extract the means and covariance matrix of each state
-        by fitting the PDF function to all the data available
-
-        Parameters
-        ----------
-        shots_0: np.ndarray(N, 2)
-            N points corresponding to class 0
-        shots_1: np.ndarray(M, 2)
-            M points corresponding to class 1
-        shots_2: np.ndarray(P, 2)
-            P points corresponding to class 2
-        n_bins:
-            List of two elements corresponding to the
-            number of bins for the first and second coordinate
-            used in the 2d histograms
-        """
-        all_shots = np.concatenate([shots_0, shots_1, shots_2])
-        counts, xx = self._flatten_hist(*histogram_2d(all_shots, n_bins=n_bins))
-
-        # in the first fit the shots_i are concatenated
-        # to extract the means and covariance matrices,
-        # thus the Gaussian weights are approx. 1/3.
-        guess = [
-            *np.average(shots_0, axis=0),
-            *np.average(shots_1, axis=0),
-            *np.average(shots_2, axis=0),
-            np.average(np.std(shots_0, axis=0)),
-            0.7854,
-            0.9553,
-        ]
-
-        bounds = (
-            (
-                *np.min(shots_0, axis=0),
-                *np.min(shots_1, axis=0),
-                *np.min(shots_2, axis=0),
-                1e-10,
-                0,
-                0,
-            ),
-            (
-                *np.max(shots_0, axis=0),
-                *np.max(shots_1, axis=0),
-                *np.max(shots_2, axis=0),
-                np.max(all_shots),
-                np.pi / 2,
-                np.pi / 2,
-            ),
-        )
-
-        popt, pcov = curve_fit(
-            self._pdf_function, xx, counts, p0=guess, bounds=bounds, loss="soft_l1"
-        )  # loss="soft_l1" leads to more stable fits
-        perr = np.sqrt(np.diag(pcov))
-        if (perr / popt > 0.1).any():
-            warnings.warn("Fitted means and covariances may not be accurate")
-
-        self._params_0 = deepcopy(popt)
-        self._params_1 = deepcopy(popt)
-        self._params_2 = deepcopy(popt)
-        return
-
-    def _get_weights(
-        self,
-        shots_0: np.ndarray,
-        shots_1: np.ndarray,
-        shots_2: np.ndarray,
-        n_bins: list = [100, 100],
-    ):
-        """
-        Get the weights of each Gaussian for each state.
-        The means and covariance matrices are fixed and are
-        the same for each PDF.
-
-        Parameters
-        ----------
-        shots_0: np.ndarray(N, 2)
-            N points corresponding to class 0
-        shots_1: np.ndarray(M, 2)
-            M points corresponding to class 1
-        shots_2: np.ndarray(P, 2)
-            P points corresponding to class 2
-        n_bins:
-            List of two elements corresponding to the
-            number of bins for the first and second coordinate
-            used in the 2d histograms
-        """
-        bounds = ((0, 0), (np.pi, np.pi))
-
-        # PDF state 0
-        pdf = lambda x, angle1, angle2: self._pdf_function(
-            x, *self._params_0[:-2], angle1, angle2
-        )
-        guess = [0.1, np.pi / 2 - 0.1]  # avoid getting stuck in max bound
-        counts, xx = self._flatten_hist(*histogram_2d(shots_0, n_bins=n_bins))
-        popt, pcov = curve_fit(
-            pdf, xx, counts, p0=guess, bounds=bounds, loss="soft_l1"
-        )  # loss="soft_l1" leads to more stable fits
-        perr = np.sqrt(np.diag(pcov))
-        if (perr / popt > 0.1).any():
-            warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_0[-2:] = popt
-
-        # PDF state 1
-        pdf = lambda x, angle1, angle2: self._pdf_function(
-            x, *self._params_1[:-2], angle1, angle2
-        )
-        guess = [1.4706, np.pi / 2 - 0.1]  # avoid getting stuck in max bound
-        counts, xx = self._flatten_hist(*histogram_2d(shots_1, n_bins=n_bins))
-        popt, pcov = curve_fit(
-            pdf, xx, counts, p0=guess, bounds=bounds, loss="soft_l1"
-        )  # loss="soft_l1" leads to more stable fits
-        perr = np.sqrt(np.diag(pcov))
-        if (perr / popt > 0.1).any():
-            warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_1[-2:] = popt
-
-        # PDF state 2
-        pdf = lambda x, angle1, angle2: self._pdf_function(
-            x, *self._params_2[:-2], angle1, angle2
-        )
-        guess = [np.pi / 4, 0.2255]
-        counts, xx = self._flatten_hist(*histogram_2d(shots_2, n_bins=n_bins))
-        popt, pcov = curve_fit(
-            pdf, xx, counts, p0=guess, bounds=bounds, loss="soft_l1"
-        )  # loss="soft_l1" leads to more stable fits
-        perr = np.sqrt(np.diag(pcov))
-        if (perr / popt > 0.1).any():
-            warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_2[-2:] = popt
-
-        return
 
     def _flatten_hist(
         self, counts: np.ndarray, xx0: np.ndarray, xx1: np.ndarray

@@ -1,3 +1,3 @@
-from .gmda import ThreeStateLinearClassifier2D
+from .gmda import ThreeStateClassifier2D
 
-__all__ = ["ThreeStateLinearClassifier2D"]
+__all__ = ["ThreeStateClassifier2D"]
