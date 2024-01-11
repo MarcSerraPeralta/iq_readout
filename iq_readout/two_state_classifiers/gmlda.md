@@ -53,16 +53,18 @@ The projection axis be estimated from the means of the data for each class $c$ (
 because $\vec{\mu}_1 - \vec{\mu}_0 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification is that, given $\vec{x}_c \sim p(\vec{x}|c)$, the estimator of the mean $\vec{\nu}_c = \sin^2(\theta_c) \vec{\mu}_0 + \cos^2(\theta_c) \vec{\mu}_1$, thus $\vec{\nu}_1 - \vec{\nu}_0 = (\sin^2(\theta_1) - \sin^2(\theta_0)) (\vec{\mu}_1 - \vec{\mu}_0)$. 
 
 The algorithm uses the following tricks
-1. work with projects the data (to have more samples in each bin of the histogram)
+1. work with projected data (to have more samples in each bin of the histogram)
 1. combine $\vec{x}_c$ from both classes to extract the means and standard deviation (to have more samples in each bin of the histogram). *Note: the parameters* $\theta_c$ *are extracted from each* $\vec{x}_c$ 
-1. the threshold for the projected data can be obtained exactly from projecting $(\vec{\mu}_1 - \vec{\mu}_0)/2$. *Note: although the threshold could be used for the predictions, it is not used in this algorithm*
+1. the threshold for the projected data is exactly given from projecting $(\vec{\mu}_1 - \vec{\mu}_0)/2$. *Note: although the threshold could be used for the predictions, it is not used in this algorithm*
 
-The algorithm can give $p(z|i)$ with $z$ the projection of $\vec{x}$ or $p(\vec{x}|i)$. Note that the two pdfs are related, i.e. $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{x} = (z, t)$, which gives
+The algorithm can give $p(z|i)$ with $z$ the projection of $\vec{x}$ or $p(\vec{x}|i)$. Note that the two pdfs are related, i.e. $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{y} = (z, t)$, which gives
 ```math 
-\frac{p(\vec{x}|0)}{p(\vec{x}|1)} = \exp \left( -\frac{1}{2\sigma^2}((z - \vec{\mu}_{0,z})^2 - (z - \vec{\mu}_{1,z})^2) \right)
+\frac{p(\vec{y}|0)}{p(\vec{y}|1)} = \exp \left( -\frac{1}{2\sigma^2}((z - \vec{\mu}_{0,z})^2 - (z - \vec{\mu}_{1,z})^2) \right)
 ```
 because $\vec{\mu}_{i,t} = 0$ and the $t^2$ terms cancel each other. We then just need to use that
 ```math
 p(z|i) = \int_{-\infty}^{+\infty} p(z,t|i) dt \propto \exp \left( -\frac{1}{2\sigma^2}(z - \vec{\mu}_{i,z})^2 \right)
 ```
-leading to $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. 
+leading to $p(z|0) / p(z|1) = p(\vec{y}|0) / p(\vec{y}|1) = p(\vec{x}=R\vec{y}|0) / p(\vec{x}=R\vec{y}|1)$, with $R$ the corresponding unitary for the change of basis. 
+
+The parameter `rot_shift` is used for computing $p(\vec{x}|i)$. In particular, we transform the projected (fitted) means to the original basis using $\vec{\mu}_i = R(\vec{\mu}_{i,z}, \vec{\mu}_{i,t})^T$, where $\vec{\mu}_{0,t} = \vec{\mu}_{1,t} =$ `rot_shift`. 

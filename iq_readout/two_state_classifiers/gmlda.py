@@ -157,6 +157,7 @@ class TwoStateLinearClassifierFit:
         self._params_1 = None
         self.rot_angle = None  # this is the rotation angle
         self.threshold = None
+        self.rot_shift = None  # rotated height of the means
 
         return
 
@@ -193,6 +194,7 @@ class TwoStateLinearClassifierFit:
         # on the left of the 1 blob
         mu_0, mu_1 = np.average(shots_0, axis=0), np.average(shots_1, axis=0)
         self.rot_angle = get_angle(mu_1 - mu_0)
+        self.rot_shift = rotate_data([mu_0], -self.rot_angle)[0, 1]
 
         # rotate and project data
         shots_0_1d, shots_1_1d = self.project(shots_0), self.project(shots_1)
@@ -274,6 +276,7 @@ class TwoStateLinearClassifierFit:
             1: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
             "rot_angle": float,
             "threshold": float,
+            "rot_shift": float,
         }
         """
         self._check_params()
@@ -283,6 +286,7 @@ class TwoStateLinearClassifierFit:
             1: {k: v for k, v in zip(self._param_names, self._params_1)},
             "rot_angle": self.rot_angle,
             "threshold": self.threshold,
+            "rot_shift": self.rot_shift,
         }
 
         return params
@@ -306,13 +310,16 @@ class TwoStateLinearClassifierFit:
         -------
         TwoStateLinearClassifierFit
         """
-        if set(params) != set([0, 1, "rot_angle", "threshold"]):
-            raise ValueError("params must have keys: [0, 1, 'rot_angle', 'threshold']")
+        if set(params) != set([0, 1, "rot_angle", "threshold", "rot_shift"]):
+            raise ValueError(
+                "params must have keys: [0, 1, 'rot_angle', 'threshold', 'rot_shift']"
+            )
 
         self._params_0 = np.array([params[0][k] for k in self._param_names])
         self._params_1 = np.array([params[1][k] for k in self._param_names])
         self.rot_angle = params["rot_angle"]
         self.threshold = params["threshold"]
+        self.rot_shift = params["rot_shift"]
 
         self._check_params()
 
@@ -387,8 +394,8 @@ class TwoStateLinearClassifierFit:
         """
         self._check_params()
         check_2d_input(x)
-        mu_0 = rotate_data([[self._params_0[0], 0]], self.rot_angle)[0]
-        mu_1 = rotate_data([[self._params_0[1], 0]], self.rot_angle)[0]
+        mu_0 = rotate_data([[self._params_0[0], self.rot_shift]], self.rot_angle)[0]
+        mu_1 = rotate_data([[self._params_0[1], self.rot_shift]], self.rot_angle)[0]
         params = [*mu_0, *mu_1, *self._params_0[-2:]]
         return self._pdf_function(x, *params)
 
@@ -408,8 +415,8 @@ class TwoStateLinearClassifierFit:
         """
         self._check_params()
         check_2d_input(x)
-        mu_0 = rotate_data([[self._params_1[0], 0]], self.rot_angle)[0]
-        mu_1 = rotate_data([[self._params_1[1], 0]], self.rot_angle)[0]
+        mu_0 = rotate_data([[self._params_1[0], self.rot_shift]], self.rot_angle)[0]
+        mu_1 = rotate_data([[self._params_1[1], self.rot_shift]], self.rot_angle)[0]
         params = [*mu_0, *mu_1, *self._params_1[-2:]]
         return self._pdf_function(x, *params)
 
@@ -434,6 +441,7 @@ class TwoStateLinearClassifierFit:
             or (self._params_1 is None)
             or (self.rot_angle is None)
             or (self.threshold is None)
+            or (self.rot_shift is None)
         ):
             raise ValueError(
                 "Model does not have the fitted params, "
@@ -457,7 +465,11 @@ class TwoStateLinearClassifierFit:
             )
         if not isinstance(self.threshold, float):
             raise ValueError(
-                "rotation angle must be a float, "
-                f"but {type(self.threshold)} was given"
+                "threshold must be a float, " f"but {type(self.threshold)} was given"
+            )
+        if not isinstance(self.rot_shift, float):
+            raise ValueError(
+                "rotated height of the means must be a float, "
+                f"but {type(self.rot_shift)} was given"
             )
         return

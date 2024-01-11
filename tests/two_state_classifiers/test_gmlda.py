@@ -10,12 +10,13 @@ PARAMS = {
     1: {"mu_0": 0.0, "mu_1": 0.1, "sigma": 0.01, "angle": 0.2},
     "rot_angle": np.pi / 4,
     "threshold": 0.05,
+    "rot_shift": 0.0,
 }
 
 
 def test_TwoStateLinearClassifierFit():
     N, M = 100_000, 150_000
-    mu0, mu1 = np.array([0, 0]), np.array([1, 1])
+    mu0, mu1 = np.array([1, 0]), np.array([2, 1])
     cov = np.array([[0.3, 0], [0, 0.3]])
     p0, p1 = 0.8, 0.8
 
@@ -36,11 +37,11 @@ def test_TwoStateLinearClassifierFit():
     params = cla.params()
 
     assert pytest.approx(params["rot_angle"], rel=2e-2) == np.pi / 4
-    assert pytest.approx(params["threshold"], rel=2e-2) == np.sqrt(2) / 2
-    assert (
-        pytest.approx(params[0]["mu_0"], abs=2e-2) == 0
-    )  # relative comparison with 0 is not correct
-    assert pytest.approx(params[0]["mu_1"], rel=2e-2) == np.sqrt(2)
+    assert pytest.approx(params["threshold"], rel=2e-2) == np.sqrt(2)
+    assert pytest.approx(params["rot_shift"], abs=2e-2) == -np.sqrt(2) / 2
+
+    assert pytest.approx(params[0]["mu_0"], abs=2e-2) == np.sqrt(2) / 2
+    assert pytest.approx(params[0]["mu_1"], rel=2e-2) == 3 * np.sqrt(2) / 2
     assert pytest.approx(params[0]["sigma"], rel=2e-2) == np.sqrt(0.3)
     assert pytest.approx(params[0]["angle"], rel=2e-2) == np.arcsin(np.sqrt(p0))
     assert pytest.approx(params[1]["angle"], rel=2e-2) == np.arccos(np.sqrt(p1))
@@ -67,6 +68,7 @@ def test_pdfs():
         1: {"mu_0": 0.0, "mu_1": 1.0, "sigma": 0.5, "angle": 0.2},
         "rot_angle": np.pi / 2,
         "threshold": 0.5,
+        "rot_shift": 0.3,
     }
     cla = TwoStateLinearClassifierFit().load(params)
 
@@ -99,6 +101,7 @@ def test_prediction():
         1: {"mu_0": 0.0, "mu_1": 1.0, "sigma": 0.1, "angle": 0},
         "rot_angle": np.pi / 2,  # blob 1 is above blob 0
         "threshold": 0.5,
+        "rot_shift": 1.0,
     }
     cla = TwoStateLinearClassifierFit().load(params)
     x = np.array([[0, 2]])  # blob 1
