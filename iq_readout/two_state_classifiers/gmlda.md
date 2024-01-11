@@ -67,4 +67,4 @@ p(z|i) = \int_{-\infty}^{+\infty} p(z,t|i) dt \propto \exp \left( -\frac{1}{2\si
 ```
 leading to $p(z|0) / p(z|1) = p(\vec{y}|0) / p(\vec{y}|1) = p(\vec{x}=R\vec{y}|0) / p(\vec{x}=R\vec{y}|1)$, with $R$ the corresponding unitary for the change of basis. 
 
-The parameter `rot_shift` is used for computing $p(\vec{x}|i)$. In particular, we transform the projected (fitted) means to the original basis using $\vec{\mu}_i = R(\vec{\mu}_{i,z}, \vec{\mu}_{i,t})^T$, where $\vec{\mu}_{0,t} = \vec{\mu}_{1,t} =$ `rot_shift`. 
+The parameter `rot_shift` is used for computing $p(\vec{x}|i)$. In particular, we transform the projected (fitted) means to the original basis using $\vec{\mu}_i = R(\vec{\mu}_{i,z}, \vec{\mu}_{i,t})^T$, where $\vec{\mu}_{0,t} = \vec{\mu}_{1,t}$ = `rot_shift`. 
