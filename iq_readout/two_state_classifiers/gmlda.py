@@ -157,7 +157,7 @@ class TwoStateLinearClassifierFit:
         self._params_1 = None
         self.rot_angle = None  # this is the rotation angle
         self.threshold = None
-        self.rot_shift = None  # rotated height of the means
+        self.rot_shift = None
 
         return
 
