@@ -71,4 +71,4 @@ The parameter `rot_shift` is used for computing $p(\vec{x}|i)$. In particular, w
 ```math
 \vec{\mu}_i = R(\vec{\mu}_{i,z}, \vec{\mu}_{i,t})^T,
 ```
-where $\vec{\mu}_{0,t} = \vec{\mu}_{1,t}$ = `rot_shift`. 
+where `rot_shift` = $\vec{\mu}_{0,t} = \vec{\mu}_{1,t}$. 
