@@ -237,7 +237,7 @@ class TwoStateLinearClassifierFit:
         # get amplitudes of Gaussians for each state
         # PDF state 0
         pdf = lambda x, angle: self._pdf_function_proj(x, *self._params_0[:-1], angle)
-        guess = [np.pi / 2 - 0.01]  # avoid getting stuck in max bound
+        guess = [np.pi / 2 - 0.25]  # avoid getting stuck in max bound
         counts, x = np.histogram(shots_0_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
         popt, pcov = curve_fit(
@@ -342,40 +342,38 @@ class TwoStateLinearClassifierFit:
             self._check_params()
         return rotate_data(x, -self.rot_angle)[:, 0]
 
-    def pdf_0_projected(self, x: np.ndarray) -> np.ndarray:
+    def pdf_0_projected(self, z: np.ndarray) -> np.ndarray:
         """
         Returns the probability density function of state 0
-        for the projection of the given 2D values.
+        for the given projected values.
         Note that p(x1,x2|0) != p(x_projected|0).
 
         Parameters
         ----------
-        x: np.ndarray(..., 2)
+        z: np.ndarray(...)
 
         Returns
         -------
         np.ndarray(...)
         """
         self._check_params()
-        z = self.project(x)
         return self._pdf_function_proj(z, *self._params_0)
 
-    def pdf_1_projected(self, x: np.ndarray) -> np.ndarray:
+    def pdf_1_projected(self, z: np.ndarray) -> np.ndarray:
         """
         Returns the probability density function of state 1
-        for the projection of the given 2D values.
+        for the given projected values.
         Note that p(x1,x2|1) != p(x_projected|1).
 
         Parameters
         ----------
-        x: np.ndarray(..., 2)
+        z: np.ndarray(...)
 
         Returns
         -------
         np.ndarray(...)
         """
         self._check_params()
-        z = self.project(x)
         return self._pdf_function_proj(z, *self._params_1)
 
     def pdf_0(self, x: np.ndarray) -> np.ndarray:

@@ -82,10 +82,8 @@ def test_pdfs():
     assert pytest.approx(np.sum(pdf_0) * dx**2, rel=1e-3) == 1
     assert pytest.approx(np.sum(pdf_1) * dx**2, rel=1e-3) == 1
 
-    xx = np.concatenate(
-        [np.zeros_like(x1)[..., np.newaxis], x1[..., np.newaxis]], axis=-1
-    )  # because rotation angle is np.pi / 2
-    pdf_0_proj, pdf_1_proj = cla.pdf_0_projected(xx), cla.pdf_1_projected(xx)
+    x_proj = x1  # because rotation angle is np.pi / 2
+    pdf_0_proj, pdf_1_proj = cla.pdf_0_projected(x_proj), cla.pdf_1_projected(x_proj)
     assert pytest.approx(np.sum(pdf_0_proj) * dx, rel=1e-3) == 1
     assert pytest.approx(np.sum(pdf_1_proj) * dx, rel=1e-3) == 1
 

@@ -18,6 +18,7 @@ readme = "README.md"
 dependencies = [
     "numpy",
     "scipy",
+    "matplotlib",
 ]
 keywords = ["IQ", "readout", "qubit", "classifiers", "lda"]
 
