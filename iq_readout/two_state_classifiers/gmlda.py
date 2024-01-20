@@ -235,13 +235,24 @@ class TwoStateLinearClassifierFit:
         self.threshold = 0.5 * (popt[0] + popt[1])
 
         # get amplitudes of Gaussians for each state
+        # Note: fitting in log scale improves the results, however there is the
+        # problem of having counts=0 (np.log(0) = inf) due to undersampling
+
         # PDF state 0
-        pdf = lambda x, angle: self._pdf_function_proj(x, *self._params_0[:-1], angle)
+        log_pdf = lambda x, angle: np.log10(
+            self._pdf_function_proj(x, *self._params_0[:-1], angle)
+        )
         guess = [np.pi / 2 - 0.25]  # avoid getting stuck in max bound
         counts, x = np.histogram(shots_0_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
+        x, counts = x[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            pdf, x, counts, p0=guess, bounds=(0, np.pi / 2), loss="soft_l1"
+            log_pdf,
+            x,
+            np.log10(counts),
+            p0=guess,
+            bounds=(0, np.pi / 2),
+            loss="soft_l1",
         )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
@@ -249,12 +260,20 @@ class TwoStateLinearClassifierFit:
         self._params_0[-1] = popt
 
         # PDF state 1
-        pdf = lambda x, angle: self._pdf_function_proj(x, *self._params_1[:-1], angle)
+        log_pdf = lambda x, angle: np.log10(
+            self._pdf_function_proj(x, *self._params_1[:-1], angle)
+        )
         guess = [0.2255]
         counts, x = np.histogram(shots_1_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
+        x, counts = x[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            pdf, x, counts, p0=guess, bounds=(0, np.pi / 2), loss="soft_l1"
+            log_pdf,
+            x,
+            np.log10(counts),
+            p0=guess,
+            bounds=(0, np.pi / 2),
+            loss="soft_l1",
         )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():

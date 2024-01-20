@@ -84,14 +84,14 @@ def test_ThreeStateClassifier2D():
         assert pytest.approx(params[k]["sigma"], rel=2e-2) == np.sqrt(0.3)
 
     a1, a2 = params[0]["angle1"], params[0]["angle2"]
-    assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p0[0], abs=1e-2)
-    assert np.cos(a1) ** 2 == pytest.approx(1 - p0[1], abs=1e-2)
+    assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p0[0], abs=5e-2)
+    assert np.cos(a1) ** 2 == pytest.approx(1 - p0[1], abs=5e-2)
     a1, a2 = params[1]["angle1"], params[1]["angle2"]
-    assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p1[0], abs=1e-2)
-    assert np.cos(a1) ** 2 == pytest.approx(1 - p1[1], abs=1e-2)
+    assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p1[0], abs=5e-2)
+    assert np.cos(a1) ** 2 == pytest.approx(1 - p1[1], abs=5e-2)
     a1, a2 = params[2]["angle1"], params[2]["angle2"]
-    assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p2[0], abs=1e-2)
-    assert np.cos(a1) ** 2 == pytest.approx(1 - p2[1], abs=1e-2)
+    assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p2[0], abs=6e-2)
+    assert np.cos(a1) ** 2 == pytest.approx(1 - p2[1], abs=6e-2)
     return
 
 

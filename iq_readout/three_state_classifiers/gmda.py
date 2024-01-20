@@ -236,39 +236,51 @@ class ThreeStateClassifier2D:
         self._params_1 = deepcopy(popt)
         self._params_2 = deepcopy(popt)
 
+        # get amplitudes of Gaussians for each state
+        # Note: fitting in log scale improves the results, however there is the
+        # problem of having counts=0 (np.log(0) = inf) due to undersampling
         bounds = ((0, 0), (np.pi / 2, np.pi / 2))
 
         # PDF state 0
-        pdf = lambda x, angle1, angle2: self._pdf_function(
-            x, *self._params_0[:-2], angle1, angle2
+        log_pdf = lambda x, angle1, angle2: np.log10(
+            self._pdf_function(x, *self._params_0[:-2], angle1, angle2)
         )
-        guess = [0.1, np.pi / 2 - 0.1]  # avoid getting stuck in max bound
+        guess = [0.1, np.pi / 2 - 0.25]  # avoid getting stuck in max bound
         counts, xx = self._flatten_hist(*histogram_2d(shots_0, n_bins=n_bins))
-        popt, pcov = curve_fit(pdf, xx, counts, p0=guess, bounds=bounds, **fit_kargs)
+        xx, counts = xx[counts != 0], counts[counts != 0]
+        popt, pcov = curve_fit(
+            log_pdf, xx, np.log10(counts), p0=guess, bounds=bounds, **fit_kargs
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
         self._params_0[-2:] = popt
 
         # PDF state 1
-        pdf = lambda x, angle1, angle2: self._pdf_function(
-            x, *self._params_1[:-2], angle1, angle2
+        log_pdf = lambda x, angle1, angle2: np.log10(
+            self._pdf_function(x, *self._params_1[:-2], angle1, angle2)
         )
-        guess = [1.4706, np.pi / 2 - 0.1]  # avoid getting stuck in max bound
+        guess = [1.4706, np.pi / 2 - 0.25]  # avoid getting stuck in max bound
         counts, xx = self._flatten_hist(*histogram_2d(shots_1, n_bins=n_bins))
-        popt, pcov = curve_fit(pdf, xx, counts, p0=guess, bounds=bounds, **fit_kargs)
+        xx, counts = xx[counts != 0], counts[counts != 0]
+        popt, pcov = curve_fit(
+            log_pdf, xx, np.log10(counts), p0=guess, bounds=bounds, **fit_kargs
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
         self._params_1[-2:] = popt
 
         # PDF state 2
-        pdf = lambda x, angle1, angle2: self._pdf_function(
-            x, *self._params_2[:-2], angle1, angle2
+        log_pdf = lambda x, angle1, angle2: np.log10(
+            self._pdf_function(x, *self._params_2[:-2], angle1, angle2)
         )
         guess = [np.pi / 4, 0.2255]
         counts, xx = self._flatten_hist(*histogram_2d(shots_2, n_bins=n_bins))
-        popt, pcov = curve_fit(pdf, xx, counts, p0=guess, bounds=bounds, **fit_kargs)
+        xx, counts = xx[counts != 0], counts[counts != 0]
+        popt, pcov = curve_fit(
+            log_pdf, xx, np.log10(counts), p0=guess, bounds=bounds, **fit_kargs
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
