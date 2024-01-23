@@ -323,6 +323,7 @@ class TwoStateLinearClassifierFit:
                 1: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
                 "rot_angle": float,
                 "threshold": float,
+                "rot_shift": float,
             }
 
         Returns
@@ -359,7 +360,7 @@ class TwoStateLinearClassifierFit:
         check_2d_input(x)
         if self.rot_angle is None:
             self._check_params()
-        return rotate_data(x, -self.rot_angle)[:, 0]
+        return rotate_data(x, -self.rot_angle)[..., 0]
 
     def pdf_0_projected(self, z: np.ndarray) -> np.ndarray:
         """

@@ -42,4 +42,4 @@ def rotate_data(x: np.ndarray, theta: float) -> np.ndarray:
     output: np.ndarray(N, 2)
     """
     rot = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-    return np.einsum("ij,kj->ki", rot, x)
+    return np.einsum("ij,...j->...i", rot, x)
