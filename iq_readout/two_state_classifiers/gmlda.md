@@ -22,7 +22,7 @@ a multivariate Gaussian with covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \
 
 ## Max-likelihood classifier
 
-Given $\vec{x}$, a max-likelihood classifier outputs the class $c$ that has larger probability, i.e. $c$ such that $p(\vec{x}|c) \geq p(\vec{x}|j) \forall j \neq c$. 
+Given $\vec{x}$, a max-likelihood classifier outputs the class $c$ that has larger probability, i.e. $c$ such that $p(c|\vec{x}) \geq p(j|\vec{x}) \forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$. By default, it uses $p(j)=1/2$, where $p(c|\vec{x}) \geq p(j|\vec{x}) \forall j \neq c$ is equivalent to $p(\vec{x}|c) \geq p(\vec{x}|j) \forall j \neq c$. 
 
 ## Linearity
 

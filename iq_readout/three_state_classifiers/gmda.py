@@ -388,19 +388,28 @@ class ThreeStateClassifier2D:
         check_2d_input(x)
         return self._pdf_function(x, *self._params_2)
 
-    def predict(self, x) -> np.ndarray:
+    def predict(self, x, p0: float = 1 / 3, p1: float = 1 / 3) -> np.ndarray:
         """
         Returns the classes (0, 1 or 2) for the specified 2D values.
 
         Parameters
         ----------
         x: np.ndarray(..., 2)
+        p0
+            Probability of the qubit's state being 0 just before the measurement
+        p1
+            Probability of the qubit's state being 1 just before the measurement
 
         Returns
         -------
         np.ndarray(...)
         """
-        probs = [self.pdf_0(x), self.pdf_1(x), self.pdf_2(x)]
+        if (p0 + p1 > 1) or (p0 < 0) or (p1 < 0):
+            raise ValueError(
+                "The speficied 'p0' and 'p1' must be physical probabilities, "
+                f"but p0={p0} and p1={p1} (and p2={1-p0-p1}) were given"
+            )
+        probs = [self.pdf_0(x) * p0, self.pdf_1(x) * p1, self.pdf_2(x) * (1 - p0 - p1)]
         return np.argmax(probs, axis=0)
 
     def _flatten_hist(

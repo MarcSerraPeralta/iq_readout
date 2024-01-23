@@ -437,19 +437,26 @@ class TwoStateLinearClassifierFit:
         params = [*mu_0, *mu_1, *self._params_1[-2:]]
         return self._pdf_function(x, *params)
 
-    def predict(self, x: np.ndarray) -> np.ndarray:
+    def predict(self, x: np.ndarray, p0: float = 1 / 2) -> np.ndarray:
         """
         Returns the classes (0 or 1) for the specified 2D values.
 
         Parameters
         ----------
         x: np.ndarray(..., 2)
+        p0
+            Probability of the qubit's state being 0 just before the measurement
 
         Returns
         -------
         np.ndarray(...)
         """
-        probs = [self.pdf_0(x), self.pdf_1(x)]
+        if (p0 > 1) or (p0 < 0):
+            raise ValueError(
+                "The speficied 'p0' must be a physical probability, "
+                f"but p0={p0} (and p2={1-p0}) were given"
+            )
+        probs = [self.pdf_0(x) * p0, self.pdf_1(x) * (1 - p0)]
         return np.argmax(probs, axis=0)
 
     def _check_params(self):
