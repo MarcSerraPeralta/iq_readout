@@ -226,14 +226,14 @@ class DecayLinearClassifierFit:
                 np.max(shots_1_1d),
                 np.max(shots_1_1d),
                 np.pi / 2,
-                100,
+                np.inf,
             ),
         )
         guess = (
             np.average(shots_1_1d),
             np.std(shots_0_1d),
             0.2255,
-            1 / 20,
+            25,
         )
 
         popt, pcov = curve_fit(
