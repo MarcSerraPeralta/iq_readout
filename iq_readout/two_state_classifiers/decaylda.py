@@ -190,8 +190,8 @@ class DecayLinearClassifierFit:
         x, counts = x[counts != 0], counts[counts != 0]
 
         bounds = (
-            (np.min(shots_0_1d), np.min(shots_0_1d), 1e-10, 0),
-            (np.max(shots_0_1d), np.max(shots_0_1d), np.max(shots_0_1d), np.pi / 2),
+            (np.min(shots_0_1d), np.min(shots_1_1d), 1e-10, 0),
+            (np.max(shots_0_1d), np.max(shots_1_1d), np.max(shots_0_1d), np.pi / 2),
         )
         guess = (
             np.average(shots_0_1d),
