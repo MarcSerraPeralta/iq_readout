@@ -47,6 +47,8 @@ def plot_shots_2d(
         raise ValueError(
             f"'colors' must contain 3 elements, but {len(colors)} were given"
         )
+    # plotting order is important to see the decays from
+    # excited states
     shots = [shots_0, shots_1, shots_2]
 
     for shots, color, label in zip(shots, colors, labels):
@@ -57,6 +59,7 @@ def plot_shots_2d(
             color=color,
             linestyle="none",
             marker=".",
+            alpha=0.5,
         )
 
     ax.set_xlabel("I [a.u.]")
