@@ -11,7 +11,7 @@ def plot_shots_2d(
     shots_2: np.ndarray,
     labels: Optional[Tuple[str, str, str]] = None,
     colors: Optional[Tuple[str, str, str]] = None,
-):
+) -> plt.Axes:
     """
     Plots the experimental shots a 2D plane
 
