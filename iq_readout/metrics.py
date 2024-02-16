@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def probs_prep_meas(
@@ -50,3 +51,53 @@ def probs_prep_meas(
             probs[i, j] = np.average(prediction == j)
 
     return probs
+
+
+def plot_probs_prep_meas(ax: plt.Axes, probs: np.ndarray) -> plt.Axes:
+    """
+    Plots the matrix whose element i,j corresponds to:
+    p(measure state j | prepared state i)
+
+    Parameters
+    ----------
+    ax:
+        Matplotlib axis
+    probs: np.ndarray(N, N)
+        Probability matrix
+
+    Returns
+    -------
+    ax:
+        Matplotlib axis with the data plotted
+    """
+    probs = probs * 100  # percentage
+    # rotate the matrix so that the diagonal starts from top left
+    # instead of bottom left
+    probs = np.rot90(probs, 3)
+    n_states = len(probs)
+
+    # transpose the matrix because imshow plots it transpose
+    heatmap = ax.imshow(probs.T, cmap="Blues", vmin=0, vmax=100)
+
+    # add numbers in matrix
+    for i in range(probs.shape[0]):
+        for j in range(probs.shape[1]):
+            color = "white" if n_states - 1 - i == j else "black"
+            ax.text(i, j, f"{probs[i, j]:0.2f}", ha="center", va="center", color=color)
+
+    # Add colorbar for reference
+    fig = ax.get_figure()
+    colorbar = fig.colorbar(heatmap, ax=ax)
+    colorbar.set_label("probability (%)")
+
+    ax.set_xlabel("outcome")
+    ax.set_ylabel("prepared state")
+
+    ax.set_xticks(range(n_states))
+    ax.set_xticklabels([f"{i}" for i in range(n_states)])
+    ax.set_yticks(range(n_states))
+    ax.set_yticklabels([f"|{i}>" for i in range(n_states)][::-1])
+    ax.set_xlim(-0.5, n_states - 0.5)
+    ax.set_ylim(-0.5, n_states - 0.5)
+
+    return ax
