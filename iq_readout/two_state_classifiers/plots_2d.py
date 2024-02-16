@@ -47,17 +47,31 @@ def plot_shots_2d(
 
     shots = [shots_0, shots_1]
 
+    # calculate the transparency of the points
+    # based on the number of points on top of each other
+    max_points = 0
+    for shot in shots:
+        counts, _, _ = np.histogram2d(shot[:, 0], shot[:, 1], bins=[50, 50])
+        counts = np.max(counts)
+        if counts > max_points:
+            max_points = counts
+
     for shots, color, label in zip(shots, colors, labels):
         ax.plot(
             shots[..., 0],
             shots[..., 1],
+            color=color,
+            linestyle="none",
+            marker=".",
+            alpha=np.min([100 / max_points, 0.1]),
+        )
+        ax.plot(
+            [],
+            [],
             label=label,
             color=color,
             linestyle="none",
             marker=".",
-            alpha=0.5,
-            markeredgecolor="none",
-            markersize=7,
         )
 
     ax.set_xlabel("I [a.u.]")

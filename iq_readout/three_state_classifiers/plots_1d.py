@@ -87,6 +87,7 @@ def plot_pdf_projected(
     XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
     XX_unrot = rotate_data(XX, theta)
     pdf = pdf_func(XX_unrot)
+    # renormalize the pdf as done for the experimental data
     pdf = np.sum(pdf, axis=1) / (np.sum(pdf) * (x[1] - x[0]))
     pdf = pdf * len(shots_proj) / len(shots)
 
