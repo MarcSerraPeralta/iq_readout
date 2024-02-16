@@ -55,7 +55,7 @@ def plot_pdf_projected(
     # rotate shots to the given axis
     vector = points[1] - points[0]
     theta = get_angle(vector)
-    shift = rotate_data(vector, -theta)[1]
+    shift = rotate_data(points[0], -theta)[1]
     shots_rot = rotate_data(shots, -theta)
 
     # select shots inside a small rectangle
@@ -65,8 +65,15 @@ def plot_pdf_projected(
     ]
     shots_proj = shots_proj[:, 0]
 
+    # it can happen that there is almost no data to plot
+    # e.g. along mu0 and mu1, maybe shots_2 will not have
+    # any data
+    if len(shots_proj) < 100:
+        return ax
+
     # plot experimental histogram
     hist, bin_edges = np.histogram(shots_proj, bins=50, density=True)
+    hist = hist * len(shots_proj) / len(shots)
     ax.stairs(hist, bin_edges, color=color, alpha=0.5, label=label, fill=True)
 
     # get theoretical data
@@ -81,6 +88,7 @@ def plot_pdf_projected(
     XX_unrot = rotate_data(XX, theta)
     pdf = pdf_func(XX_unrot)
     pdf = np.sum(pdf, axis=1) / (np.sum(pdf) * (x[1] - x[0]))
+    pdf = pdf * len(shots_proj) / len(shots)
 
     # plot pdf
     ax.plot(x, pdf, color=color, linestyle="-")

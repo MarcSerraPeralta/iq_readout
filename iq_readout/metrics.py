@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def probs_prep_meas(
+def get_probs_prep_meas(
     classifier,
     shots_0: np.ndarray,
     shots_1: np.ndarray,
@@ -43,7 +43,7 @@ def probs_prep_meas(
     if "pdf_2" in dir(classifier):
         states = [0, 1, 2]
         shots = [shots_0, shots_1, shots_2]
-        probs = np.zeros(3, 3)
+        probs = np.zeros((3, 3))
 
     for i, (state, shot) in enumerate(zip(states, shots)):
         prediction = classifier.predict(shot)
@@ -53,7 +53,9 @@ def probs_prep_meas(
     return probs
 
 
-def plot_probs_prep_meas(ax: plt.Axes, probs: np.ndarray) -> plt.Axes:
+def plot_probs_prep_meas(
+    ax: plt.Axes, probs: np.ndarray, colorbar_flag: bool = False
+) -> plt.Axes:
     """
     Plots the matrix whose element i,j corresponds to:
     p(measure state j | prepared state i)
@@ -64,12 +66,16 @@ def plot_probs_prep_meas(ax: plt.Axes, probs: np.ndarray) -> plt.Axes:
         Matplotlib axis
     probs: np.ndarray(N, N)
         Probability matrix
+    colorbar_flag
+        If True, adds colorbar to the figure
 
     Returns
     -------
     ax:
         Matplotlib axis with the data plotted
     """
+    fidelity = 0.5 * (probs[0, 0] + probs[1, 1])
+
     probs = probs * 100  # percentage
     # rotate the matrix so that the diagonal starts from top left
     # instead of bottom left
@@ -86,9 +92,10 @@ def plot_probs_prep_meas(ax: plt.Axes, probs: np.ndarray) -> plt.Axes:
             ax.text(i, j, f"{probs[i, j]:0.2f}", ha="center", va="center", color=color)
 
     # Add colorbar for reference
-    fig = ax.get_figure()
-    colorbar = fig.colorbar(heatmap, ax=ax)
-    colorbar.set_label("probability (%)")
+    if colorbar_flag:
+        fig = ax.get_figure()
+        colorbar = fig.colorbar(heatmap, ax=ax)
+        colorbar.set_label("probability (%)")
 
     ax.set_xlabel("outcome")
     ax.set_ylabel("prepared state")
@@ -99,5 +106,7 @@ def plot_probs_prep_meas(ax: plt.Axes, probs: np.ndarray) -> plt.Axes:
     ax.set_yticklabels([f"|{i}>" for i in range(n_states)][::-1])
     ax.set_xlim(-0.5, n_states - 0.5)
     ax.set_ylim(-0.5, n_states - 0.5)
+
+    ax.set_title(f"Fidelity (states 0&1) = {fidelity*100:0.2f}%")
 
     return ax

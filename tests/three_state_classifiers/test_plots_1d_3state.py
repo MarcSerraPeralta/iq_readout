@@ -20,5 +20,6 @@ def test_plot_pdf_projected():
     plot_pdf_projected(ax, [mu0, mu1], shots_0, pdf)
 
     # plt.show()
+    plt.close()
 
     return

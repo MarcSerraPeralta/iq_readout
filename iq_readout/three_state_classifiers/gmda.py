@@ -137,12 +137,12 @@ class GaussMixClassifier:
     def __init__(self):
         self._pdf_function = simple_2d_gaussian_triple_mixture
         self._param_names = [
-            "mu0_1",
-            "mu1_1",
-            "mu0_2",
-            "mu1_2",
-            "mu0_3",
-            "mu1_3",
+            "mu_0_x",
+            "mu_0_y",
+            "mu_1_x",
+            "mu_1_y",
+            "mu_2_x",
+            "mu_2_y",
             "sigma",
             "angle1",
             "angle2",
@@ -459,7 +459,7 @@ class GaussMixClassifier:
             )
         if len(self._params_2) != len(self._param_names):
             raise ValueError(
-                f"1-state parameters must correspond to {self._param_names}, "
+                f"2-state parameters must correspond to {self._param_names}, "
                 f"but {self._params_1} were given"
             )
         return

@@ -3,10 +3,10 @@ import pytest
 import matplotlib.pyplot as plt
 
 from iq_readout.two_state_classifiers import GaussMixLinearClassifier
-from iq_readout.metrics import probs_prep_meas, plot_probs_prep_meas
+from iq_readout.metrics import get_probs_prep_meas, plot_probs_prep_meas
 
 
-def test_probs_prep_meas():
+def test_get_probs_prep_meas():
     N, M = 100_000, 150_000
     mu0, mu1 = np.array([0, 0]), np.array([1, 0])
     cov = np.array([[0.3, 0], [0, 0.3]])
@@ -34,7 +34,7 @@ def test_probs_prep_meas():
 
     cla = GaussMixLinearClassifier().load(PARAMS)
 
-    probs = probs_prep_meas(cla, shots_0, shots_1)
+    probs = get_probs_prep_meas(cla, shots_0, shots_1)
 
     assert probs.shape == (2, 2)
     assert probs[1, 0] > probs[0, 1]
@@ -51,5 +51,6 @@ def test_plot_probs_prep_meas():
     plot_probs_prep_meas(ax, probs)
 
     # plt.show()
+    plt.close()
 
     return

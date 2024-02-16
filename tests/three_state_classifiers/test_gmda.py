@@ -6,12 +6,12 @@ import pytest
 from iq_readout.three_state_classifiers import GaussMixClassifier
 
 means_cov = {
-    "mu0_1": 0,
-    "mu1_1": 0,
-    "mu0_2": 1,
-    "mu1_2": 1,
-    "mu0_3": 2,
-    "mu1_3": 2,
+    "mu_0_x": 0,
+    "mu_0_y": 0,
+    "mu_1_x": 1,
+    "mu_1_y": 1,
+    "mu_2_x": 2,
+    "mu_2_y": 2,
     "sigma": 0.1,
 }
 PARAMS = {
@@ -70,17 +70,17 @@ def test_GaussMixClassifier():
     for k in range(2):
         k = 1
         assert (
-            pytest.approx(params[k]["mu0_1"], abs=2e-2) == 0
+            pytest.approx(params[k]["mu_0_x"], abs=2e-2) == 0
         )  # relative comparison with 0 is not correct
         assert (
-            pytest.approx(params[k]["mu1_1"], abs=2e-2) == 0
+            pytest.approx(params[k]["mu_0_y"], abs=2e-2) == 0
         )  # relative comparison with 0 is not correct
-        assert pytest.approx(params[k]["mu0_2"], rel=2e-2) == 1
-        assert pytest.approx(params[k]["mu1_2"], rel=2e-2) == 1
+        assert pytest.approx(params[k]["mu_1_x"], rel=2e-2) == 1
+        assert pytest.approx(params[k]["mu_1_y"], rel=2e-2) == 1
         assert (
-            pytest.approx(params[k]["mu0_3"], abs=2e-2) == 0
+            pytest.approx(params[k]["mu_2_x"], abs=2e-2) == 0
         )  # relative comparison with 0 is not correct
-        assert pytest.approx(params[k]["mu1_3"], rel=2e-2) == 1
+        assert pytest.approx(params[k]["mu_2_y"], rel=2e-2) == 1
         assert pytest.approx(params[k]["sigma"], rel=2e-2) == np.sqrt(0.3)
 
     a1, a2 = params[0]["angle1"], params[0]["angle2"]
