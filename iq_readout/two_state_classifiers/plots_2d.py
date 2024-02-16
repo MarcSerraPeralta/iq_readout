@@ -79,3 +79,39 @@ def plot_shots_2d(
     ax.legend(loc="best")
 
     return ax
+
+
+def plot_boundaries_2d(
+    ax: plt.Axes, classifier, xlim: Tuple[float, float], ylim: Tuple[float, float]
+) -> plt.Axes:
+    """
+    Plots the decision boundaries in a 2D plane
+
+    Parameters
+    ----------
+    ax:
+        Matplotlib axis
+    xlim: (xmin, xmax)
+        Range of the X axis
+    ylim: (ymin, ymax)
+        Range of the Y axis
+
+    Returns
+    -------
+    ax:
+        Matplotlib axis with the data plotted
+    """
+    x, y = np.linspace(*xlim, 1_000), np.linspace(*ylim, 1_000)
+    xx, yy = np.meshgrid(x, y, indexing="ij")
+    XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
+    prediction = classifier.predict(XX)
+
+    ax.contour(xx, yy, prediction, levels=np.unique(prediction), colors="black")
+
+    ax.set_xlabel("I [a.u.]")
+    ax.set_ylabel("Q [a.u.]")
+
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+
+    return ax
