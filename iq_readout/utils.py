@@ -24,6 +24,8 @@ def get_angle(vector: np.ndarray) -> float:
     ----------
     vector: np.ndarray(2)
     """
+    assert vector.shape == (2,)
+
     angle = np.arctan2(*vector[::-1])  # arctan(y/x)
     return angle
 
