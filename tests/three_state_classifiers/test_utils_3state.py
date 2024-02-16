@@ -51,7 +51,7 @@ def test_summary():
 
     fig = summary(cla, shots_0, shots_1, shots_2)
 
-    plt.show()
+    # plt.show()
     plt.close()
 
     return
