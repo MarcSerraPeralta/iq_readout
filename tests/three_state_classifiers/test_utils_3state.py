@@ -7,7 +7,7 @@ from iq_readout.three_state_classifiers import summary
 
 def test_summary():
     N, M, P = 100_000, 150_000, 125_000
-    mu0, mu1, mu2 = np.array([0, 0]), np.array([1, 1]), np.array([1, -1])
+    mu0, mu1, mu2 = np.array([0, 0]), np.array([1, 0]), np.array([1.5, 1])
     cov = np.array([[0.05, 0], [0, 0.05]])
     p0, p1, p2 = (1, 1), (0.02, 1), (0.02, 0.05)
 
@@ -51,7 +51,7 @@ def test_summary():
 
     fig = summary(cla, shots_0, shots_1, shots_2)
 
-    # plt.show()
+    plt.show()
     plt.close()
 
     return

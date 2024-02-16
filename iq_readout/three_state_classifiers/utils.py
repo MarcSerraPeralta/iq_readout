@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from .plots_1d import plot_pdfs_projected
-from .plots_2d import plot_shots_2d
+from .plots_2d import plot_shots_2d, plot_boundaries_2d
 from ..metrics import get_probs_prep_meas, plot_probs_prep_meas
 
 
@@ -14,6 +14,11 @@ def summary(classifier, shots_0, shots_1, shots_2):
         classifier=classifier, shots_0=shots_0, shots_1=shots_1, shots_2=shots_2
     )
     plot_probs_prep_meas(axes[0, 1], probs)
+
+    plot_shots_2d(axes[0, 2], shots_0=shots_0, shots_1=shots_1, shots_2=shots_2)
+    xlim, ylim = axes[0, 2].get_xlim(), axes[0, 2].get_ylim()
+    plot_boundaries_2d(axes[0, 2], classifier=classifier, xlim=xlim, ylim=ylim)
+    axes[0, 2].legend().remove()
 
     params = classifier.params()
     mu_0 = [params[0]["mu_0_x"], params[0]["mu_0_y"]]
@@ -53,7 +58,7 @@ def summary(classifier, shots_0, shots_1, shots_2):
     axes[1, 2].set_title("projection: 0-2")
     axes[1, 2].legend().remove()
 
-    fig.delaxes(axes[0, 2])
+    # fig.delaxes(axes[0, 2])
     fig.tight_layout()
 
     return fig
