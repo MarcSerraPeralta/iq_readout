@@ -13,4 +13,6 @@ def test_plot_shots_2d():
 
     plot_shots_2d(ax, shots_0, shots_1, shots_2)
 
+    # plt.show()
+
     return
