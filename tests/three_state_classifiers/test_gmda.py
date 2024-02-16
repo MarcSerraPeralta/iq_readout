@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from iq_readout.three_state_classifiers import ThreeStateClassifier2D
+from iq_readout.three_state_classifiers import GaussMixClassifier
 
 means_cov = {
     "mu0_1": 0,
@@ -21,7 +21,7 @@ PARAMS = {
 }
 
 
-def test_ThreeStateClassifier2D():
+def test_GaussMixClassifier():
     N, M, P = 100_000, 150_000, 125_000
     mu0, mu1, mu2 = np.array([0, 0]), np.array([1, 1]), np.array([0, 1])
     cov = np.array([[0.3, 0], [0, 0.3]])
@@ -63,7 +63,7 @@ def test_ThreeStateClassifier2D():
         shots_2,
     )
 
-    cla = ThreeStateClassifier2D().fit(shots_0, shots_1, shots_2)
+    cla = GaussMixClassifier().fit(shots_0, shots_1, shots_2)
 
     params = cla.params()
 
@@ -96,17 +96,17 @@ def test_ThreeStateClassifier2D():
 
 
 def test_load():
-    cla = ThreeStateClassifier2D().load(PARAMS)
+    cla = GaussMixClassifier().load(PARAMS)
     assert cla.params() == PARAMS
 
     with pytest.raises(ValueError) as e_info:
-        cla = ThreeStateClassifier2D().load({})
+        cla = GaussMixClassifier().load({})
 
     return
 
 
 def test_pdfs():
-    cla = ThreeStateClassifier2D().load(PARAMS)
+    cla = GaussMixClassifier().load(PARAMS)
 
     dx = 0.01
     x0 = np.arange(-3, 3, dx)
@@ -123,7 +123,7 @@ def test_pdfs():
 
 
 def test_prediction():
-    cla = ThreeStateClassifier2D().load(PARAMS)
+    cla = GaussMixClassifier().load(PARAMS)
     x = np.array([[0.1, 0.1]])
     assert cla.predict(x) == np.array([0])
     x = np.array([[1.1, 1.1]])
@@ -136,5 +136,5 @@ def test_prediction():
 def test_n_bins():
     shots_0, shots_1, shots_2 = np.zeros((10, 2)), np.zeros((10, 2)), np.zeros((10, 2))
     with pytest.raises(ValueError) as e_info:
-        cla = ThreeStateClassifier2D().fit(shots_0, shots_1, shots_2, n_bins=2)
+        cla = GaussMixClassifier().fit(shots_0, shots_1, shots_2, n_bins=2)
     return

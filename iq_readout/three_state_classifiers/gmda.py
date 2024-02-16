@@ -129,7 +129,7 @@ def histogram_2d(
     return counts, xx0_centers, xx1_centers
 
 
-class ThreeStateClassifier2D:
+class GaussMixClassifier:
     """
     Read `gmda.md`
     """
