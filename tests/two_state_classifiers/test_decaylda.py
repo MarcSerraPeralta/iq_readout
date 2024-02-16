@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from iq_readout.two_state_classifiers import DecayLinearClassifierFit
+from iq_readout.two_state_classifiers import DecayLinearClassifier
 
 PARAMS = {
     0: {"mu_0": 0.0, "mu_1": 0.1, "sigma": 0.01, "angle": 1.4},
@@ -14,7 +14,7 @@ PARAMS = {
 }
 
 
-def test_DecayLinearClassifierFit():
+def test_DecayLinearClassifier():
     N, M = 150_000, 200_000
     mu0, mu1 = np.array([1, 0]), np.array([2, 1])
     cov = np.array([[0.3, 0], [0, 0.3]])
@@ -32,7 +32,7 @@ def test_DecayLinearClassifierFit():
         np.random.multivariate_normal(mu0, cov, size=M),
     )
 
-    cla = DecayLinearClassifierFit().fit(shots_0, shots_1)
+    cla = DecayLinearClassifier().fit(shots_0, shots_1)
 
     params = cla.params()
 
@@ -52,16 +52,16 @@ def test_DecayLinearClassifierFit():
 
 
 def test_load():
-    cla = DecayLinearClassifierFit().load(PARAMS)
+    cla = DecayLinearClassifier().load(PARAMS)
     assert cla.params() == PARAMS
 
     with pytest.raises(ValueError) as e_info:
-        cla = DecayLinearClassifierFit().load({})
+        cla = DecayLinearClassifier().load({})
 
     params = deepcopy(PARAMS)
     params["rot_angle"] = None
     with pytest.raises(ValueError) as e_info:
-        cla = DecayLinearClassifierFit().load(params)
+        cla = DecayLinearClassifier().load(params)
     return
 
 
@@ -73,7 +73,7 @@ def test_pdfs():
         "threshold": 0.5,
         "rot_shift": 0.3,
     }
-    cla = DecayLinearClassifierFit().load(params)
+    cla = DecayLinearClassifier().load(params)
 
     dx = 0.01
     x0 = np.arange(-5, 7, dx)
@@ -95,7 +95,7 @@ def test_prediction():
         "threshold": 0.5,
         "rot_shift": 1.0,
     }
-    cla = DecayLinearClassifierFit().load(params)
+    cla = DecayLinearClassifier().load(params)
     x = np.array([[0, 2]])  # blob 1
     assert cla.predict(x) == np.array([1])
     x = np.array([[0, -2]])  # blob 0
@@ -106,5 +106,5 @@ def test_prediction():
 def test_n_bins():
     shots_0, shots_1 = np.zeros((10, 2)), np.zeros((10, 2))
     with pytest.raises(ValueError) as e_info:
-        cla = DecayLinearClassifierFit().fit(shots_0, shots_1, n_bins=[1, 1])
+        cla = DecayLinearClassifier().fit(shots_0, shots_1, n_bins=[1, 1])
     return

@@ -1,4 +1,4 @@
-from .gmlda import TwoStateLinearClassifierFit
-from .decaylda import DecayLinearClassifierFit
+from .gmlda import GaussMixLinearClassifier
+from .decaylda import DecayLinearClassifier
 
-__all__ = ["TwoStateLinearClassifierFit", "DecayLinearClassifierFit"]
+__all__ = ["GaussMixClassifier", "DecayLinearClassifier"]

@@ -115,7 +115,7 @@ def decay_amplitude_1d_pdf(
     return z
 
 
-class DecayLinearClassifierFit:
+class DecayLinearClassifier:
     """
     Read `gmlda.md`
     """

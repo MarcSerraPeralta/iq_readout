@@ -139,7 +139,7 @@ def simple_2d_gaussian_double_mixture(
     return z
 
 
-class TwoStateLinearClassifierFit:
+class GaussMixLinearClassifier:
     """
     Read `gmlda.md`
     """
