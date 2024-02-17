@@ -167,4 +167,12 @@ def plot_pdfs_projected(
     for shot, pdf, color, label in zip(shots, pdfs, colors, labels):
         ax = plot_pdf_projected(ax, points, shot, pdf, label=label, color=color)
 
+    # avoid automatic axis range problems due to plotting different curves
+    # the 5% margin needs to be done in log scale
+    # the ylim limit is already specified in 'plot_pdf_projected'
+    _, ymax = ax.yaxis.get_data_interval()
+    ymin, _ = ax.get_ylim()
+    margin = 10 ** (0.05 * (np.log10(ymax) - np.log10(ymin)))
+    ax.set_ylim(ymax=ymax * margin)
+
     return ax
