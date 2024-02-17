@@ -77,6 +77,8 @@ def plot_shots_2d(
     ax.set_xlabel("I [a.u.]")
     ax.set_ylabel("Q [a.u.]")
     ax.legend(loc="best")
+    # same scale in x and y axis
+    ax.set_aspect("equal")
 
     return ax
 
