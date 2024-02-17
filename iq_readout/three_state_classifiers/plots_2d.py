@@ -111,7 +111,14 @@ def plot_boundaries_2d(
     XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
     prediction = classifier.predict(XX)
 
-    ax.contour(xx, yy, prediction, levels=np.unique(prediction), colors="black")
+    ax.contour(
+        xx,
+        yy,
+        prediction,
+        levels=np.unique(prediction),
+        colors="black",
+        linestyles="--",
+    )
 
     ax.set_xlabel("I [a.u.]")
     ax.set_ylabel("Q [a.u.]")
