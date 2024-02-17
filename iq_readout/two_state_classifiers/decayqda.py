@@ -115,7 +115,7 @@ def decay_amplitude_1d_pdf(
     return z
 
 
-class DecayLinearClassifier:
+class DecayClassifier:
     """
     Read `gmlda.md`
     """
@@ -181,52 +181,6 @@ class DecayLinearClassifier:
         # rotate and project data
         shots_0_1d, shots_1_1d = self.project(shots_0), self.project(shots_1)
 
-        # get means and standard deviations
-        all_shots = np.concatenate([shots_0_1d, shots_1_1d])
-        counts, x = np.histogram(all_shots, bins=n_bins, density=True)
-        x = 0.5 * (x[1:] + x[:-1])
-        x, counts = x[counts != 0], counts[counts != 0]
-
-        c_0, c_1 = len(shots_0) / len(all_shots), len(shots_1) / len(all_shots)
-
-        def combined_pdf(x, mu_0, mu_1, sigma, angle0, angle1, t1_norm):
-            return c_0 * self._pdf_function_proj_0(
-                x, mu_0, mu_1, sigma, angle0
-            ) + c_1 * self._pdf_function_proj_1(x, mu_0, mu_1, sigma, angle1, t1_norm)
-
-        bounds = (
-            (np.min(shots_0_1d), np.min(shots_1_1d), 1e-10, 0, 0, 1e-4),
-            (
-                np.max(shots_0_1d),
-                np.max(shots_1_1d),
-                np.max(shots_0_1d),
-                np.pi / 2,
-                np.pi / 2,
-                np.inf,
-            ),
-        )
-        guess = (
-            np.average(shots_0_1d),
-            np.average(shots_1_1d),
-            np.std(shots_0_1d),
-            np.pi / 2 - 0.25,
-            0.2255,
-            25,
-        )
-
-        popt, pcov = curve_fit(
-            lambda x, *p: np.log10(combined_pdf(x, *p)),
-            x,
-            np.log10(counts),
-            p0=guess,
-            bounds=bounds,
-            loss="soft_l1",
-            ftol=1e-10,
-            xtol=1e-10,
-            gtol=1e-10,
-        )  # loss="soft_l1" leads to more stable fits
-        mu_0, mu_1, sigma = popt[:3]
-
         # get fit for state=0
         # Note: fitting in log scale improves the results, however there is the
         # problem of having counts=0 (np.log(0) = inf) due to undersampling
@@ -234,11 +188,24 @@ class DecayLinearClassifier:
         x = 0.5 * (x[1:] + x[:-1])
         x, counts = x[counts != 0], counts[counts != 0]
 
-        bounds = ((0,), (np.pi / 2,))
-        guess = (np.pi / 2 - 0.25,)
+        bounds = (
+            (np.min(shots_0_1d), np.min(shots_1_1d), 0, 1e-10),
+            (
+                np.max(shots_0_1d),
+                np.max(shots_1_1d),
+                np.max(shots_0_1d),
+                np.pi / 2,
+            ),
+        )
+        guess = (
+            np.average(shots_0_1d),
+            np.std(shots_0_1d),
+            np.std(shots_0_1d),
+            np.pi / 2 - 0.25,
+        )
 
         popt, pcov = curve_fit(
-            lambda x, *p: np.log10(self._pdf_function_proj_0(x, mu_0, mu_1, sigma, *p)),
+            lambda x, *p: np.log10(self._pdf_function_proj_0(x, *p)),
             x,
             np.log10(counts),
             p0=guess,
@@ -251,7 +218,7 @@ class DecayLinearClassifier:
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted mean and covariance of state=0 may not be accurate")
-        self._params_0 = np.array([mu_0, mu_1, sigma, popt[0]])
+        self._params_0 = deepcopy(popt)
 
         # get fit for state=1
         # Note: fitting in log scale improves the results, however there is the
@@ -260,11 +227,26 @@ class DecayLinearClassifier:
         x = 0.5 * (x[1:] + x[:-1])
         x, counts = x[counts != 0], counts[counts != 0]
 
-        bounds = ((0, 1e-4), (np.pi / 2, np.inf))
-        guess = (0.2255, 5)
+        bounds = (
+            (np.min(shots_0_1d), np.min(shots_1_1d), 1e-10, 0, 1e-4),
+            (
+                np.max(shots_0_1d),
+                np.max(shots_1_1d),
+                np.max(shots_1_1d),
+                np.pi / 2,
+                np.inf,
+            ),
+        )
+        guess = (
+            np.average(shots_0_1d),
+            np.average(shots_1_1d),
+            np.std(shots_0_1d),
+            0.2255,
+            15,
+        )
 
         popt, pcov = curve_fit(
-            lambda x, *p: np.log10(self._pdf_function_proj_1(x, mu_0, mu_1, sigma, *p)),
+            lambda x, *p: np.log10(self._pdf_function_proj_1(x, *p)),
             x,
             np.log10(counts),
             p0=guess,
@@ -277,7 +259,7 @@ class DecayLinearClassifier:
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted mean and covariance of state=1 may not be accurate")
-        self._params_1 = np.array([mu_0, mu_1, sigma, popt[0], popt[1]])
+        self._params_1 = deepcopy(popt)
 
         self.threshold = np.inf
 
