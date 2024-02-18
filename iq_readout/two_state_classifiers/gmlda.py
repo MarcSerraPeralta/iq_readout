@@ -6,7 +6,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 from ..classifiers import TwoStateLinearClassifier
-from ..utils import check_2d_input, rotate_data, get_angle
+from ..utils import check_2d_input, rotate_data, get_angle, FIT_KARGS
 
 
 def simple_1d_gaussian(
@@ -64,10 +64,12 @@ def simple_1d_gaussian_double_mixture(
     """
     a_0, a_1 = np.sin(angle) ** 2, np.cos(angle) ** 2
 
-    prob_0 = a_0 * simple_1d_gaussian(x, mu=mu_0, sigma=sigma)
-    prob_1 = a_1 * simple_1d_gaussian(x, mu=mu_1, sigma=sigma)
+    prob_0 = simple_1d_gaussian(x, mu=mu_0, sigma=sigma)
+    prob_1 = simple_1d_gaussian(x, mu=mu_1, sigma=sigma)
 
-    return prob_0 + prob_1
+    prob = a_0 * prob_0 + a_1 * prob_1
+
+    return prob
 
 
 def simple_2d_gaussian(
@@ -139,10 +141,12 @@ def simple_2d_gaussian_double_mixture(
     check_2d_input(z)
     a_0, a_1 = np.sin(angle) ** 2, np.cos(angle) ** 2
 
-    prob_0 = a_0 * simple_2d_gaussian(z, mu_x=mu_0_x, mu_y=mu_0_y, sigma=sigma)
-    prob_1 = a_1 * simple_2d_gaussian(z, mu_x=mu_1_x, mu_y=mu_1_y, sigma=sigma)
+    prob_0 = simple_2d_gaussian(z, mu_x=mu_0_x, mu_y=mu_0_y, sigma=sigma)
+    prob_1 = simple_2d_gaussian(z, mu_x=mu_1_x, mu_y=mu_1_y, sigma=sigma)
 
-    return prob_0 + prob_1
+    prob = a_0 * prob_0 + a_1 * prob_1
+
+    return prob
 
 
 class GaussMixLinearClassifier(TwoStateLinearClassifier):
@@ -240,8 +244,6 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
-        if not isinstance(n_bins, int):
-            raise ValueError(f"'n_bins' must be int, but {type(n_bins)} was given")
 
         # populate `params` during fitting
         params = {state: {} for state in range(2)}
@@ -291,11 +293,8 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
             counts,
             p0=guess,
             bounds=bounds,
-            loss="soft_l1",
-            ftol=1e-10,
-            xtol=1e-10,
-            gtol=1e-10,
-        )  # loss="soft_l1" leads to more stable fits
+            **FIT_KARGS,
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt_comb > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
@@ -303,8 +302,8 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         mu_0 = rotate_data([popt_comb[0], rot_shift], rot_angle)
         mu_1 = rotate_data([popt_comb[1], rot_shift], rot_angle)
         for s in range(2):
-            params[s]["mu_0_x"], params[s]["mu_0_y"] = mu_0[0], mu_0[1]
-            params[s]["mu_1_x"], params[s]["mu_1_y"] = mu_1[0], mu_1[1]
+            params[s]["mu_0_x"], params[s]["mu_0_y"] = mu_0
+            params[s]["mu_1_x"], params[s]["mu_1_y"] = mu_1
             params[s]["sigma"] = popt_comb[2]
 
         # get amplitudes of Gaussians for each state
@@ -321,16 +320,8 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         x = 0.5 * (x[1:] + x[:-1])
         x, counts = x[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            log_pdf,
-            x,
-            np.log10(counts),
-            p0=guess,
-            bounds=bounds,
-            loss="soft_l1",
-            ftol=1e-10,
-            xtol=1e-10,
-            gtol=1e-10,
-        )  # loss="soft_l1" leads to more stable fits
+            log_pdf, x, np.log10(counts), p0=guess, bounds=bounds, **FIT_KARGS
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=0 may not be accurate")
@@ -346,16 +337,8 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         x = 0.5 * (x[1:] + x[:-1])
         x, counts = x[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            log_pdf,
-            x,
-            np.log10(counts),
-            p0=guess,
-            bounds=bounds,
-            loss="soft_l1",
-            ftol=1e-10,
-            xtol=1e-10,
-            gtol=1e-10,
-        )  # loss="soft_l1" leads to more stable fits
+            log_pdf, x, np.log10(counts), p0=guess, bounds=bounds, **FIT_KARGS
+        )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=1 may not be accurate")

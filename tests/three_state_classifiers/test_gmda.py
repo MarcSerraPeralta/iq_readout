@@ -63,23 +63,16 @@ def test_GaussMixClassifier():
         shots_2,
     )
 
-    cla = GaussMixClassifier().fit(shots_0, shots_1, shots_2)
+    cla = GaussMixClassifier.fit(shots_0, shots_1, shots_2)
 
-    params = cla.params()
+    params = cla.params
 
-    for k in range(2):
-        k = 1
-        assert (
-            pytest.approx(params[k]["mu_0_x"], abs=2e-2) == 0
-        )  # relative comparison with 0 is not correct
-        assert (
-            pytest.approx(params[k]["mu_0_y"], abs=2e-2) == 0
-        )  # relative comparison with 0 is not correct
+    for k in range(3):
+        assert pytest.approx(params[k]["mu_0_x"], abs=2e-2) == 0
+        assert pytest.approx(params[k]["mu_0_y"], abs=2e-2) == 0
         assert pytest.approx(params[k]["mu_1_x"], rel=2e-2) == 1
         assert pytest.approx(params[k]["mu_1_y"], rel=2e-2) == 1
-        assert (
-            pytest.approx(params[k]["mu_2_x"], abs=2e-2) == 0
-        )  # relative comparison with 0 is not correct
+        assert pytest.approx(params[k]["mu_2_x"], abs=2e-2) == 0
         assert pytest.approx(params[k]["mu_2_y"], rel=2e-2) == 1
         assert pytest.approx(params[k]["sigma"], rel=2e-2) == np.sqrt(0.3)
 
@@ -92,21 +85,22 @@ def test_GaussMixClassifier():
     a1, a2 = params[2]["angle1"], params[2]["angle2"]
     assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p2[0], abs=6e-2)
     assert np.cos(a1) ** 2 == pytest.approx(1 - p2[1], abs=6e-2)
+
     return
 
 
 def test_load():
-    cla = GaussMixClassifier().load(PARAMS)
-    assert cla.params() == PARAMS
+    cla = GaussMixClassifier(PARAMS)
+    assert cla.params == PARAMS
 
     with pytest.raises(ValueError) as e_info:
-        cla = GaussMixClassifier().load({})
+        cla = GaussMixClassifier({})
 
     return
 
 
 def test_pdfs():
-    cla = GaussMixClassifier().load(PARAMS)
+    cla = GaussMixClassifier(PARAMS)
 
     dx = 0.01
     x0 = np.arange(-3, 3, dx)
@@ -123,7 +117,7 @@ def test_pdfs():
 
 
 def test_prediction():
-    cla = GaussMixClassifier().load(PARAMS)
+    cla = GaussMixClassifier(PARAMS)
     x = np.array([[0.1, 0.1]])
     assert cla.predict(x) == np.array([0])
     x = np.array([[1.1, 1.1]])
@@ -136,5 +130,5 @@ def test_prediction():
 def test_n_bins():
     shots_0, shots_1, shots_2 = np.zeros((10, 2)), np.zeros((10, 2)), np.zeros((10, 2))
     with pytest.raises(ValueError) as e_info:
-        cla = GaussMixClassifier().fit(shots_0, shots_1, shots_2, n_bins=2)
+        cla = GaussMixClassifier.fit(shots_0, shots_1, shots_2, n_bins=2)
     return

@@ -576,9 +576,9 @@ class ThreeStateClassifier:
         # because it is the same for all states and we are
         # only selecting the one with highest probability
         probs = [
-            self.pdf_0(x) * p_0,
-            self.pdf_1(x) * p_1,
-            self.pdf_2(x) * (1 - p_0 - p_1),
+            self.pdf_0(z) * p_0,
+            self.pdf_1(z) * p_1,
+            self.pdf_2(z) * (1 - p_0 - p_1),
         ]
         return np.argmax(probs, axis=0)
 

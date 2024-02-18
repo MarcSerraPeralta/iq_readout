@@ -6,50 +6,51 @@ from copy import deepcopy
 import numpy as np
 from scipy.optimize import curve_fit
 
-from ..utils import check_2d_input
+from ..classifiers import ThreeStateClassifier
+from ..utils import check_2d_input, histogram_2d, reshape_histogram_2d, FIT_KARGS
 
 
 def simple_2d_gaussian(
-    x: np.ndarray,
-    mu0: float,
-    mu1: float,
+    z: np.ndarray,
+    mu_x: float,
+    mu_y: float,
     sigma: float,
 ) -> np.ndarray:
     """
     Probability density function of a 2D Gaussian with
-    mean = (mu0, mu1) and covariance matrix = diag(sigma**2, sigma**2)
+    mean = (mu_x, mu_y) and covariance matrix = diag(sigma**2, sigma**2)
 
     Params
     ------
-    x
+    z: np.array(..., 2)
         Points in the 2D space
-    mu0
+    mu_x
         Mean of the first coordinate
-    mu1
+    mu_y
         Mean of the second coordinate
     sigma
         Standard deviation of the two coordinates
 
     Returns
     -------
-    z
+    probs: np.array(...)
         Values of the probability density function
     """
-    check_2d_input(x)
-    x0, x1 = x[..., 0], x[..., 1]
-    x0_, x1_ = (x0 - mu0) / sigma, (x1 - mu1) / sigma
-    z = 1 / (2 * np.pi * sigma**2) * np.exp(-0.5 * (x0_**2 + x1_**2))
-    return z
+    check_2d_input(z)
+    x, y = z[..., 0], z[..., 1]
+    x_norm, y_norm = (x - mu_x) / sigma, (y - mu_y) / sigma
+    prob = 1 / (2 * np.pi * sigma**2) * np.exp(-0.5 * (x_norm**2 + y_norm**2))
+    return prob
 
 
 def simple_2d_gaussian_triple_mixture(
-    x: np.ndarray,
-    mu0_1: float,
-    mu1_1: float,
-    mu0_2: float,
-    mu1_2: float,
-    mu0_3: float,
-    mu1_3: float,
+    z: np.ndarray,
+    mu_0_x: float,
+    mu_0_y: float,
+    mu_1_x: float,
+    mu_1_y: float,
+    mu_2_x: float,
+    mu_2_y: float,
     sigma: float,
     angle1: float,
     angle2: float,
@@ -60,11 +61,11 @@ def simple_2d_gaussian_triple_mixture(
 
     Parameters
     ----------
-    x
+    z: np.array(..., 2)
         Points in the 2D space
-    mu0_i
+    mu_i_x
         Mean of the first coordinate for the i^th Gaussian
-    mu1_i
+    mu_i_y
         Mean of the second coordinate for the i^th Gaussian
     sigma
         Standard deviation of the two coordinates for the i^th Gaussian
@@ -74,125 +75,101 @@ def simple_2d_gaussian_triple_mixture(
         and of the 3rd Gaussian is cos(angle2)**2
         to ensure that the PDF is normalized
     """
-    check_2d_input(x)
-    a1, a2, a3 = (
+    check_2d_input(z)
+    a_0, a_1, a_2 = (
         np.sin(angle1) ** 2 * np.cos(angle2) ** 2,
         np.sin(angle1) ** 2 * np.sin(angle2) ** 2,
         np.cos(angle1) ** 2,
     )
 
-    z = (
-        a1 * simple_2d_gaussian(x, mu0=mu0_1, mu1=mu1_1, sigma=sigma)
-        + a2 * simple_2d_gaussian(x, mu0=mu0_2, mu1=mu1_2, sigma=sigma)
-        + a3 * simple_2d_gaussian(x, mu0=mu0_3, mu1=mu1_3, sigma=sigma)
-    )
+    prob_0 = simple_2d_gaussian(z, mu_x=mu_0_x, mu_y=mu_0_y, sigma=sigma)
+    prob_1 = simple_2d_gaussian(z, mu_x=mu_1_x, mu_y=mu_1_y, sigma=sigma)
+    prob_2 = simple_2d_gaussian(z, mu_x=mu_2_x, mu_y=mu_2_y, sigma=sigma)
 
-    return z
+    prob = a_0 * prob_0 + a_1 * prob_1 + a_2 * prob_2
+
+    return prob
 
 
-def histogram_2d(
-    x: np.ndarray,
-    n_bins: Tuple[int, int] = [100, 100],
-    density: bool = True,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+class GaussMixClassifier(ThreeStateClassifier):
     """
-    Runs a 2d histogram and returns the
-    counts, x0, and x1 data flattened.
-
-    Parameters
-    ----------
-    x
-        Points in the 2D space
-    n_bins
-        List of two elements corresponding to the
-        number of bins for the first and second coordinate
-    density
-        If True, returns the probability density function values
-
-    Returns
-    -------
-    counts
-        Counts or PDF with shape=n_bins
-    xx0_centers
-        Centers of the bins for the first coordinate, with shape=n_bins
-    xx1_centers
-        Centers of the bins for the second coordinate, with shape=n_bins
-    """
-    check_2d_input(x, axis=1)
-    x0, x1 = x[:, 0], x[:, 1]
-    counts, x0_edges, x1_edges = np.histogram2d(x0, x1, bins=n_bins, density=density)
-    x0_centers = 0.5 * (x0_edges[:-1] + x0_edges[1:])
-    x1_centers = 0.5 * (x1_edges[:-1] + x1_edges[1:])
-    # using indexing="ij" so that xx0_centers and xx1_centers have
-    # the same shape as counts, which follows (nx0_bins, nx1_bins)
-    xx0_centers, xx1_centers = np.meshgrid(x0_centers, x1_centers, indexing="ij")
-    return counts, xx0_centers, xx1_centers
-
-
-class GaussMixClassifier:
-    """
-    Read `gmda.md`
+    Read `gmda.md` and `ThreeStateClassifier` documentation
     """
 
-    def __init__(self):
-        self._pdf_function = simple_2d_gaussian_triple_mixture
-        self._param_names = [
-            "mu_0_x",
-            "mu_0_y",
-            "mu_1_x",
-            "mu_1_y",
-            "mu_2_x",
-            "mu_2_y",
-            "sigma",
-            "angle1",
-            "angle2",
-        ]
-        self._params_0 = np.zeros(len(self._param_names))
-        self._params_1 = np.zeros(len(self._param_names))
-        self._params_2 = np.zeros(len(self._param_names))
+    _pdf_func_0 = simple_2d_gaussian_triple_mixture
+    _pdf_func_1 = simple_2d_gaussian_triple_mixture
+    _pdf_func_2 = simple_2d_gaussian_triple_mixture
+    # parameter name ordering must match the ordering in the pdf functions
+    names = [
+        "mu_0_x",
+        "mu_0_y",
+        "mu_1_x",
+        "mu_1_y",
+        "mu_2_x",
+        "mu_2_y",
+        "sigma",
+        "angle1",
+        "angle2",
+    ]
+    _param_names = {
+        0: names,
+        1: names,
+        2: names,
+    }
 
-        return
+    @property
+    def statistics(self) -> Dict[str, np.ndarray]:
+        """
+        Returns dictionary with general statistical data:
+        - mu_0: np.array([float, float])
+        - mu_1: np.array([float, float])
+        - mu_2: np.array([float, float])
+        - cov_0: np.array([[float, float], [float, float]])
+        - cov_1: np.array([[float, float], [float, float]])
+        - cov_2: np.array([[float, float], [float, float]])
+        It can also include other information.
 
+        NB: this property is used for plotting and for storing useful
+            information in the YAML file
+        """
+        return {}
+
+    @classmethod
     def fit(
-        self,
+        cls: GaussMixClassifier,
         shots_0: np.ndarray,
         shots_1: np.ndarray,
         shots_2: np.ndarray,
         n_bins: list = [100, 100],
-        **kargs,
-    ) -> ThreeStateClassifier2D:
+    ) -> GaussMixClassifier:
         """
         Fits the given data to extract the best parameters for classification.
 
         Parameters
         ----------
         shots_0: np.ndarray(N, 2)
-            N points corresponding to class 0
+            IQ data when preparing state 0
         shots_1: np.ndarray(M, 2)
-            M points corresponding to class 1
+            IQ data when preparing state 1
         shots_2: np.ndarray(P, 2)
-            P points corresponding to class 2
-        n_bins:
-            List of two elements corresponding to the
-            number of bins for the first and second coordinate
+            IQ data when preparing state 2
+        n_bins: (nx_bins, ny_bins)
+            Number of bins for the first and second coordinate
             used in the 2d histograms
-        kargs
-            Extra arguments for scipy.optimize.curve_fit
 
         Returns
         -------
-        `ThreeStateClassifier2D` containing the fitted parameters
+        `GaussMixClassifier` containing the fitted parameters
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
         check_2d_input(shots_2, axis=1)
 
-        # loss="soft_l1" leads to more stable fits
-        fit_kargs = {"loss": "soft_l1"}
-        fit_kargs.update(kargs)
+        # populate `params` during fitting
+        params = {state: {} for state in range(3)}
 
         all_shots = np.concatenate([shots_0, shots_1, shots_2])
-        counts, xx = self._flatten_hist(*histogram_2d(all_shots, n_bins=n_bins))
+        counts, zz = reshape_histogram_2d(*histogram_2d(all_shots, n_bins=n_bins))
 
         # in the first fit the shots_i are concatenated
         # to extract the means and covariance matrices,
@@ -225,16 +202,25 @@ class GaussMixClassifier:
             ),
         )
 
-        popt, pcov = curve_fit(
-            self._pdf_function, xx, counts, p0=guess, bounds=bounds, **fit_kargs
+        popt_comb, pcov = curve_fit(
+            cls._pdf_func_0,  # it is the same for all states
+            zz,
+            counts,
+            p0=guess,
+            bounds=bounds,
+            **FIT_KARGS,
         )
         perr = np.sqrt(np.diag(pcov))
-        if (perr / popt > 0.1).any():
+        if (perr / popt_comb > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
 
-        self._params_0 = deepcopy(popt)
-        self._params_1 = deepcopy(popt)
-        self._params_2 = deepcopy(popt)
+        mu_0, mu_1, mu_2 = popt_comb[:2], popt_comb[2:4], popt_comb[4:6]
+        sigma = popt_comb[6]
+        for s in range(3):
+            params[s]["mu_0_x"], params[s]["mu_0_y"] = mu_0
+            params[s]["mu_1_x"], params[s]["mu_1_y"] = mu_1
+            params[s]["mu_2_x"], params[s]["mu_2_y"] = mu_2
+            params[s]["sigma"] = sigma
 
         # get amplitudes of Gaussians for each state
         # Note: fitting in log scale improves the results, however there is the
@@ -242,224 +228,48 @@ class GaussMixClassifier:
         bounds = ((0, 0), (np.pi / 2, np.pi / 2))
 
         # PDF state 0
-        log_pdf = lambda x, angle1, angle2: np.log10(
-            self._pdf_function(x, *self._params_0[:-2], angle1, angle2)
+        log_pdf = lambda z, angle1, angle2: np.log10(
+            cls._pdf_func_0(z, *popt_comb[:-2], angle1, angle2)
         )
         guess = [0.1, np.pi / 2 - 0.25]  # avoid getting stuck in max bound
-        counts, xx = self._flatten_hist(*histogram_2d(shots_0, n_bins=n_bins))
-        xx, counts = xx[counts != 0], counts[counts != 0]
+        counts, zz = reshape_histogram_2d(*histogram_2d(shots_0, n_bins=n_bins))
+        zz, counts = zz[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            log_pdf, xx, np.log10(counts), p0=guess, bounds=bounds, **fit_kargs
+            log_pdf, zz, np.log10(counts), p0=guess, bounds=bounds, **FIT_KARGS
         )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_0[-2:] = popt
+        params[0]["angle1"], params[0]["angle2"] = popt
 
         # PDF state 1
-        log_pdf = lambda x, angle1, angle2: np.log10(
-            self._pdf_function(x, *self._params_1[:-2], angle1, angle2)
+        log_pdf = lambda z, angle1, angle2: np.log10(
+            cls._pdf_func_1(z, *popt_comb[:-2], angle1, angle2)
         )
         guess = [1.4706, np.pi / 2 - 0.25]  # avoid getting stuck in max bound
-        counts, xx = self._flatten_hist(*histogram_2d(shots_1, n_bins=n_bins))
-        xx, counts = xx[counts != 0], counts[counts != 0]
+        counts, zz = reshape_histogram_2d(*histogram_2d(shots_1, n_bins=n_bins))
+        zz, counts = zz[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            log_pdf, xx, np.log10(counts), p0=guess, bounds=bounds, **fit_kargs
+            log_pdf, zz, np.log10(counts), p0=guess, bounds=bounds, **FIT_KARGS
         )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_1[-2:] = popt
+        params[1]["angle1"], params[1]["angle2"] = popt
 
         # PDF state 2
-        log_pdf = lambda x, angle1, angle2: np.log10(
-            self._pdf_function(x, *self._params_2[:-2], angle1, angle2)
+        log_pdf = lambda z, angle1, angle2: np.log10(
+            cls._pdf_func_2(z, *popt_comb[:-2], angle1, angle2)
         )
         guess = [np.pi / 4, 0.2255]
-        counts, xx = self._flatten_hist(*histogram_2d(shots_2, n_bins=n_bins))
-        xx, counts = xx[counts != 0], counts[counts != 0]
+        counts, zz = reshape_histogram_2d(*histogram_2d(shots_2, n_bins=n_bins))
+        zz, counts = zz[counts != 0], counts[counts != 0]
         popt, pcov = curve_fit(
-            log_pdf, xx, np.log10(counts), p0=guess, bounds=bounds, **fit_kargs
+            log_pdf, zz, np.log10(counts), p0=guess, bounds=bounds, **FIT_KARGS
         )
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_2[-2:] = popt
+        params[2]["angle1"], params[2]["angle2"] = popt
 
-        return self
-
-    def params(self) -> dict:
-        """
-        Returns the fitted params. The output can be used to load
-        a new class using the '.load' function.
-
-        Returns
-        -------
-        Dictionary with the following structure:
-        {
-            0: {"mu0_1": float, "mu1_1": float, "mu0_2": float, "mu1_2": float,
-                "mu0_3": float, "mu1_3": float, "sigma": float, "angle1": float,
-                "angle2": float},
-            1: {"mu0_1": float, "mu1_1": float, "mu0_2": float, "mu1_2": float,
-                "mu0_3": float, "mu1_3": float, "sigma": float, "angle1": float,
-                "angle2": float},
-            2: {"mu0_1": float, "mu1_1": float, "mu0_2": float, "mu1_2": float,
-                "mu0_3": float, "mu1_3": float, "sigma": float, "angle1": float,
-                "angle2": float},
-        }
-        """
-        self._check_params()
-
-        params = {
-            0: {k: v for k, v in zip(self._param_names, self._params_0)},
-            1: {k: v for k, v in zip(self._param_names, self._params_1)},
-            2: {k: v for k, v in zip(self._param_names, self._params_2)},
-        }
-
-        return params
-
-    def load(self, params: dict) -> ThreeStateClassifier2D:
-        """
-        Load the parameters for the PDFs.
-
-        Returns
-        -------
-        `ThreeStateClassifier2D` class with the loaded params
-        """
-        if set(params) != set([0, 1, 2]):
-            raise ValueError("params must have keys: [0, 1, 2]")
-
-        self._params_0 = np.array([params[0][k] for k in self._param_names])
-        self._params_1 = np.array([params[1][k] for k in self._param_names])
-        self._params_2 = np.array([params[2][k] for k in self._param_names])
-
-        self._check_params()
-
-        return self
-
-    def pdf_0(self, x: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 0
-        for the given 2D values.
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        check_2d_input(x)
-        return self._pdf_function(x, *self._params_0)
-
-    def pdf_1(self, x: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 1
-        for the given 2D values.
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        check_2d_input(x)
-        return self._pdf_function(x, *self._params_1)
-
-    def pdf_2(self, x: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 2
-        for the given 2D values.
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        check_2d_input(x)
-        return self._pdf_function(x, *self._params_2)
-
-    def predict(self, x, p0: float = 1 / 3, p1: float = 1 / 3) -> np.ndarray:
-        """
-        Returns the classes (0, 1 or 2) for the specified 2D values.
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-        p0
-            Probability of the qubit's state being 0 just before the measurement
-        p1
-            Probability of the qubit's state being 1 just before the measurement
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        if (p0 + p1 > 1) or (p0 < 0) or (p1 < 0):
-            raise ValueError(
-                "The speficied 'p0' and 'p1' must be physical probabilities, "
-                f"but p0={p0} and p1={p1} (and p2={1-p0-p1}) were given"
-            )
-        probs = [self.pdf_0(x) * p0, self.pdf_1(x) * p1, self.pdf_2(x) * (1 - p0 - p1)]
-        return np.argmax(probs, axis=0)
-
-    def _flatten_hist(
-        self, counts: np.ndarray, xx0: np.ndarray, xx1: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Flattens the output of the `histogram_2d` to
-        a single input with shape=(Nx*Ny, 2) and
-        counts with shape=(Nx*Ny).
-
-        Parameters
-        ----------
-        counts: np.ndarray(nx_bins, ny_bins)
-        xx0: np.ndarray(nx_bins, ny_bins)
-        xx1: np.ndarray(nx_bins, ny_bins)
-
-        Returns
-        -------
-        counts: np.ndarray(nx_bins * ny_bin)
-        xx: np.ndarray(nx_bins * ny_bin, 2)
-        """
-        counts = counts.reshape(-1)
-        xx0, xx1 = xx0.reshape(-1, 1), xx1.reshape(-1, 1)
-        xx = np.concatenate([xx0, xx1], axis=1)
-        return counts, xx
-
-    def _check_params(self):
-        if (
-            (self._params_0 is None)
-            or (self._params_1 is None)
-            or (self._params_2 is None)
-        ):
-            raise ValueError(
-                "Model does not have the fitted params, "
-                "please run the fit ('.fit') or load the params ('.load')"
-            )
-
-        if len(self._params_0) != len(self._param_names):
-            raise ValueError(
-                f"0-state parameters must correspond to {self._param_names}, "
-                f"but {self._params_0} were given"
-            )
-        if len(self._params_1) != len(self._param_names):
-            raise ValueError(
-                f"1-state parameters must correspond to {self._param_names}, "
-                f"but {self._params_1} were given"
-            )
-        if len(self._params_2) != len(self._param_names):
-            raise ValueError(
-                f"2-state parameters must correspond to {self._param_names}, "
-                f"but {self._params_1} were given"
-            )
-        return
+        return cls(params)
