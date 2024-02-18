@@ -5,6 +5,7 @@ from copy import deepcopy
 import numpy as np
 from scipy.optimize import curve_fit
 
+from ..classifiers import TwoStateLinearClassifier
 from ..utils import check_2d_input, rotate_data, get_angle
 
 
@@ -19,7 +20,7 @@ def simple_1d_gaussian(
 
     Params
     ------
-    x
+    x: np.array(...)
         Points in the 1D space
     mu
         Mean of the first coordinate
@@ -28,17 +29,19 @@ def simple_1d_gaussian(
 
     Returns
     -------
-    z
+    prob: np.array(...)
         Values of the probability density function
     """
-    z = 1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-0.5 * (x - mu) ** 2 / sigma**2)
-    return z
+    prob = (
+        1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-0.5 * (x - mu) ** 2 / sigma**2)
+    )
+    return prob
 
 
 def simple_1d_gaussian_double_mixture(
     x: np.ndarray,
+    mu_0: float,
     mu_1: float,
-    mu_2: float,
     sigma: float,
     angle: float,
 ) -> np.ndarray:
@@ -48,7 +51,7 @@ def simple_1d_gaussian_double_mixture(
 
     Parameters
     ----------
-    x
+    x: np.array(...)
         Points in the 1D space
     mu_i
         Mean for the i^th Gaussian
@@ -59,19 +62,18 @@ def simple_1d_gaussian_double_mixture(
         of the 2nd Gaussian is cos(angle)**2 to ensure that
         the PDF is normalized
     """
-    a1, a2 = np.sin(angle) ** 2, np.cos(angle) ** 2
+    a_0, a_1 = np.sin(angle) ** 2, np.cos(angle) ** 2
 
-    z = a1 * simple_1d_gaussian(x, mu=mu_1, sigma=sigma) + a2 * simple_1d_gaussian(
-        x, mu=mu_2, sigma=sigma
-    )
+    prob_0 = a_0 * simple_1d_gaussian(x, mu=mu_0, sigma=sigma)
+    prob_1 = a_1 * simple_1d_gaussian(x, mu=mu_1, sigma=sigma)
 
-    return z
+    return prob_0 + prob_1
 
 
 def simple_2d_gaussian(
-    x: np.ndarray,
-    mu0: float,
-    mu1: float,
+    z: np.ndarray,
+    mu_x: float,
+    mu_y: float,
     sigma: float,
 ) -> np.ndarray:
     """
@@ -80,33 +82,33 @@ def simple_2d_gaussian(
 
     Params
     ------
-    x
+    z: np.array(..., 2)
         Points in the 2D space
-    mu0
+    mu_x
         Mean of the first coordinate
-    mu1
+    mu_y
         Mean of the second coordinate
     sigma
         Standard deviation of the two coordinates
 
     Returns
     -------
-    z
+    prob: np.array(...)
         Values of the probability density function
     """
-    check_2d_input(x)
-    x0, x1 = x[..., 0], x[..., 1]
-    x0_, x1_ = (x0 - mu0) / sigma, (x1 - mu1) / sigma
-    z = 1 / (2 * np.pi * sigma**2) * np.exp(-0.5 * (x0_**2 + x1_**2))
-    return z
+    check_2d_input(z)
+    x, y = z[..., 0], z[..., 1]
+    x_norm, y_norm = (x - mu_x) / sigma, (y - mu_y) / sigma
+    prob = 1 / (2 * np.pi * sigma**2) * np.exp(-0.5 * (x_norm**2 + y_norm**2))
+    return prob
 
 
 def simple_2d_gaussian_double_mixture(
-    x: np.ndarray,
-    mu0_1: float,
-    mu1_1: float,
-    mu0_2: float,
-    mu1_2: float,
+    z: np.ndarray,
+    mu_0_x: float,
+    mu_0_y: float,
+    mu_1_x: float,
+    mu_1_y: float,
     sigma: float,
     angle: float,
 ) -> np.ndarray:
@@ -116,90 +118,148 @@ def simple_2d_gaussian_double_mixture(
 
     Parameters
     ----------
-    x
+    z: np.array(..., 2)
         Points in the 2D space
-    mu0_i
+    mu_i_x
         Mean of the first coordinate for the i^th Gaussian
-    mu1_i
+    mu_i_y
         Mean of the second coordinate for the i^th Gaussian
-    sigma_i
-        Standard deviation of the two coordinates for the i^th Gaussian
+    sigma
+        Standard deviation of the two coordinates for both Gaussians
     angle
         Weight of the 1st Gaussian is sin(angle)**2 and
         of the 2nd Gaussian is cos(angle)**2 to ensure that
         the PDF is normalized
+
+    Returns
+    -------
+    prob: np.array(...)
+        Values of the probability density function
     """
-    check_2d_input(x)
-    a1, a2 = np.sin(angle) ** 2, np.cos(angle) ** 2
+    check_2d_input(z)
+    a_0, a_1 = np.sin(angle) ** 2, np.cos(angle) ** 2
 
-    z = a1 * simple_2d_gaussian(
-        x, mu0=mu0_1, mu1=mu1_1, sigma=sigma
-    ) + a2 * simple_2d_gaussian(x, mu0=mu0_2, mu1=mu1_2, sigma=sigma)
+    prob_0 = a_0 * simple_2d_gaussian(z, mu_x=mu_0_x, mu_y=mu_0_y, sigma=sigma)
+    prob_1 = a_1 * simple_2d_gaussian(z, mu_x=mu_1_x, mu_y=mu_1_y, sigma=sigma)
 
-    return z
+    return prob_0 + prob_1
 
 
-class GaussMixLinearClassifier:
+class GaussMixLinearClassifier(TwoStateLinearClassifier):
     """
-    Read `gmlda.md`
+    Read `gmlda.md` and `TwoStateLinearClassifier` documentation
     """
 
-    def __init__(self):
-        self._pdf_function_proj = simple_1d_gaussian_double_mixture
-        self._pdf_function = simple_2d_gaussian_double_mixture
-        self._param_names = [
-            "mu_0",
-            "mu_1",
-            "sigma",
-            "angle",  # this is not the rotation angle!
-        ]
-        self._params_0 = None
-        self._params_1 = None
-        self.rot_angle = None  # this is the rotation angle
-        self.threshold = None
-        self.rot_shift = None
+    _pdf_func_0 = simple_2d_gaussian_double_mixture
+    _pdf_func_1 = simple_2d_gaussian_double_mixture
+    # parameter name ordering must match the ordering in the pdf functions
+    _param_names = {
+        0: ["mu_0_x", "mu_0_y", "mu_1_x", "mu_1_y", "sigma", "angle"],
+        1: ["mu_0_x", "mu_0_y", "mu_1_x", "mu_1_y", "sigma", "angle"],
+    }
+    _pdf_func_0_proj = simple_1d_gaussian_double_mixture
+    _pdf_func_1_proj = simple_1d_gaussian_double_mixture
+    # parameter name ordering must match the ordering in the pdf functions
+    _param_names_proj = {
+        0: ["mu_0", "mu_1", "sigma", "angle"],
+        1: ["mu_0", "mu_1", "sigma", "angle"],
+    }
 
-        return
+    @property
+    def params_proj(self) -> Dict[int, Dict[str, float]]:
+        """
+        Returns the parameters for the projected pdfs, computed
+        from `params`.
+        The structure of the output dictionary is:
+        {
+            0: {"param1": float, ...},
+            1: {"param1": float, ...}
+        }
+        """
+        params_proj = {state: {} for state in range(2)}
 
+        for state in range(2):
+            params_proj[state]["sigma"] = self.params[state]["sigma"]
+            params_proj[state]["angle"] = self.params[state]["angle"]
+
+            mu_0, mu_1 = self.statistics["mu_0"], self.statistics["mu_1"]
+            rot_angle = get_angle(mu_1 - mu_0)
+            params_proj[state]["mu_0"] = rotate_data(mu_0, -rot_angle)[..., 0]
+            params_proj[state]["mu_1"] = rotate_data(mu_1, -rot_angle)[..., 0]
+
+        return params_proj
+
+    @property
+    def statistics(self) -> Dict[str, np.ndarray]:
+        """
+        Returns dictionary with general statistical data:
+        - mu_0: np.array([float, float])
+        - mu_1: np.array([float, float])
+        - cov_0: np.array([[float, float], [float, float]])
+        - cov_1: np.array([[float, float], [float, float]])
+        It can also include other information such as rot_angle, rot_shift, ...
+
+        NB: this property is used for plotting and for storing useful
+            information in the YAML file
+        """
+        statistics = {}
+
+        statistics["mu_0"] = np.array(
+            [self.params[0]["mu_0_x"], self.params[0]["mu_0_y"]]
+        )
+        statistics["mu_1"] = np.array(
+            [self.params[1]["mu_1_x"], self.params[1]["mu_1_y"]]
+        )
+        statistics["cov_0"] = self.params[0]["sigma"] * np.eye(2)
+        statistics["cov_1"] = self.params[1]["sigma"] * np.eye(2)
+
+        return statistics
+
+    @classmethod
     def fit(
-        self,
+        cls: GaussMixLinearClassifier,
         shots_0: np.ndarray,
         shots_1: np.ndarray,
         n_bins: int = 100,
-    ) -> TwoStateLinearClassifierFit:
+    ) -> GaussMixLinearClassifier:
         """
         Fits the given data to extract the best parameters for classification.
 
         Parameters
         ----------
-        shots_0: np.ndarray(N, 2)
-            N points corresponding to class 0
-        shots_1: np.ndarray(M, 2)
-            M points corresponding to class 1
+        shots_0: np.array(N, 2)
+            IQ data when preparing state 0
+        shots_1: np.array(N, 2)
+            IQ data when preparing state 1
         n_bins:
             Number of bins for the 1d histograms
 
         Returns
         -------
-        `TwoStateLinearClassifierFit` containing the fitted parameters
+        `GaussMixLinearClassifier` containing the fitted parameters
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
         if not isinstance(n_bins, int):
-            raise ValueError(f"n_bins must be int, but {type(n_bins)} given")
+            raise ValueError(f"'n_bins' must be int, but {type(n_bins)} was given")
+
+        # populate `params` during fitting
+        params = {state: {} for state in range(2)}
 
         # the mixture of 2 Gaussians does not affect the direction
         # of \vec{mu0} - \vec{mu1}
         # Using \vec{mu1} - \vec{mu0} to have the projected 0 blob
         # on the left of the 1 blob
         mu_0, mu_1 = np.average(shots_0, axis=0), np.average(shots_1, axis=0)
-        self.rot_angle = get_angle(mu_1 - mu_0)
-        self.rot_shift = rotate_data([mu_0], -self.rot_angle)[0, 1]
+        rot_angle = get_angle(mu_1 - mu_0)
+        rot_shift = rotate_data(mu_0, -rot_angle)[1]
 
         # rotate and project data
-        shots_0_1d, shots_1_1d = self.project(shots_0), self.project(shots_1)
+        shots_0_1d = rotate_data(shots_0, -rot_angle)[..., 0]
+        shots_1_1d = rotate_data(shots_1, -rot_angle)[..., 0]
 
-        # get means and standard deviations
+        # get means and standard deviations because they are shared
+        # between the distributions
         all_shots = np.concatenate([shots_0_1d, shots_1_1d])
         counts, x = np.histogram(all_shots, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
@@ -208,7 +268,7 @@ class GaussMixLinearClassifier:
             (
                 np.min(shots_0_1d),
                 np.min(shots_1_1d),
-                1e-10,
+                1e-10,  # avoid numerical instabilities of 1/sigma
                 0,
             ),
             (
@@ -225,14 +285,27 @@ class GaussMixLinearClassifier:
             np.pi / 4,
         )
 
-        popt, pcov = curve_fit(
-            self._pdf_function_proj, x, counts, p0=guess, bounds=bounds, loss="soft_l1"
+        popt_comb, pcov = curve_fit(
+            cls._pdf_func_0_proj,  # same as for state 1
+            x,
+            counts,
+            p0=guess,
+            bounds=bounds,
+            loss="soft_l1",
+            ftol=1e-10,
+            xtol=1e-10,
+            gtol=1e-10,
         )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
-        if (perr / popt > 0.1).any():
+        if (perr / popt_comb > 0.1).any():
             warnings.warn("Fitted means and covariances may not be accurate")
-        self._params_0, self._params_1 = deepcopy(popt), deepcopy(popt)
-        self.threshold = 0.5 * (popt[0] + popt[1])
+
+        mu_0 = rotate_data([popt_comb[0], rot_shift], rot_angle)
+        mu_1 = rotate_data([popt_comb[1], rot_shift], rot_angle)
+        for s in range(2):
+            params[s]["mu_0_x"], params[s]["mu_0_y"] = mu_0[0], mu_0[1]
+            params[s]["mu_1_x"], params[s]["mu_1_y"] = mu_1[0], mu_1[1]
+            params[s]["sigma"] = popt_comb[2]
 
         # get amplitudes of Gaussians for each state
         # Note: fitting in log scale improves the results, however there is the
@@ -240,8 +313,9 @@ class GaussMixLinearClassifier:
 
         # PDF state 0
         log_pdf = lambda x, angle: np.log10(
-            self._pdf_function_proj(x, *self._params_0[:-1], angle)
+            cls._pdf_func_0_proj(x, *popt_comb[:-1], angle)
         )
+        bounds = (0, np.pi / 2)
         guess = [np.pi / 2 - 0.25]  # avoid getting stuck in max bound
         counts, x = np.histogram(shots_0_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
@@ -251,18 +325,22 @@ class GaussMixLinearClassifier:
             x,
             np.log10(counts),
             p0=guess,
-            bounds=(0, np.pi / 2),
+            bounds=bounds,
             loss="soft_l1",
+            ftol=1e-10,
+            xtol=1e-10,
+            gtol=1e-10,
         )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=0 may not be accurate")
-        self._params_0[-1] = popt
+        params[0]["angle"] = float(popt)
 
         # PDF state 1
         log_pdf = lambda x, angle: np.log10(
-            self._pdf_function_proj(x, *self._params_1[:-1], angle)
+            cls._pdf_func_1_proj(x, *popt_comb[:-1], angle)
         )
+        bounds = (0, np.pi / 2)
         guess = [0.2255]
         counts, x = np.histogram(shots_1_1d, bins=n_bins, density=True)
         x = 0.5 * (x[1:] + x[:-1])
@@ -272,229 +350,15 @@ class GaussMixLinearClassifier:
             x,
             np.log10(counts),
             p0=guess,
-            bounds=(0, np.pi / 2),
+            bounds=bounds,
             loss="soft_l1",
+            ftol=1e-10,
+            xtol=1e-10,
+            gtol=1e-10,
         )  # loss="soft_l1" leads to more stable fits
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=1 may not be accurate")
-        self._params_1[-1] = popt
+        params[1]["angle"] = float(popt)
 
-        return self
-
-    def params(self) -> dict:
-        """
-        Returns the fitted params. The output can be used to load
-        a new class using the '.load' function.
-
-        Returns
-        -------
-        Dictionary with the following structure:
-        {
-            0: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
-            1: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
-            "rot_angle": float,
-            "threshold": float,
-            "rot_shift": float,
-        }
-        """
-        self._check_params()
-
-        params = {
-            0: {k: v for k, v in zip(self._param_names, self._params_0)},
-            1: {k: v for k, v in zip(self._param_names, self._params_1)},
-            "rot_angle": self.rot_angle,
-            "threshold": self.threshold,
-            "rot_shift": self.rot_shift,
-        }
-
-        return params
-
-    def load(self, params: dict) -> TwoStateLinearClassifierFit:
-        """
-        Load the parameters for the PDFs.
-
-        Parameters
-        ----------
-        params
-            Dictionary with the following structure:
-            {
-                0: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
-                1: {"mu_0": float, "mu_1": float, "sigma": float, "angle": float},
-                "rot_angle": float,
-                "threshold": float,
-                "rot_shift": float,
-            }
-
-        Returns
-        -------
-        TwoStateLinearClassifierFit
-        """
-        if set(params) != set([0, 1, "rot_angle", "threshold", "rot_shift"]):
-            raise ValueError(
-                "params must have keys: [0, 1, 'rot_angle', 'threshold', 'rot_shift']"
-            )
-
-        self._params_0 = np.array([params[0][k] for k in self._param_names])
-        self._params_1 = np.array([params[1][k] for k in self._param_names])
-        self.rot_angle = params["rot_angle"]
-        self.threshold = params["threshold"]
-        self.rot_shift = params["rot_shift"]
-
-        self._check_params()
-
-        return self
-
-    def project(self, x: np.ndarray) -> np.ndarray:
-        """
-        Project the data in the 01 axis.
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        check_2d_input(x)
-        if self.rot_angle is None:
-            self._check_params()
-        return rotate_data(x, -self.rot_angle)[..., 0]
-
-    def pdf_0_projected(self, z: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 0
-        for the given projected values.
-        Note that p(x1,x2|0) != p(x_projected|0).
-
-        Parameters
-        ----------
-        z: np.ndarray(...)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        return self._pdf_function_proj(z, *self._params_0)
-
-    def pdf_1_projected(self, z: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 1
-        for the given projected values.
-        Note that p(x1,x2|1) != p(x_projected|1).
-
-        Parameters
-        ----------
-        z: np.ndarray(...)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        return self._pdf_function_proj(z, *self._params_1)
-
-    def pdf_0(self, x: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 0
-        for the given 2D values.
-        Note that p(x1,x2|0) != p(x_projected|0).
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        check_2d_input(x)
-        mu_0 = rotate_data([[self._params_0[0], self.rot_shift]], self.rot_angle)[0]
-        mu_1 = rotate_data([[self._params_0[1], self.rot_shift]], self.rot_angle)[0]
-        params = [*mu_0, *mu_1, *self._params_0[-2:]]
-        return self._pdf_function(x, *params)
-
-    def pdf_1(self, x: np.ndarray) -> np.ndarray:
-        """
-        Returns the probability density function of state 1
-        for the given 2D values.
-        Note that p(x1,x2|1) != p(x_projected|1).
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        self._check_params()
-        check_2d_input(x)
-        mu_0 = rotate_data([[self._params_1[0], self.rot_shift]], self.rot_angle)[0]
-        mu_1 = rotate_data([[self._params_1[1], self.rot_shift]], self.rot_angle)[0]
-        params = [*mu_0, *mu_1, *self._params_1[-2:]]
-        return self._pdf_function(x, *params)
-
-    def predict(self, x: np.ndarray, p0: float = 1 / 2) -> np.ndarray:
-        """
-        Returns the classes (0 or 1) for the specified 2D values.
-
-        Parameters
-        ----------
-        x: np.ndarray(..., 2)
-        p0
-            Probability of the qubit's state being 0 just before the measurement
-
-        Returns
-        -------
-        np.ndarray(...)
-        """
-        if (p0 > 1) or (p0 < 0):
-            raise ValueError(
-                "The speficied 'p0' must be a physical probability, "
-                f"but p0={p0} (and p2={1-p0}) were given"
-            )
-        probs = [self.pdf_0(x) * p0, self.pdf_1(x) * (1 - p0)]
-        return np.argmax(probs, axis=0)
-
-    def _check_params(self):
-        if (
-            (self._params_0 is None)
-            or (self._params_1 is None)
-            or (self.rot_angle is None)
-            or (self.threshold is None)
-            or (self.rot_shift is None)
-        ):
-            raise ValueError(
-                "Model does not have the fitted params, "
-                "please run the fit ('.fit') or load the params ('.load')"
-            )
-
-        if len(self._params_0) != len(self._param_names):
-            raise ValueError(
-                f"0-state parameters must correspond to {self._param_names}, "
-                f"but {self._params_0} were given"
-            )
-        if len(self._params_1) != len(self._param_names):
-            raise ValueError(
-                f"1-state parameters must correspond to {self._param_names}, "
-                f"but {self._params_1} were given"
-            )
-        if not isinstance(self.rot_angle, float):
-            raise ValueError(
-                "rotation angle must be a float, "
-                f"but {type(self.rot_angle)} was given"
-            )
-        if not isinstance(self.threshold, float):
-            raise ValueError(
-                "threshold must be a float, " f"but {type(self.threshold)} was given"
-            )
-        if not isinstance(self.rot_shift, float):
-            raise ValueError(
-                "rotated height of the means must be a float, "
-                f"but {type(self.rot_shift)} was given"
-            )
-        return
+        return cls(params)

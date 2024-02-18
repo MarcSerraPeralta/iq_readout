@@ -19,6 +19,7 @@ dependencies = [
     "numpy",
     "scipy",
     "matplotlib",
+    "pyyaml",
 ]
 keywords = ["IQ", "readout", "qubit", "classifiers", "lda"]
 

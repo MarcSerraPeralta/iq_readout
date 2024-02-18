@@ -16,7 +16,7 @@ class TwoStateClassifier:
     Template for creating two-state classifiers.
 
     The functions to be rewritten for each specific classifier are:
-    * __init__
+    * <class attributes>
         specify the pdf functions and parameter names
     * statistics
         compute the statistics
@@ -26,6 +26,14 @@ class TwoStateClassifier:
     NB: if the classifier does not use max-likelihood classification,
         then `predict` needs to the overwritten.
     """
+
+    _pdf_func_0 = None
+    _pdf_func_1 = None
+    # parameter name ordering must match the ordering in the pdf functions
+    _param_names = {
+        0: [],
+        1: [],
+    }
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """
@@ -40,16 +48,6 @@ class TwoStateClassifier:
                 1: {"param1": float, ...}
             }
         """
-        self._pdf_func_0 = None
-        self._pdf_func_1 = None
-        # parameter name ordering must match the ordering in the pdf functions
-        self._param_names = {
-            0: [],
-            1: [],
-        }
-
-        # run check params after the parameter names have been defined
-        # as the check uses this data
         self._check_params(params)
 
         # param values are stored in a vector to run `curve_fit` easily
@@ -119,9 +117,20 @@ class TwoStateClassifier:
         return {}
 
     @classmethod
-    def fit(cls: Type[T2], shots_0: np.ndarray, shots_1: np.ndarray) -> T2:
+    def fit(cls: Type[T2], shots_0: np.ndarray, shots_1: np.ndarray, **kargs) -> T2:
         """
         Runs fit to the given data
+
+        Parameters
+        ----------
+        shots_0: np.array(N, 2)
+            IQ data when preparing state 0
+        shots_1: np.array(N, 2)
+            IQ data when preparing state 1
+
+        Returns
+        -------
+        Loaded `TwoStateClassifier`
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
@@ -177,7 +186,9 @@ class TwoStateClassifier:
             Probability of the given IQ points
         """
         check_2d_input(z)
-        return self._pdf_func_0(z, *self._param_values[0])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_0(z, *self._param_values[0])
 
     def pdf_1(self, z: np.ndarray) -> np.ndarray:
         """
@@ -194,7 +205,9 @@ class TwoStateClassifier:
             Probability of the given IQ points
         """
         check_2d_input(z)
-        return self._pdf_func_1(z, *self._param_values[1])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_1(z, *self._param_values[1])
 
     def _check_params(self, params: Dict[int, Dict[str, float]]):
         if not isinstance(params, dict):
@@ -216,7 +229,7 @@ class TwoStateClassifier:
                 )
 
             for key, value in p.items():
-                if (not isinstance(value, float)) or (not isinstance(value, int)):
+                if (not isinstance(value, float)) and (not isinstance(value, int)):
                     raise TypeError(
                         f"'params[{state}][{key}]' must be a float, "
                         f"but {type(value)} was given"
@@ -230,7 +243,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
     Template for creating two-state linear classifiers.
 
     The functions to be rewritten for each specific classifier are:
-    * __init__
+    * <class attributes>
         specify the pdf functions and parameter names
     * statistics
         compute the statistics
@@ -242,6 +255,21 @@ class TwoStateLinearClassifier(TwoStateClassifier):
     NB: if the classifier does not use max-likelihood classification,
         then `predict` needs to the overwritten.
     """
+
+    _pdf_func_0 = None
+    _pdf_func_1 = None
+    # parameter name ordering must match the ordering in the pdf functions
+    _param_names = {
+        0: [],
+        1: [],
+    }
+    _pdf_func_0_proj = None
+    _pdf_func_1_proj = None
+    # parameter name ordering must match the ordering in the pdf functions
+    _param_names_proj = {
+        0: [],
+        1: [],
+    }
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """
@@ -256,16 +284,6 @@ class TwoStateLinearClassifier(TwoStateClassifier):
                 1: {"param1": float, ...}
             }
         """
-        self._pdf_func_0 = None
-        self._pdf_func_1 = None
-        # parameter name ordering must match the ordering in the pdf functions
-        self._param_names = {
-            0: [],
-            1: [],
-        }
-
-        # run check params after the parameter names have been defined
-        # as the check uses this data
         self._check_params(params)
 
         # param values are stored in a vector to run `curve_fit` easily
@@ -275,13 +293,6 @@ class TwoStateLinearClassifier(TwoStateClassifier):
             for state in range(2)
         }
 
-        self._pdf_func_0_proj = None
-        self._pdf_func_1_proj = None
-        # parameter name ordering must match the ordering in the pdf functions
-        self._param_names_proj = {
-            0: [],
-            1: [],
-        }
         # compute parameters for the projected pdfs from `params`
         # this step needs to be done after loading the standard `params`
         self._param_values_proj = {
@@ -360,8 +371,9 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         prob: np.array(...)
             Probability of the given projected points
         """
-        check_2d_input(z_proj)
-        return self._pdf_func_0_proj(z_proj, *self._param_values_proj[0])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_0_proj(z_proj, *self._param_values_proj[0])
 
     def pdf_1_projected(self, z_proj: np.ndarray) -> np.ndarray:
         """
@@ -380,8 +392,9 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         prob: np.array(...)
             Probability of the given projected points
         """
-        check_2d_input(z_proj)
-        return self._pdf_func_1_proj(z_proj, *self._param_values_proj[1])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_1_proj(z_proj, *self._param_values_proj[1])
 
 
 class ThreeStateClassifier:
@@ -389,7 +402,7 @@ class ThreeStateClassifier:
     Template for creating three-state classifiers.
 
     The functions to be rewritten for each specific classifier are:
-    * __init__
+    * <class attributes>
         specify the pdf functions and parameter names
     * statistics
         compute the statistics
@@ -399,6 +412,16 @@ class ThreeStateClassifier:
     NB: if the classifier does not use max-likelihood classification,
         then `predict` needs to the overwritten.
     """
+
+    _pdf_func_0 = None
+    _pdf_func_1 = None
+    _pdf_func_2 = None
+    # parameter name ordering must match the ordering in the pdf functions
+    _param_names = {
+        0: [],
+        1: [],
+        2: [],
+    }
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """
@@ -414,18 +437,6 @@ class ThreeStateClassifier:
                 2: {"param1": float, ...},
             }
         """
-        self._pdf_func_0 = None
-        self._pdf_func_1 = None
-        self._pdf_func_2 = None
-        # parameter name ordering must match the ordering in the pdf functions
-        self._param_names = {
-            0: [],
-            1: [],
-            2: [],
-        }
-
-        # run check params after the parameter names have been defined
-        # as the check uses this data
         self._check_params(params)
 
         # param values are stored in a vector to run `curve_fit` easily
@@ -499,10 +510,27 @@ class ThreeStateClassifier:
 
     @classmethod
     def fit(
-        cls: Type[T3], shots_0: np.ndarray, shots_1: np.ndarray, shots_2: np.ndarray
+        cls: Type[T3],
+        shots_0: np.ndarray,
+        shots_1: np.ndarray,
+        shots_2: np.ndarray,
+        **kargs,
     ) -> T3:
         """
         Runs fit to the given data
+
+        Parameters
+        ----------
+        shots_0: np.array(N, 2)
+            IQ data when preparing state 0
+        shots_1: np.array(N, 2)
+            IQ data when preparing state 1
+        shots_2: np.array(N, 2)
+            IQ data when preparing state 2
+
+        Returns
+        -------
+        Loaded `ThreeStateClassifier`
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
@@ -569,7 +597,9 @@ class ThreeStateClassifier:
             Probability of the given IQ points
         """
         check_2d_input(z)
-        return self._pdf_func_0(z, *self._param_values[0])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_0(z, *self._param_values[0])
 
     def pdf_1(self, z: np.ndarray) -> np.ndarray:
         """
@@ -586,9 +616,11 @@ class ThreeStateClassifier:
             Probability of the given IQ points
         """
         check_2d_input(z)
-        return self._pdf_func_1(z, *self._param_values[1])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_1(z, *self._param_values[1])
 
-    def pdf_1(self, z: np.ndarray) -> np.ndarray:
+    def pdf_2(self, z: np.ndarray) -> np.ndarray:
         """
         Returns p(z|2)
 
@@ -603,7 +635,9 @@ class ThreeStateClassifier:
             Probability of the given IQ points
         """
         check_2d_input(z)
-        return self._pdf_func_2(z, *self._param_values[2])
+        # the pdf functions are class variables (as opposed to instance variables)
+        # thus they are available in the class of `self`, not the instance of `self`
+        return self.__class__._pdf_func_2(z, *self._param_values[2])
 
     def _check_params(self, params: Dict[int, Dict[str, float]]):
         if not isinstance(params, dict):
@@ -625,7 +659,7 @@ class ThreeStateClassifier:
                 )
 
             for key, value in p.items():
-                if (not isinstance(value, float)) or (not isinstance(value, int)):
+                if (not isinstance(value, float)) and (not isinstance(value, int)):
                     raise TypeError(
                         f"'params[{state}][{key}]' must be a float, "
                         f"but {type(value)} was given"
