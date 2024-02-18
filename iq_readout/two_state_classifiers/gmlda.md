@@ -56,7 +56,7 @@ The algorithm uses the following tricks
 1. work with projected data (to have more samples in each bin of the histogram)
 1. combine $\vec{z}_c$ from both classes to extract the means and standard deviation (to have more samples in each bin of the histogram). *Note: the parameters* $\theta_c$ *are extracted from each* $\vec{z}_c$ 
 
-The algorithm can give $p(z_{\parallel}|i)$ with $z_{\parallel}$ the projection of $\vec{z}$ or $p(\vec{z}|i)$. Note that the two pdfs are related, i.e. $p(z_{\parallel}|0) / p(z_{\parallel}|1) = p(\vec{z}|0) / p(\vec{z}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{z} = z_{\parallel} \hat{e}_{\parallel} + z_{\perp} \hat{e}_{\perp}$, which gives
+The algorithm can give $p(z_{\parallel}|i)$ with $z_{\parallel}$ the projection of $\vec{z}$ or $p(\vec{z}|i)$. Note that the two pdfs are related, i.e. $p(z_{\parallel}|0) / p(z_{\parallel}|1) = p(\vec{z}|0) / p(\vec{z}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{z} = z_{\parallel} \hat{e}\_{\parallel} +z_{\perp}\hat{e}_{\perp}$, which gives
 ```math 
 \frac{p(\vec{z}|0)}{p(\vec{z}|1)} = \exp \left( -\frac{1}{2\sigma^2}((z_{\parallel} - \vec{\mu}_{0,\parallel})^2 - (z_{\parallel} - \vec{\mu}_{1,\parallel})^2) \right)
 ```
