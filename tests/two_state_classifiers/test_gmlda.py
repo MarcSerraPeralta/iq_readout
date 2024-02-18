@@ -11,7 +11,7 @@ PARAMS = {
         "mu_0_y": 0,
         "mu_1_x": 1,
         "mu_1_y": 1,
-        "sigma": 0.01,
+        "sigma": 0.1,
         "angle": 1.4,
     },
     1: {
@@ -19,7 +19,7 @@ PARAMS = {
         "mu_0_y": 0,
         "mu_1_x": 1,
         "mu_1_y": 1,
-        "sigma": 0.01,
+        "sigma": 0.1,
         "angle": 0.2,
     },
 }
@@ -82,7 +82,8 @@ def test_load():
 
 
 def test_pdfs():
-    PARAMS = {
+    # needs rot angle to be 0
+    params = {
         0: {
             "mu_0_x": 0,
             "mu_0_y": 0,
@@ -100,7 +101,7 @@ def test_pdfs():
             "angle": 0,
         },
     }
-    cla = GaussMixLinearClassifier(PARAMS)
+    cla = GaussMixLinearClassifier(params)
 
     dx = 0.01
     x = np.arange(-3, 3, dx)
@@ -117,8 +118,6 @@ def test_pdfs():
     assert pytest.approx(np.sum(pdf_0_proj) * dx, rel=1e-3) == 1
     assert pytest.approx(np.sum(pdf_1_proj) * dx, rel=1e-3) == 1
 
-    print(cla.params)
-    print(cla.params_proj)
     assert pytest.approx(pdf_0.sum(axis=1) * dx, abs=1e-3) == pdf_0_proj
     assert pytest.approx(pdf_1.sum(axis=1) * dx, abs=1e-3) == pdf_1_proj
 

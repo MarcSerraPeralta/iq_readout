@@ -125,7 +125,7 @@ class TwoStateClassifier:
         ----------
         shots_0: np.array(N, 2)
             IQ data when preparing state 0
-        shots_1: np.array(N, 2)
+        shots_1: np.array(M, 2)
             IQ data when preparing state 1
 
         Returns
@@ -523,9 +523,9 @@ class ThreeStateClassifier:
         ----------
         shots_0: np.array(N, 2)
             IQ data when preparing state 0
-        shots_1: np.array(N, 2)
+        shots_1: np.array(M, 2)
             IQ data when preparing state 1
-        shots_2: np.array(N, 2)
+        shots_2: np.array(P, 2)
             IQ data when preparing state 2
 
         Returns

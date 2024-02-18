@@ -7,146 +7,7 @@ from scipy.optimize import curve_fit
 
 from ..classifiers import TwoStateLinearClassifier
 from ..utils import check_2d_input, rotate_data, get_angle, FIT_KARGS
-
-
-def simple_1d_gaussian(
-    x: np.ndarray,
-    mu: float,
-    sigma: float,
-) -> np.ndarray:
-    """
-    Probability density function of a 1D Gaussian with
-    mean = mu and standard deviation = sigma
-
-    Params
-    ------
-    x: np.array(...)
-        Points in the 1D space
-    mu
-        Mean of the first coordinate
-    sigma
-        Standard deviation of the two coordinates
-
-    Returns
-    -------
-    prob: np.array(...)
-        Values of the probability density function
-    """
-    prob = (
-        1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-0.5 * (x - mu) ** 2 / sigma**2)
-    )
-    return prob
-
-
-def simple_1d_gaussian_double_mixture(
-    x: np.ndarray,
-    mu_0: float,
-    mu_1: float,
-    sigma: float,
-    angle: float,
-) -> np.ndarray:
-    """
-    Probability density function corresponding to the sum of two
-    `simple_1d_gaussian`s
-
-    Parameters
-    ----------
-    x: np.array(...)
-        Points in the 1D space
-    mu_i
-        Mean for the i^th Gaussian
-    sigma
-        Standard deviation of the two coordinates for both Gaussians
-    angle
-        Weight of the 1st Gaussian is sin(angle)**2 and
-        of the 2nd Gaussian is cos(angle)**2 to ensure that
-        the PDF is normalized
-    """
-    a_0, a_1 = np.sin(angle) ** 2, np.cos(angle) ** 2
-
-    prob_0 = simple_1d_gaussian(x, mu=mu_0, sigma=sigma)
-    prob_1 = simple_1d_gaussian(x, mu=mu_1, sigma=sigma)
-
-    prob = a_0 * prob_0 + a_1 * prob_1
-
-    return prob
-
-
-def simple_2d_gaussian(
-    z: np.ndarray,
-    mu_x: float,
-    mu_y: float,
-    sigma: float,
-) -> np.ndarray:
-    """
-    Probability density function of a 2D Gaussian with
-    mean = (mu0, mu1) and covariance matrix = diag(sigma**2, sigma**2)
-
-    Params
-    ------
-    z: np.array(..., 2)
-        Points in the 2D space
-    mu_x
-        Mean of the first coordinate
-    mu_y
-        Mean of the second coordinate
-    sigma
-        Standard deviation of the two coordinates
-
-    Returns
-    -------
-    prob: np.array(...)
-        Values of the probability density function
-    """
-    check_2d_input(z)
-    x, y = z[..., 0], z[..., 1]
-    x_norm, y_norm = (x - mu_x) / sigma, (y - mu_y) / sigma
-    prob = 1 / (2 * np.pi * sigma**2) * np.exp(-0.5 * (x_norm**2 + y_norm**2))
-    return prob
-
-
-def simple_2d_gaussian_double_mixture(
-    z: np.ndarray,
-    mu_0_x: float,
-    mu_0_y: float,
-    mu_1_x: float,
-    mu_1_y: float,
-    sigma: float,
-    angle: float,
-) -> np.ndarray:
-    """
-    Probability density function corresponding to the sum of two
-    `simple_2d_gaussian`s
-
-    Parameters
-    ----------
-    z: np.array(..., 2)
-        Points in the 2D space
-    mu_i_x
-        Mean of the first coordinate for the i^th Gaussian
-    mu_i_y
-        Mean of the second coordinate for the i^th Gaussian
-    sigma
-        Standard deviation of the two coordinates for both Gaussians
-    angle
-        Weight of the 1st Gaussian is sin(angle)**2 and
-        of the 2nd Gaussian is cos(angle)**2 to ensure that
-        the PDF is normalized
-
-    Returns
-    -------
-    prob: np.array(...)
-        Values of the probability density function
-    """
-    check_2d_input(z)
-    a_0, a_1 = np.sin(angle) ** 2, np.cos(angle) ** 2
-
-    prob_0 = simple_2d_gaussian(z, mu_x=mu_0_x, mu_y=mu_0_y, sigma=sigma)
-    prob_1 = simple_2d_gaussian(z, mu_x=mu_1_x, mu_y=mu_1_y, sigma=sigma)
-
-    prob = a_0 * prob_0 + a_1 * prob_1
-
-    return prob
+from ..pdfs import simple_2d_gaussian_double_mixture, simple_1d_gaussian_double_mixture
 
 
 class GaussMixLinearClassifier(TwoStateLinearClassifier):
@@ -233,7 +94,7 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         ----------
         shots_0: np.array(N, 2)
             IQ data when preparing state 0
-        shots_1: np.array(N, 2)
+        shots_1: np.array(M, 2)
             IQ data when preparing state 1
         n_bins:
             Number of bins for the 1d histograms
@@ -260,7 +121,7 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         shots_0_1d = rotate_data(shots_0, -rot_angle)[..., 0]
         shots_1_1d = rotate_data(shots_1, -rot_angle)[..., 0]
 
-        # get means and standard deviations because they are shared
+        # get means and standard deviations together because they are shared
         # between the distributions
         all_shots = np.concatenate([shots_0_1d, shots_1_1d])
         counts, x = np.histogram(all_shots, bins=n_bins, density=True)
@@ -325,7 +186,7 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=0 may not be accurate")
-        params[0]["angle"] = float(popt)
+        params[0]["angle"] = popt[0]
 
         # PDF state 1
         log_pdf = lambda x, angle: np.log10(
@@ -342,6 +203,6 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
         perr = np.sqrt(np.diag(pcov))
         if (perr / popt > 0.1).any():
             warnings.warn("Fit for state=1 may not be accurate")
-        params[1]["angle"] = float(popt)
+        params[1]["angle"] = popt[0]
 
         return cls(params)
