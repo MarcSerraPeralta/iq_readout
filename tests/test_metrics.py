@@ -25,14 +25,25 @@ def test_get_probs_prep_meas():
     )
 
     PARAMS = {
-        0: {"mu_0": 0.0, "mu_1": 1.0, "sigma": 0.3, "angle": np.pi / 2},
-        1: {"mu_0": 0.0, "mu_1": 1.0, "sigma": 0.3, "angle": 0},
-        "rot_angle": 0.0,
-        "threshold": 0.5,
-        "rot_shift": 0.0,
+        0: {
+            "mu_0_x": 0,
+            "mu_0_y": 0,
+            "mu_1_x": 1,
+            "mu_1_y": 0,
+            "sigma": np.sqrt(0.3),
+            "angle": 1.4,
+        },
+        1: {
+            "mu_0_x": 0,
+            "mu_0_y": 0,
+            "mu_1_x": 1,
+            "mu_1_y": 0,
+            "sigma": np.sqrt(0.3),
+            "angle": 0.2,
+        },
     }
 
-    cla = GaussMixLinearClassifier().load(PARAMS)
+    cla = GaussMixLinearClassifier(PARAMS)
 
     probs = get_probs_prep_meas(cla, shots_0, shots_1)
 

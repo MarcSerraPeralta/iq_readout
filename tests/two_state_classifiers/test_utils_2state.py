@@ -23,7 +23,7 @@ def test_summary():
         np.random.multivariate_normal(mu0, cov, size=M),
     )
 
-    cla = GaussMixLinearClassifier().fit(shots_0, shots_1)
+    cla = GaussMixLinearClassifier.fit(shots_0, shots_1)
 
     fig = summary(cla, shots_0, shots_1)
 

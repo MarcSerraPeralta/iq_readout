@@ -352,7 +352,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         check_2d_input(z)
         mu_0, mu_1 = self.statistics["mu_0"], self.statistics["mu_1"]
         rot_angle = get_angle(mu_1 - mu_0)
-        return rotate_data(x, -rot_angle)[..., 0]
+        return rotate_data(z, -rot_angle)[..., 0]
 
     def pdf_0_projected(self, z_proj: np.ndarray) -> np.ndarray:
         """

@@ -47,7 +47,7 @@ def test_summary():
         shots_2,
     )
 
-    cla = GaussMixClassifier().fit(shots_0, shots_1, shots_2)
+    cla = GaussMixClassifier.fit(shots_0, shots_1, shots_2)
 
     fig = summary(cla, shots_0, shots_1, shots_2)
 

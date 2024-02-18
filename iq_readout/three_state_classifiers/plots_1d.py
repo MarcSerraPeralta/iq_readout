@@ -47,10 +47,6 @@ def plot_pdf_projected(
         raise ValueError(
             f"Shape of 'points' must be (2,2), but {points.shape} was given"
         )
-    if shots.shape[-1] != 2 and len(shots.shape) != 2:
-        raise ValueError(
-            f"Shape of 'shots' must be (N, 2), but {shots.shape} was given"
-        )
 
     # rotate shots to the given axis
     vector = points[1] - points[0]
