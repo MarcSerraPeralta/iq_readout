@@ -52,7 +52,22 @@ class GaussMixClassifier(ThreeStateClassifier):
         NB: this property is used for plotting and for storing useful
             information in the YAML file
         """
-        return {}
+        statistics = {}
+
+        statistics["mu_0"] = np.array(
+            [self.params[0]["mu_0_x"], self.params[0]["mu_0_y"]]
+        )
+        statistics["mu_1"] = np.array(
+            [self.params[1]["mu_1_x"], self.params[1]["mu_1_y"]]
+        )
+        statistics["mu_2"] = np.array(
+            [self.params[1]["mu_2_x"], self.params[1]["mu_2_y"]]
+        )
+        statistics["cov_0"] = self.params[0]["sigma"] ** 2 * np.eye(2)
+        statistics["cov_1"] = self.params[1]["sigma"] ** 2 * np.eye(2)
+        statistics["cov_2"] = self.params[2]["sigma"] ** 2 * np.eye(2)
+
+        return statistics
 
     @classmethod
     def fit(

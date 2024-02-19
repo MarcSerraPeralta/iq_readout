@@ -24,9 +24,9 @@ p(\vec{x}|2) = f_2(\vec{x}; \vec{\mu}_0, \vec{\mu}_1, \vec{\mu}_2, \sigma, \thet
 ```
 with
 ```math
-\tilde{N}(\vec{x}; \vec{\mu}, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left( - \frac{|\vec{x} - \vec{\mu}|^2}{2\sigma^2}\right)
+\tilde{N}(\vec{x}; \vec{\mu}, \sigma) = \frac{1}{2 \pi \sigma^2} \exp \left( - \frac{|\vec{x} - \vec{\mu}|^2}{2\sigma^2}\right)
 ```
-a multivariate Gaussian with covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$. 
+a 2D multivariate Gaussian with covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$. 
 
 ## Max-likelihood classifier
 

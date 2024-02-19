@@ -86,6 +86,10 @@ class DecayLinearClassifier(TwoStateLinearClassifier):
         statistics["cov_0"] = self.params[0]["sigma"] * np.eye(2)
         statistics["cov_1"] = self.params[1]["sigma"] * np.eye(2)
 
+        p0 = np.sin(self.params[1]["angle"]) ** 2
+        statistics["t1_norm_from_p0"] = -1 / np.log(1 - p0)
+        statistics["t1_norm_from_fit"] = self.params[1]["t1_norm"]
+
         return statistics
 
     @classmethod

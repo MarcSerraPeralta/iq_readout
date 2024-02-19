@@ -3,81 +3,67 @@
 The PDFs are derived in *Improved quantum error correction using soft information* by Pattison *et al.* [arxiv pdf](https://arxiv.org/pdf/2107.13589.pdf)
 
 **Characteristics**:
-
-
-
-
-
-
-
-
-
-
-
-**Characteristics**:
 - 2-state classifier for 2D data
 - Uses max-likelihood classification
 - Decision boundary is a straight line (hence *linear*)
-- Assumes that the classes follow a Gaussian mixture that share the same covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$ and means $\vec{\mu}_0, \vec{\mu}_1$, i.e.
+- Assumes that the integration weights of the readout traces are constant
+- Assumes that the Gaussian distributions present in $p(\vec{z}|i)$ share the same covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$ and means $\vec{\mu}_0, \vec{\mu}_1$
+
 ```math
-p(\vec{x}|0) = f_0(\vec{x}; \vec{\mu}_0, \vec{\mu}_1, \sigma, \theta_0) = \sin^2(\theta_0)\tilde{N}(\vec{x}; \vec{\mu}_0, \sigma) + 
-\cos^2(\theta_0)\tilde{N}(\vec{x}; \vec{\mu}_1, \sigma)
+p(\vec{z}|0) = f_0(\vec{z}; \vec{\mu}_0, \vec{\mu}_1, \sigma, \theta_0) = \sin^2(\theta_0)\tilde{N}_2(\vec{z}; \vec{\mu}_0, \sigma) + \cos^2(\theta_0)\tilde{N}_2(\vec{z}; \vec{\mu}_1, \sigma)
 ```
 and
 ```math
-p(\vec{x}|1) = f_1(\vec{x}; \vec{\mu}_0, \vec{\mu}_1, \sigma, \theta_1) = \sin^2(\theta_1)\tilde{N}(\vec{x}; \vec{\mu}_0, \sigma) + 
-\cos^2(\theta_1)\tilde{N}(\vec{x}; \vec{\mu}_1, \sigma)
+p(\vec{z}|1) = f_1(\vec{z}; \vec{\mu}_0, \vec{\mu}_1, \sigma, \theta_1, \tilde{T}_1) = \Big[ 
+\sin^2(\theta_1)\tilde{N}_1(z_{\parallel}; \vec{\mu}_{0, parallel}, \sigma, \tilde{T}_1) + 
+\cos^2(\theta_1) D(z_{\parallel}; \vec{\mu}_{0, parallel}, \vec{\mu}_{1, parallel}, \sigma)
+\Big] \tilde{N}_1(z_{\perp}; \vec{\mu}_{1,\perp}, \sigma)
 ```
-with
+with $\vec{z} = z_{\perp} \hat{e}\_{\perp} + z_{\parallel} \hat{e}\_{\parallel}$, $\hat{e}\_{\parallel} = (\vec{\mu}\_1 - \vec{\mu}\_0) / |\vec{\mu}\_1 - \vec{\mu}\_0|$, $\hat{e}\_{\perp} \perp \hat{e}\_{\parallel}$,
 ```math
-\tilde{N}(\vec{x}; \vec{\mu}, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left( - \frac{|\vec{x} - \vec{\mu}|^2}{2\sigma^2}\right)
+\tilde{N}_2(\vec{z}; \vec{\mu}, \sigma) = \frac{1}{2 \pi \sigma^2} \exp \left( - \frac{|\vec{z} - \vec{\mu}|^2}{2\sigma^2}\right)
 ```
-a multivariate Gaussian with covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$. 
+a 2D Gaussian with covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$, 
+```math
+\tilde{N}_1(x; \mu, \sigma) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left( - \frac{|\vec{z} - \vec{\mu}|^2}{2\sigma^2}\right)
+```
+a 1D Gaussian,
+```math
+D(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) = \exp\Big(-\frac{(x - \mu_0)^2}{2\sigma^2} + C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1)^2 \Big)
+\sqrt{\frac{2\sigma^2 \tilde{T}_1^2}{4P(\mu_0, \mu_1, \sigma)}}
+\frac{\mathrm{erf(C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) + \sqrt{P(\mu_0, \mu_1, \sigma)}) + \mathrm{erf}(C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1))}}{1 - \exp(-1/\tilde{T}_1)}
+```
+```math
+C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) = \frac{\mathrm{sign}(\mu_1 - \mu_0) (\mu_0 - x)}{\sqrt{2} sigma} + \frac{\sigma}{\sqrt{2}|\mu_1 - \mu_0| \tilde{T}_1}
+```
+```math
+P(\mu_0, \mu_1, \sigma) = \frac{(\mu_1 - \mu_0)^2}{2\sigma^2}
+```
+and $\tilde{T}_1 = T_1 / t_M$ the normalized amplitude decay time with respect to the measurement time. 
 
 ## Max-likelihood classifier
 
-Given $\vec{x}$, a max-likelihood classifier outputs the class $c$ that has larger probability, i.e. $c$ such that $p(c|\vec{x}) \geq p(j|\vec{x}) \forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$. By default, it uses $p(j)=1/2$, where $p(c|\vec{x}) \geq p(j|\vec{x}) \forall j \neq c$ is equivalent to $p(\vec{x}|c) \geq p(\vec{x}|j) \forall j \neq c$. 
+Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larger probability, i.e. $c$ such that $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$. By default, it uses $p(j)=1/2$, where $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$ is equivalent to $p(\vec{z}|c) \geq p(\vec{z}|j) \forall j \neq c$. 
 
 
 ## Linearity
 
-The decision boundary for (2-state) max-likelihood classifiers is given by $p(\vec{x}|0) = p(\vec{x}|1)$. Therefore, by reordering the terms we get
-```math
-(\sin^2(\theta_0) - \sin^2(\theta_1))\tilde{N}(\vec{x}; \vec{\mu}_0, \sigma) = 
-(\cos^2(\theta_1) - \cos^2(\theta_1))\tilde{N}(\vec{x}; \vec{\mu}_1, \sigma)
-```
-which can be simplified by using that $\sin^2(\theta) + \cos^2(\theta) = 1$, leading to
-```math
-\tilde{N}(\vec{x}; \vec{\mu}_0, \sigma) = \tilde{N}(\vec{x}; \vec{\mu}_1, \sigma).
-```
-By taking the logarithm and simplifying, we obtain
-```math
-|\vec{x} - \vec{\mu}_0| = |\vec{x} - \vec{\mu}_1|,
-```
-which is a linear equation for the decision boundary. Noteworthy, the decision boundary does not depend on the weights of the Gaussian mixture, it crosses $\vec{x}=(\vec{\mu}_1 - \vec{\mu}_0)/2$, and it is perpendicular to the direction $\vec{\mu}_1 - \vec{\mu}_0$. 
+The decision boundary for (2-state) max-likelihood classifiers is given by $p(\vec{z}|0) = p(\vec{z}|1)$. As the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$, then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
+
 
 ## Notes on the algorithm
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
-The projection axis ($z$) corresponds to the line with direction $\vec{\mu}_1 - \vec{\mu}_0$ that crosses these two means. 
+The projection axis corresponds to the line with direction $\vec{\mu}_1 - \vec{\mu}_0$ that crosses these two means. 
 The direction is chosen this way to have the *blob* from state 0 on the left and the *blob* from state 1 on the right. 
-The projection axis be estimated from the means of the data for each class $c$ ($\\{\vec{x}^{(i)}_c\\}_i$) given by
+The projection axis be estimated from the means of the data for each class $c$ ($\\{\vec{z}^{(i)}_c\\}_i$) given by
 ```math 
-\vec{\nu}_c = \frac{1}{N}\sum_{i=1}^N \vec{x}^{(i)}_c, 
+\vec{\nu}_c = \frac{1}{N}\sum_{i=1}^N \vec{z}^{(i)}_c, 
 ```
-because $\vec{\mu}_1 - \vec{\mu}_0 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification is that, given $\vec{x}_c \sim p(\vec{x}|c)$, the estimator of the mean $\vec{\nu}_c = \sin^2(\theta_c) \vec{\mu}_0 + \cos^2(\theta_c) \vec{\mu}_1$, thus $\vec{\nu}_1 - \vec{\nu}_0 = (\sin^2(\theta_1) - \sin^2(\theta_0)) (\vec{\mu}_1 - \vec{\mu}_0)$. 
+because $\vec{\mu}_1 - \vec{\mu}_0 \propto \vec{\nu}_1 - \vec{\nu}_0$. The justification follows the same used in the linearity section. 
 
 The algorithm uses the following tricks
 1. work with projects the data (to have more samples in each bin of the histogram)
-1. combine $\vec{x}_c$ from both classes to extract the means and standard deviation (to have more samples in each bin of the histogram). *Note: the parameters* $\theta_c$ *are extracted from each* $\vec{x}_c$ 
-1. the threshold for the projected data can be obtained exactly from projecting $(\vec{\mu}_1 - \vec{\mu}_0)/2$. *Note: although the threshold could be used for the predictions, it is not used in this algorithm*
+1. combine $\vec{z}_c$ from both classes to extract the means and standard deviation (to have more samples in each bin of the histogram). *Note: the parameters* $\theta_c$ *are extracted from each* $\vec{z}_c$ 
 
-The algorithm can give $p(z|i)$ with $z$ the projection of $\vec{x}$ or $p(\vec{x}|i)$. Note that the two pdfs are related, i.e. $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. The explanation uses the coordinate system of the projection axis and its perpendicular, labelled $\vec{x} = (z, t)$, which gives
-```math 
-\frac{p(\vec{x}|0)}{p(\vec{x}|1)} = \exp \left( -\frac{1}{2\sigma^2}((z - \vec{\mu}_{0,z})^2 - (z - \vec{\mu}_{1,z})^2) \right)
-```
-because $\vec{\mu}_{i,t} = 0$ and the $t^2$ terms cancel each other. We then just need to use that
-```math
-p(z|i) = \int_{-\infty}^{+\infty} p(z,t|i) dt \propto \exp \left( -\frac{1}{2\sigma^2}(z - \vec{\mu}_{i,z})^2 \right)
-```
-leading to $p(z|0) / p(z|1) = p(\vec{x}|0) / p(\vec{x}|1)$. 
+The algorithm can give $p(z_{\parallel}|i)$ with $z_{\parallel}$ the projection of $\vec{z}$ or $p(\vec{z}|i)$. Note that the two pdfs are related, i.e. $p(z_{\parallel}|0) / p(z_{\parallel}|1) = p(\vec{z}|0) / p(\vec{z}|1)$. The explanation can be found in `gmlda.md`. 
