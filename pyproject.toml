@@ -22,7 +22,7 @@ dependencies = [
 keywords = ["IQ", "readout", "qubit", "classifiers", "lda"]
 
 [tool.setuptools.packages.find]
-include = ["iq_readout"]  # package names should match these glob patterns (["*"] by default)
+include = ["iq_readout", "iq_readout.*"]  # package names should match these glob patterns (["*"] by default)
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [project.optional-dependencies]
