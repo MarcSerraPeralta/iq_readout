@@ -411,7 +411,7 @@ class ThreeStateLinearClassifier2D:
             number of bins for the first and second coordinate
             used in the 2d histograms
         """
-        bounds = ((0, 0), (np.pi, np.pi))
+        bounds = ((0, 0), (np.pi / 2, np.pi / 2))
 
         # PDF state 0
         pdf = lambda x, angle1, angle2: self._pdf_function(
