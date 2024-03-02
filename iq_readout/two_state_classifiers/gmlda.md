@@ -36,13 +36,13 @@ with $c_0 = \sin^2(\theta_0)$ and $b_0 = \sin^2(\theta_1)$. By multiplying the e
 ```
 After taking the logarithm and using $|\vec{a}|^2 - |\vec{b}|^2 = (\vec{a} - \vec{b})(\vec{a} + \vec{b})$, we obtain the linear equation
 ```math 
-\left( \vec{d} - \frac{\vec{mu}_0 + \vec{\mu}_1}{2} \right) \cdot (\vec{mu}_0 - \vec{\mu}_1) = \sigma^2 \log(P)
+\left( \vec{d} - \frac{\vec{\mu}_0 + \vec{\mu}_1}{2} \right) \cdot (\vec{\mu}_0 - \vec{\mu}_1) = \sigma^2 \log(P)
 ```
 with solution
 ```math 
-\vec{d}(t) = \mu_{\perp} t + \frac{\vec{mu}_0 + \vec{\mu}_1}{2} + \frac{\vec{mu}_0 - \vec{\mu}_1}{|\vec{mu}_0 - \vec{\mu}_1|} \sigma^2 \log(P),
+\vec{d}(t) = \mu_{\perp} t + \frac{\vec{\mu}_0 + \vec{\mu}_1}{2} + \frac{\vec{\mu}_0 - \vec{\mu}_1}{|\vec{\mu}_0 - \vec{\mu}_1|} \sigma^2 \log(P),
 ```
-with $t \in \mathbb{R}$ and $\mu_{\perp}$ the vector perpendicular to $\vec{mu}_0 - \vec{\mu}_1$. This curve is a line that is perpendicular with the axis defined by the two *blobs* in the IQ plane. In the particular case $p(0) = 1/2$, then $P=1$ and thus the line is in the middle of the two *blobs*. 
+with $t \in \mathbb{R}$ and $\mu_{\perp}$ the vector perpendicular to $\vec{\mu}_0 - \vec{\mu}_1$. This curve is a line that is perpendicular with the axis defined by the two *blobs* in the IQ plane. In the particular case $p(0) = 1/2$, then $P=1$ and thus the line is in the middle of the two *blobs*. 
 
 ## Notes on the algorithm
 
