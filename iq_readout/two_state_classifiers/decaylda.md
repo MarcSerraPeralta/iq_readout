@@ -31,10 +31,10 @@ a 1D Gaussian,
 ```math
 D(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) = \exp\Big(-\frac{(x - \mu_0)^2}{2\sigma^2} + C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1)^2 \Big)
 \sqrt{\frac{2\sigma^2 \tilde{T}_1^2}{4P(\mu_0, \mu_1, \sigma)}}
-\frac{\mathrm{erf(C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) + \sqrt{P(\mu_0, \mu_1, \sigma)}) + \mathrm{erf}(C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1))}}{1 - \exp(-1/\tilde{T}_1)}
+\frac{\mathrm{erf}(C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) + \sqrt{P(\mu_0, \mu_1, \sigma)}) + \mathrm{erf}(C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1))}{1 - \exp(-1/\tilde{T}_1)}
 ```
 ```math
-C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) = \frac{\mathrm{sign}(\mu_1 - \mu_0) (\mu_0 - x)}{\sqrt{2} sigma} + \frac{\sigma}{\sqrt{2}|\mu_1 - \mu_0| \tilde{T}_1}
+C(x; \mu_0, \mu_1, \sigma, \tilde{T}_1) = \frac{\mathrm{sign}(\mu_1 - \mu_0) \cdot (\mu_0 - x)}{\sqrt{2} \sigma} + \frac{\sigma}{\sqrt{2}|\mu_1 - \mu_0| \tilde{T}_1}
 ```
 ```math
 P(\mu_0, \mu_1, \sigma) = \frac{(\mu_1 - \mu_0)^2}{2\sigma^2}
@@ -48,7 +48,7 @@ Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larg
 
 ## Linearity
 
-The decision boundary for (2-state) max-likelihood classifiers is given by $p(\vec{z}|0) = p(\vec{z}|1)$. As the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$, then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
+The decision boundary for (2-state) max-likelihood classifiers is given by $p(\vec{z}|0) = p(\vec{z}|1)$. As the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$, then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \\;\forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
 
 
 ## Notes on the algorithm
