@@ -22,24 +22,27 @@ a 2D multivariate Gaussian with covariance matrix $\Sigma=\mathrm{diag}(\sigma^2
 
 ## Max-likelihood classifier
 
-Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larger probability, i.e. $c$ such that $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$. By default, it uses $p(j)=1/2$, where $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$ is equivalent to $p(\vec{z}|c) \geq p(\vec{z}|j) \forall j \neq c$. 
+Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larger probability (given $\vec{z}$), i.e. $c$ such that $p(c|\vec{z}) \geq p(j|\vec{z}) \;\forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$, $p(j)$. By default, it uses $p(j)=1/2$, where $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$ is equivalent to $p(\vec{z}|c) \geq p(\vec{z}|j) \forall j \neq c$. 
 
 ## Linearity
 
-The decision boundary for (2-state) max-likelihood classifiers is given by $p(\vec{z}|0) = p(\vec{z}|1)$. Therefore, by reordering the terms we get
-```math
-(\sin^2(\theta_0) - \sin^2(\theta_1))\tilde{N}(\vec{z}; \vec{\mu}_0, \sigma) = 
-(\cos^2(\theta_1) - \cos^2(\theta_1))\tilde{N}(\vec{z}; \vec{\mu}_1, \sigma)
+The decision boundary for (2-state) max-likelihood classifiers is given by the (parametrized) curve $\vec{d}(t)$ that fulfills $p(0|\vec{d}) = p(1|\vec{d}) \;\forall t$. To find the expression for $\vec{d}(t)$, we first make use of the Bayes' theorem and substitue $p(\vec{z}|i)$ for this classifier to get
+```math 
+p(0)\left[ c_0 \exp \left( - \frac{|\vec{d} - \vec{\mu}_0|^2}{2\sigma^2}\right) + (1-c_0)\exp \left( - \frac{|\vec{d} - \vec{\mu}_1|^2}{2\sigma^2}\right) \right] = (1 - p(0))\left[ b_0 \exp \left( - \frac{|\vec{d} - \vec{\mu}_0|^2}{2\sigma^2}\right) + (1-b_0)\exp \left( - \frac{|\vec{d} - \vec{\mu}_1|^2}{2\sigma^2}\right) \right],
 ```
-which can be simplified by using that $\sin^2(\theta) + \cos^2(\theta) = 1$ (and $\theta_0 \neq \theta_1$), leading to
-```math
-\tilde{N}(\vec{z}; \vec{\mu}_0, \sigma) = \tilde{N}(\vec{z}; \vec{\mu}_1, \sigma).
+with $c_0 = \sin^2(\theta_0)$ and $b_0 = \sin^2(\theta_1)$. By multiplying the expression by $\exp(+|\vec{d} - \vec{\mu}_0|^2 / 2\sigma^2)$ and rearraging terms, we can write
+```math 
+\exp \left( - \frac{|\vec{d} - \vec{\mu}_0|^2 - |\vec{d} - \vec{\mu}_0|^2}{2\sigma^2}\right) = \frac{(1-p(0))b_0 - p(0)c_0}{(1-c_0)p_0 - (1-p_0)(1-b_0)} \equiv P.
 ```
-By taking the logarithm and simplifying, we obtain
-```math
-|\vec{z} - \vec{\mu}_0| = |\vec{z} - \vec{\mu}_1|,
+After taking the logarithm and using $|\vec{a}|^2 - |\vec{b}|^2 = (\vec{a} - \vec{b})(\vec{a} + \vec{b})$, we obtain the linear equation
+```math 
+\left( \vec{d} - \frac{\vec{mu}_0 + \vec{\mu}_1}{2} \right) \cdot (\vec{mu}_0 - \vec{\mu}_1) = \sigma^2 \log(P)
 ```
-which is a linear equation for the decision boundary. Noteworthy, the decision boundary does not depend on the weights of the Gaussian mixture, it crosses $\vec{z}=(\vec{\mu}_1 - \vec{\mu}_0)/2$, and it is perpendicular to the direction $\vec{\mu}_1 - \vec{\mu}_0$. 
+with solution
+```math 
+\vec{d}(t) = \mu_{\perp} t + \frac{\vec{mu}_0 + \vec{\mu}_1}{2} + \frac{\vec{mu}_0 - \vec{\mu}_1}{|\vec{mu}_0 - \vec{\mu}_1|} \sigma^2 \log(P),
+```
+with $t \in \mathbb{R}$ and $\mu_{\perp}$ the vector perpendicular to $\vec{mu}_0 - \vec{\mu}_1$. This curve is a line that is perpendicular with the axis defined by the two *blobs* in the IQ plane. In the particular case $p(0) = 1/2$, then $P=1$ and thus the line is in the middle of the two *blobs*. 
 
 ## Notes on the algorithm
 
