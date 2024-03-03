@@ -81,7 +81,7 @@ def plot_shots_2d(
     ax.set_ylabel("Q [a.u.]")
     ax.legend(loc="best")
     # same scale in x and y axis
-    ax.set_aspect("equal")
+    ax.axis("equal")
 
     return ax
 
@@ -125,5 +125,60 @@ def plot_boundaries_2d(
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
+
+    # same scale in x and y axis
+    ax.axis("equal")
+
+    return ax
+
+
+def plot_contour_pdf_2d(
+    ax: plt.Axes,
+    classifier,
+    xlim: Tuple[float, float],
+    ylim: Tuple[float, float],
+    contour_levels: np.ndarray = [1 / np.e],
+) -> plt.Axes:
+    """
+    Plots the decision boundaries in a 2D plane
+
+    Parameters
+    ----------
+    ax:
+        Matplotlib axis
+    xlim: (xmin, xmax)
+        Range of the X axis
+    ylim: (ymin, ymax)
+        Range of the Y axis
+    contour_levels
+        Levels of the PDFs to be plotted
+
+    Returns
+    -------
+    ax:
+        Matplotlib axis with the data plotted
+    """
+    x, y = np.linspace(*xlim, 1_000), np.linspace(*ylim, 1_000)
+    xx, yy = np.meshgrid(x, y, indexing="ij")
+    XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
+    prediction = classifier.predict(XX)
+
+    ax.contour(
+        xx,
+        yy,
+        pdf,
+        levels=contour_levels,
+        colors="gray",
+        linestyles="--",
+    )
+
+    ax.set_xlabel("I [a.u.]")
+    ax.set_ylabel("Q [a.u.]")
+
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+
+    # same scale in x and y axis
+    ax.axis("equal")
 
     return ax
