@@ -1,12 +1,12 @@
-# Gaussian-Mixture Linear Discriminant Analysis (GMLDA)
+# Decay Linear Discriminant Analysis (DecayLDA)
 
-The PDFs are derived in *Improved quantum error correction using soft information* by Pattison *et al.* [arxiv pdf](https://arxiv.org/pdf/2107.13589.pdf)
+The PDFs are derived in *Improved quantum error correction using soft information* by Pattison *et al.* [arxiv pdf](https://arxiv.org/pdf/2107.13589.pdf). In this classifier, the $p(\vec{z}|0)$ is a mixture of Gaussians to handle state preparation errors in the readout calibration data. 
 
 **Characteristics**:
 - 2-state classifier for 2D data
 - Uses max-likelihood classification
 - Decision boundary is a straight line (hence *linear*)
-- Assumes that the integration weights of the readout traces are constant
+- Assumes that the integration weights of the readout traces (output voltage as a function of time) are constant
 - Assumes that the Gaussian distributions present in $p(\vec{z}|i)$ share the same covariance matrix $\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)$ and means $\vec{\mu}_0, \vec{\mu}_1$
 
 ```math
@@ -43,15 +43,17 @@ and $\tilde{T}_1 = T_1 / t_M$ the normalized amplitude decay time with respect t
 
 ## Max-likelihood classifier
 
-Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larger probability, i.e. $c$ such that $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$. By default, it uses $p(j)=1/2$, where $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$ is equivalent to $p(\vec{z}|c) \geq p(\vec{z}|j) \forall j \neq c$. 
+Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larger probability (given $\vec{z}$), i.e. $c$ such that $p(c|\vec{z}) \geq p(j|\vec{z}) \;\forall j \neq c$. These probabilities are calculated using Bayes' theorem and the probabilities of the qubit being in state $j$, $p(j)$. By default, it uses $p(j)=1/2$, where $p(c|\vec{z}) \geq p(j|\vec{z}) \forall j \neq c$ is equivalent to $p(\vec{z}|c) \geq p(\vec{z}|j) \forall j \neq c$. 
 
 
 ## Linearity
 
-The decision boundary for (2-state) max-likelihood classifiers is given by $p(\vec{z}|0) = p(\vec{z}|1)$. As the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$, then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \\;\forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
+The decision boundary for (2-state) max-likelihood classifiers is given by the (parametrized) curve $\vec{d}(t)$ that fulfills $p(0|\vec{d}) = p(1|\vec{d}) \;\forall t$. As the PDFs $p(\vec{z}|i)$ are symmetric with respect to $z_{\parallel}$, the decision boundary must also be symmetric. Moreover, because the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$ (i.e. $\tilde{N}_1(z_{\perp}; \vec{\mu}_{1,\perp}, \sigma)$ with $\vec{\mu}_{1,\perp}=\vec{\mu}_{0,\perp}$), then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \\;\forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
 
 
 ## Notes on the algorithm
+
+The algorithm for setting up the classifier from the readout calibraton data is based on fitting the PDFs to the histograms of the data. If the data does not fulfill the assumptions described above, the classifier may not be the optimal one (in the sense of *optimal Bayes classifier* and *minimal Bayes error rate*). For example, the linear classifier from `sklearn` may lead to a higher readout fidelity (even though they are both linear classifiers) because its decision boundary is found by minimizing the classification error. 
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
 The projection axis corresponds to the line with direction $\vec{\mu}_1 - \vec{\mu}_0$ that crosses these two means. 

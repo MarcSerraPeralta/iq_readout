@@ -26,7 +26,9 @@ Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larg
 
 ## Linearity
 
-The decision boundary for (2-state) max-likelihood classifiers is given by the (parametrized) curve $\vec{d}(t)$ that fulfills $p(0|\vec{d}) = p(1|\vec{d}) \;\forall t$. To find the expression for $\vec{d}(t)$, we first make use of the Bayes' theorem and substitue $p(\vec{z}|i)$ for this classifier to get
+The decision boundary for (2-state) max-likelihood classifiers is given by the (parametrized) curve $\vec{d}(t)$ that fulfills $p(0|\vec{d}) = p(1|\vec{d}) \;\forall t$. As the PDFs $p(\vec{z}|i)$ are symmetric with respect to $z_{\parallel}$, the decision boundary must also be symmetric. Moreover, because the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$ (i.e. $\tilde{N}_1(z_{\perp}; \vec{\mu}_{1,\perp}, \sigma)$ with $\vec{\mu}_{1,\perp}=\vec{\mu}_{0,\perp}$), then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \\;\forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
+
+The expression for $\vec{d}(t)$ can be found as follows. Firstly, we make use of the Bayes' theorem and substitue $p(\vec{z}|i)$ for this classifier to get
 ```math 
 p(0)\left[ c_0 \exp \left( - \frac{|\vec{d} - \vec{\mu}_0|^2}{2\sigma^2}\right) + (1-c_0)\exp \left( - \frac{|\vec{d} - \vec{\mu}_1|^2}{2\sigma^2}\right) \right] = (1 - p(0))\left[ b_0 \exp \left( - \frac{|\vec{d} - \vec{\mu}_0|^2}{2\sigma^2}\right) + (1-b_0)\exp \left( - \frac{|\vec{d} - \vec{\mu}_1|^2}{2\sigma^2}\right) \right],
 ```
@@ -45,6 +47,8 @@ with solution
 with $t \in \mathbb{R}$ and $\mu_{\perp}$ the vector perpendicular to $\vec{\mu}_0 - \vec{\mu}_1$. This curve is a line that is perpendicular with the axis defined by the two *blobs* in the IQ plane. In the particular case $p(0) = 1/2$, then $P=1$ and thus the line is in the middle of the two *blobs*. 
 
 ## Notes on the algorithm
+
+The algorithm for setting up the classifier from the readout calibraton data is based on fitting the PDFs to the histograms of the data. If the data does not fulfill the assumptions described above, the classifier may not be the optimal one (in the sense of *optimal Bayes classifier* and *minimal Bayes error rate*). For example, the linear classifier from `sklearn` may lead to a higher readout fidelity (even though they are both linear classifiers) because its decision boundary is found by minimizing the classification error. 
 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
 The projection axis corresponds to the line with direction $\vec{\mu}_1 - \vec{\mu}_0$ that crosses these two means. 
