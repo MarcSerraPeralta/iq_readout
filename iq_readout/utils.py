@@ -4,9 +4,9 @@ import numpy as np
 
 FIT_KARGS = dict(
     loss="soft_l1",  # loss="soft_l1" leads to more stable fits
-    ftol=1e-10,
-    xtol=1e-10,
-    gtol=1e-10,
+    ftol=1e-10,  # higher accuracy in params
+    xtol=1e-10,  # higher accuracy in params
+    gtol=1e-10,  # higher accuracy in params
 )
 
 
