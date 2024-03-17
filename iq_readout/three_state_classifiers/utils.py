@@ -14,8 +14,7 @@ def summary(classifier, shots_0, shots_1, shots_2):
     plot_probs_prep_meas(axes[0, 1], probs)
 
     plot_shots_2d(axes[0, 2], shots_0, shots_1, shots_2)
-    xlim, ylim = axes[0, 2].get_xlim(), axes[0, 2].get_ylim()
-    plot_boundaries_2d(axes[0, 2], classifier, xlim=xlim, ylim=ylim)
+    plot_boundaries_2d(axes[0, 2], classifier)
     axes[0, 2].legend().remove()
 
     params = classifier.params

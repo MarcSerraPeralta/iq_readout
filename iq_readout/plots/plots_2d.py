@@ -72,7 +72,10 @@ def plot_shots_2d(
 
 
 def plot_boundaries_2d(
-    ax: plt.Axes, classifier, xlim: Tuple[float, float], ylim: Tuple[float, float]
+    ax: plt.Axes,
+    classifier,
+    xlim: Tuple[float, float] = None,
+    ylim: Tuple[float, float] = None,
 ) -> plt.Axes:
     """
     Plots the decision boundaries in a 2D plane
@@ -82,15 +85,22 @@ def plot_boundaries_2d(
     ax:
         Matplotlib axis
     xlim: (xmin, xmax)
-        Range of the X axis
+        Range of the X axis.
+        Default: `ax.get_xlim()`.
     ylim: (ymin, ymax)
-        Range of the Y axis
+        Range of the Y axis.
+        Default: `ax.get_ylim()`.
 
     Returns
     -------
     ax:
         Matplotlib axis with the data plotted
     """
+    if xlim is None:
+        xlim = ax.get_xlim()
+    if ylim is None:
+        ylim = ax.get_ylim()
+
     x, y = np.linspace(*xlim, 1_000), np.linspace(*ylim, 1_000)
     xx, yy = np.meshgrid(x, y, indexing="ij")
     XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
@@ -108,9 +118,6 @@ def plot_boundaries_2d(
     ax.set_xlabel("I [a.u.]")
     ax.set_ylabel("Q [a.u.]")
 
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-
     # same scale in x and y axis
     ax.axis("equal")
 
@@ -120,8 +127,8 @@ def plot_boundaries_2d(
 def plot_contour_pdf_2d(
     ax: plt.Axes,
     classifier,
-    xlim: Tuple[float, float],
-    ylim: Tuple[float, float],
+    xlim: Tuple[float, float] = None,
+    ylim: Tuple[float, float] = None,
     contour_levels: np.ndarray = [1 / np.e],
 ) -> plt.Axes:
     """
@@ -130,19 +137,26 @@ def plot_contour_pdf_2d(
     Parameters
     ----------
     ax:
-        Matplotlib axis
+        Matplotlib axis.
     xlim: (xmin, xmax)
-        Range of the X axis
+        Range of the X axis.
+        Default: `ax.get_xlim()`.
     ylim: (ymin, ymax)
-        Range of the Y axis
+        Range of the Y axis.
+        Default: `ax.get_ylim()`.
     contour_levels
-        Levels of the PDFs to be plotted
+        Levels of the PDFs to be plotted.
 
     Returns
     -------
     ax:
         Matplotlib axis with the data plotted
     """
+    if xlim is None:
+        xlim = ax.get_xlim()
+    if ylim is None:
+        ylim = ax.get_ylim()
+
     x, y = np.linspace(*xlim, 1_000), np.linspace(*ylim, 1_000)
     xx, yy = np.meshgrid(x, y, indexing="ij")
     XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
@@ -159,9 +173,6 @@ def plot_contour_pdf_2d(
 
     ax.set_xlabel("I [a.u.]")
     ax.set_ylabel("Q [a.u.]")
-
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
 
     # same scale in x and y axis
     ax.axis("equal")
