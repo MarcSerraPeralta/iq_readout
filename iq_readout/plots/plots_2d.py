@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,10 +6,9 @@ import matplotlib.pyplot as plt
 
 def plot_shots_2d(
     ax: plt.Axes,
-    shots_0: np.ndarray,
-    shots_1: np.ndarray,
-    labels: Optional[Tuple[str, str]] = None,
-    colors: Optional[Tuple[str, str]] = None,
+    *shots: List[np.ndarray],
+    labels: Optional[List[str]] = None,
+    colors: Optional[List[str]] = None,
 ) -> plt.Axes:
     """
     Plots the experimental shots a 2D plane
@@ -18,14 +17,12 @@ def plot_shots_2d(
     ----------
     ax:
         Matplotlib axis
-    shots_0: np.ndarray(N, 2)
-        Experimental data for state 0
-    shots_1: np.ndarray(N, 2)
-        Experimental data for state 1
-    labels: (label_0, label_1)
-        Labels for the state 0, and 1 data
-    colors: (color_0, color_1)
-        Colors for the state 0, and 1 data
+    shots: [np.ndarray(N, 2), np.ndarray(N, 2), ...]
+        Experimental data for state 0, 1, ...
+    labels: (label_0, label_1, label_2)
+        Labels for the state 0, 1, and 2 data
+    colors: (color_0, color_1, color_2)
+        Colors for the state 0, 1, and 2 data
 
     Returns
     -------
@@ -33,19 +30,10 @@ def plot_shots_2d(
         Matplotlib axis with the data plotted
     """
     if labels is None:
-        labels = ["0", "1"]
+        labels = [f"{i}" for i, _ in enumerate(shots)]
     if colors is None:
-        colors = ["orange", "blue"]
-    if len(labels) != 2:
-        raise ValueError(
-            f"'labels' must contain 2 elements, but {len(labels)} were given"
-        )
-    if len(colors) != 2:
-        raise ValueError(
-            f"'colors' must contain 2 elements, but {len(colors)} were given"
-        )
-
-    shots = [shots_0, shots_1]
+        all_colors = ["orange", "blue", "green"]
+        colors = all_colors[: len(shots)]
 
     # calculate the transparency of the points
     # based on the number of points on top of each other
@@ -122,5 +110,60 @@ def plot_boundaries_2d(
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
+
+    # same scale in x and y axis
+    ax.axis("equal")
+
+    return ax
+
+
+def plot_contour_pdf_2d(
+    ax: plt.Axes,
+    classifier,
+    xlim: Tuple[float, float],
+    ylim: Tuple[float, float],
+    contour_levels: np.ndarray = [1 / np.e],
+) -> plt.Axes:
+    """
+    Plots the decision boundaries in a 2D plane
+
+    Parameters
+    ----------
+    ax:
+        Matplotlib axis
+    xlim: (xmin, xmax)
+        Range of the X axis
+    ylim: (ymin, ymax)
+        Range of the Y axis
+    contour_levels
+        Levels of the PDFs to be plotted
+
+    Returns
+    -------
+    ax:
+        Matplotlib axis with the data plotted
+    """
+    x, y = np.linspace(*xlim, 1_000), np.linspace(*ylim, 1_000)
+    xx, yy = np.meshgrid(x, y, indexing="ij")
+    XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
+    prediction = classifier.predict(XX)
+
+    ax.contour(
+        xx,
+        yy,
+        pdf,
+        levels=contour_levels,
+        colors="gray",
+        linestyles="--",
+    )
+
+    ax.set_xlabel("I [a.u.]")
+    ax.set_ylabel("Q [a.u.]")
+
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+
+    # same scale in x and y axis
+    ax.axis("equal")
 
     return ax

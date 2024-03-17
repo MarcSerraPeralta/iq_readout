@@ -60,9 +60,9 @@ def plot_pdf_projected(
 
 def plot_pdfs_projected(
     ax: plt.Axes,
+    classifier,
     shots_0: np.ndarray,
     shots_1: np.ndarray,
-    classifier,
     labels: Optional[Tuple[str, str]] = None,
     colors: Optional[Tuple[str, str]] = None,
 ) -> plt.Axes:
