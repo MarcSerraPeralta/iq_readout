@@ -113,7 +113,7 @@ class DecayLinearClassifier(TwoStateLinearClassifier):
 
         Returns
         -------
-        `GaussMixLinearClassifier` containing the fitted parameters
+        `DecayLinearClassifier` containing the fitted parameters
         """
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
