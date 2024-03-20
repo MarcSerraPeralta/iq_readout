@@ -34,6 +34,7 @@ class TwoStateClassifier:
         0: [],
         1: [],
     }
+    _num_states = 2
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """
@@ -270,6 +271,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         0: [],
         1: [],
     }
+    _num_states = 2
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """
@@ -422,6 +424,7 @@ class ThreeStateClassifier:
         1: [],
         2: [],
     }
+    _num_states = 3
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """

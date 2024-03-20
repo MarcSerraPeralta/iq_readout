@@ -126,7 +126,7 @@ def plot_boundaries_2d(
 
 def plot_contour_pdf_2d(
     ax: plt.Axes,
-    classifier,
+    pdf_func: callable,
     xlim: Tuple[float, float] = None,
     ylim: Tuple[float, float] = None,
     contour_levels: np.ndarray = [1 / np.e],
@@ -160,7 +160,7 @@ def plot_contour_pdf_2d(
     x, y = np.linspace(*xlim, 1_000), np.linspace(*ylim, 1_000)
     xx, yy = np.meshgrid(x, y, indexing="ij")
     XX = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
-    prediction = classifier.predict(XX)
+    pdf = pdf_func(XX)
 
     ax.contour(
         xx,
