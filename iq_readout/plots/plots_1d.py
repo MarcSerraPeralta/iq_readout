@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -60,7 +60,7 @@ def plot_pdf_projected(
     return ax
 
 
-def summary_pdfs_projected(
+def plot_two_pdfs_projected(
     ax: plt.Axes,
     classifier,
     shots_0: np.ndarray,
@@ -219,15 +219,13 @@ def plot_pdf_along_line(
     return ax
 
 
-def summary_pdfs_along_line(
+def plot_several_pdfs_along_line(
     ax: plt.Axes,
     points: Tuple[Tuple[float, float], Tuple[float, float]],
     classifier,
-    shots_0: np.ndarray,
-    shots_1: np.ndarray,
-    shots_2: np.ndarray,
-    labels: Optional[Tuple[str, str, str]] = None,
-    colors: Optional[Tuple[str, str, str]] = None,
+    *shots: List[np.ndarray],
+    labels: Optional[List[str]] = None,
+    colors: Optional[List[str]] = None,
 ) -> plt.Axes:
     """
     Plots the projected experimental histogram and the fitted pdf
@@ -239,18 +237,14 @@ def summary_pdfs_along_line(
         Matplotlib axis
     points: (mean_1, mean_2)
         Points defining the line in which to project the data
-    shots_0: np.ndarray(N, 2)
-        Experimental data for state 0
-    shots_1: np.ndarray(N, 2)
-        Experimental data for state 1
-    shots_2: np.ndarray(N, 2)
-        Experimental data for state 2
+    shots: [np.ndarray(N, 2), np.ndarray(N, 2), ...]
+        Experimental data for state 0, 1, ...
     classifier:
         Class with 'pdf_0', 'pdf_1' and 'pdf_2' functions
-    labels: (label_0, label_1, label_2)
-        Labels for the state 0, 1, and 2 data
-    colors: (color_0, color_1, color_2)
-        Colors for the state 0, 1, and 2 data
+    labels: (label_0, label_1, ...)
+        Labels for the state 0, 1, ... data
+    colors: (color_0, color_1, ...)
+        Colors for the state 0, 1, ... data
 
     Returns
     -------
@@ -259,25 +253,24 @@ def summary_pdfs_along_line(
     """
     if labels is None:
         labels = ["0", "1", "2"]
+        num_states = classifier._num_states
+        labels = labels[:num_states]
     if colors is None:
         colors = ["orange", "blue", "green"]
-    if len(labels) != 3:
+        num_states = classifier._num_states
+        colors = colors[:num_states]
+    if (len(labels) != len(colors)) or (len(shots) != len(colors)):
         raise ValueError(
-            f"'labels' must contain 3 elements, but {len(labels)} were given"
-        )
-    if len(colors) != 3:
-        raise ValueError(
-            f"'colors' must contain 3 elements, but {len(colors)} were given"
-        )
-    if set(["pdf_0", "pdf_1", "pdf_2"]) > set(dir(classifier)):
-        raise ValueError(
-            "'classifier' must have the following methods: "
-            "'pdf_0', 'pdf_1', and 'pdf_2'; "
-            f"but it has {dir(classifier)}"
+            "'labels', 'colors' and 'shots' must have same length, "
+            f"but {len(labels)}, {len(colors)}, {len(shots)} were given"
         )
 
-    shots = [shots_0, shots_1, shots_2]
-    pdfs = [classifier.pdf_0, classifier.pdf_1, classifier.pdf_2]
+    if classifier._num_states == 2:
+        pdfs = [classifier.pdf_0, classifier.pdf_1]
+    elif classifier._num_states == 3:
+        pdfs = [classifier.pdf_0, classifier.pdf_1, classifier.pdf_2]
+    else:
+        raise ValueError("Not implemented yet")
 
     for shot, pdf, color, label in zip(shots, pdfs, colors, labels):
         ax = plot_pdf_along_line(ax, points, shot, pdf, label=label, color=color)

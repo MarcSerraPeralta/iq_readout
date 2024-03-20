@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from .plots_1d import summary_pdfs_projected, summary_pdfs_along_line
+from .plots_1d import plot_two_pdfs_projected, plot_several_pdfs_along_line
 from .plots_2d import plot_shots_2d, plot_boundaries_2d, plot_contour_pdf_2d
 from ..metrics import get_probs_prep_meas, plot_probs_prep_meas
 
@@ -34,7 +34,7 @@ def two_state_classifier(
     probs = get_probs_prep_meas(classifier, shots_0, shots_1)
     axes[1] = plot_probs_prep_meas(axes[1], probs)
 
-    axes[2] = summary_pdfs_projected(
+    axes[2] = plot_two_pdfs_projected(
         axes[2],
         classifier,
         shots_0,
@@ -76,7 +76,7 @@ def three_state_classifier(
     mu_1 = [params[1]["mu_1_x"], params[1]["mu_1_y"]]
     mu_2 = [params[2]["mu_2_x"], params[2]["mu_2_y"]]
 
-    summary_pdfs_along_line(
+    plot_several_pdfs_along_line(
         axes[1, 0],
         [mu_0, mu_1],
         classifier,
@@ -87,7 +87,7 @@ def three_state_classifier(
     axes[1, 0].set_title("projection: 0-1")
     axes[1, 0].legend().remove()
 
-    summary_pdfs_along_line(
+    plot_several_pdfs_along_line(
         axes[1, 1],
         [mu_1, mu_2],
         classifier,
@@ -98,7 +98,7 @@ def three_state_classifier(
     axes[1, 1].set_title("projection: 1-2")
     axes[1, 1].legend().remove()
 
-    summary_pdfs_along_line(
+    plot_several_pdfs_along_line(
         axes[1, 2],
         [mu_0, mu_2],
         classifier,
