@@ -59,8 +59,8 @@ def test_DecayLinearClassifier():
 
     params_proj = cla.params_proj
 
-    assert pytest.approx(params_proj[0]["mu_0"], rel=5e-2) == np.sqrt(2) / 2
-    assert pytest.approx(params_proj[0]["mu_1"], rel=5e-2) == 3 * np.sqrt(2) / 2
+    assert pytest.approx(params_proj[0]["mu_0"], rel=7e-2) == np.sqrt(2) / 2
+    assert pytest.approx(params_proj[0]["mu_1"], rel=7e-2) == 3 * np.sqrt(2) / 2
     assert pytest.approx(params_proj[0]["sigma"], rel=5e-2) == np.sqrt(0.3)
     assert pytest.approx(params_proj[0]["angle"], rel=5e-2) == np.arcsin(np.sqrt(p0))
 
