@@ -48,7 +48,7 @@ Given $\vec{z}$, a max-likelihood classifier outputs the class $c$ that has larg
 
 ## Linearity
 
-The decision boundary for (2-state) max-likelihood classifiers is given by the (parametrized) curve $\vec{d}(t)$ that fulfills $p(0|\vec{d}) = p(1|\vec{d}) \;\forall t$. As the PDFs $p(\vec{z}|i)$ are symmetric with respect to $z_{\parallel}$, the decision boundary must also be symmetric. Moreover, because the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$ (i.e. $\tilde{N}_1(z_{\perp}; \vec{\mu}_{1,\perp}, \sigma)$ with $\vec{\mu}_{1,\perp}=\vec{\mu}_{0,\perp}$), then the decision boundary is of the form $f(z_{\parallel}) = g(z_{\parallel}) \\;\forall z_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z_{\parallel}) = g(z_{\parallel})$. 
+The decision boundary for (2-state) max-likelihood classifiers is given by the (parametrized) curve $\vec{d}(t)$ that fulfills $p(0|\vec{d}) = p(1|\vec{d}) \;\forall t$. As the PDFs $p(\vec{z}|i)$ are symmetric with respect to $z\_{\parallel}$, the decision boundary must also be symmetric. Moreover, because the contribution of $z_{\perp}$ to $p(\vec{z}|i)$ is the same for both $i=0$ and $i=1$ (i.e. $\tilde{N}\_1(z\_{\perp}; \vec{\mu}\_{1,\perp}, \sigma)$ with $\vec{\mu}\_{1,\perp}=\vec{\mu}\_{0,\perp}$), then the decision boundary is of the form $f(z\_{\parallel}) = g(z\_{\parallel}) \\;\forall z\_{\perp}$. Therefore the decision boundary is a straight line along the direction of $\hat{e}\_{\perp}$ that crosses the point in the $\hat{e}\_{\parallel}$-axis that fulfills $f(z\_{\parallel}) = g(z\_{\parallel})$. 
 
 
 ## Notes on the algorithm
