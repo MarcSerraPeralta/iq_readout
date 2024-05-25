@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from iq_readout.plots.plots_1d import plot_pdf_projected
+from iq_readout.plots.shots1d import plot_pdf_projected
 
 
 def test_plot_pdf_projected(show_figures):

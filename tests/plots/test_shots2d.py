@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from iq_readout.plots.plots_2d import plot_shots_2d
+from iq_readout.plots.shots2d import plot_shots_2d
 
 
 def test_plot_shots_2d(show_figures):

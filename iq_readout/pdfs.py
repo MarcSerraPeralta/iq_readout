@@ -27,9 +27,7 @@ def simple_1d_gaussian(
     prob: np.array(...)
         Values of the probability density function
     """
-    prob = (
-        1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-0.5 * (x - mu) ** 2 / sigma**2)
-    )
+    prob = 1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-0.5 * (x - mu) ** 2 / sigma**2)
     return prob
 
 
@@ -224,9 +222,7 @@ def decay_amplitude_1d_pdf(
         np.sqrt(2) * np.abs(mu_1 - mu_0) * t1_norm
     )
     P = 0.5 * (mu_1 - mu_0) ** 2 / sigma**2
-    prob_0 = np.exp(-0.5 * (x - mu_1) ** 2 / sigma**2) / np.sqrt(
-        2 * np.pi * sigma**2
-    )
+    prob_0 = np.exp(-0.5 * (x - mu_1) ** 2 / sigma**2) / np.sqrt(2 * np.pi * sigma**2)
     prob_1 = (
         np.exp(-0.5 * (x - mu_0) ** 2 / sigma**2 + C**2)
         / (np.sqrt(2 * np.pi * sigma**2) * t1_norm)

@@ -10,7 +10,7 @@ def generate_parameters(funct):
     my_params = {}
 
     # need to set mu_0 to avoid division by 0 errors in PDF from decay
-    for (key, var_type) in list(params.items())[1:]:
+    for key, var_type in list(params.items())[1:]:
         if "mu_0" in key:
             my_params[key] = 0
         else:

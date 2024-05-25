@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from .plots_1d import plot_two_pdfs_projected, plot_several_pdfs_along_line
-from .plots_2d import plot_shots_2d, plot_boundaries_2d, plot_contour_pdf_2d
+from .shots1d import plot_two_pdfs_projected, plot_several_pdfs_along_line
+from .shots2d import plot_shots_2d, plot_boundaries_2d, plot_contour_pdf_2d
 from ..metrics import get_probs_prep_meas, plot_probs_prep_meas
 
 
