@@ -6,7 +6,7 @@ from iq_readout.two_state_classifiers import GaussMixLinearClassifier
 from iq_readout.plots import summary
 
 
-def test_summary_two_state():
+def test_summary_two_state(show_figures):
     N, M = 100_000, 150_000
     mu0, mu1 = np.array([0, 0]), np.array([2, 0])
     cov = np.array([[0.3, 0], [0, 0.3]])
@@ -28,13 +28,14 @@ def test_summary_two_state():
 
     fig = summary(cla, shots_0, shots_1)
 
-    # plt.show()
+    if show_figures:
+        plt.show()
     plt.close()
 
     return
 
 
-def test_summary_three_state():
+def test_summary_three_state(show_figures):
     N, M, P = 100_000, 150_000, 125_000
     mu0, mu1, mu2 = np.array([0, 0]), np.array([1, 0]), np.array([1, 1])
     cov = np.array([[0.05, 0], [0, 0.05]])
@@ -80,7 +81,8 @@ def test_summary_three_state():
 
     fig = summary(cla, shots_0, shots_1, shots_2)
 
-    # plt.show()
+    if show_figures:
+        plt.show()
     plt.close()
 
     return

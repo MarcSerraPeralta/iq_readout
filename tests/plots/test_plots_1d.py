@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from iq_readout.plots.plots_1d import plot_pdf_projected
 
 
-def test_plot_pdf_projected():
+def test_plot_pdf_projected(show_figures):
     fig, ax = plt.subplots()
 
     mu0, mu1 = np.array([0, 4])
@@ -17,7 +17,8 @@ def test_plot_pdf_projected():
 
     plot_pdf_projected(ax, shots_0, pdf)
 
-    # plt.show()
+    if show_figures:
+        plt.show()
     plt.close()
 
     return
