@@ -1,0 +1,22 @@
+import os
+import pathlib
+
+
+DIR_EXCEPTIONS = ["__pycache__"]
+FILE_EXCEPTIONS = ["__init__.py"]
+
+
+def test_tests():
+    test_dir = pathlib.Path("tests")
+    mod_dir = pathlib.Path("iq_readout")
+    for path, dirs, files in os.walk(mod_dir):
+        for file in files:
+            if file[-3:] != ".py":
+                continue
+
+            # change root dir from "iq_readout" to test_dir
+            relpath = os.path.relpath(path, mod_dir)
+            testpath = os.path.join(test_dir, relpath)
+            if file not in FILE_EXCEPTIONS:
+                assert os.path.exists(os.path.join(testpath, "test_" + file))
+    return
