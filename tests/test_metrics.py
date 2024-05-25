@@ -1,9 +1,8 @@
 import numpy as np
 import pytest
-import matplotlib.pyplot as plt
 
 from iq_readout.two_state_classifiers import GaussMixLinearClassifier
-from iq_readout.metrics import get_probs_prep_meas, plot_probs_prep_meas
+from iq_readout.metrics import get_probs_prep_meas
 
 
 def test_get_probs_prep_meas():
@@ -50,18 +49,5 @@ def test_get_probs_prep_meas():
     assert probs.shape == (2, 2)
     assert probs[1, 0] > probs[0, 1]
     assert pytest.approx(probs.sum(axis=1)) == np.ones(2)
-
-    return
-
-
-def test_plot_probs_prep_meas():
-    probs = np.array([[0.9, 0.1, 0.1], [0.4, 0.7, 0.4], [0.2, 0.2, 0.8]])
-
-    fig, ax = plt.subplots()
-
-    plot_probs_prep_meas(ax, probs)
-
-    # plt.show()
-    plt.close()
 
     return

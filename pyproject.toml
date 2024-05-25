@@ -30,3 +30,8 @@ namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 [project.optional-dependencies]
 dev = ["pip-tools", "pytest", "scalene", "black"]
 
+[tool.pytest.ini_options]
+addopts = [
+    # Allow test files to have the same name in different directories.
+    "--import-mode=importlib",
+]
