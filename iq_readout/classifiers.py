@@ -230,9 +230,13 @@ class TwoStateClassifier:
                 )
 
             for key, value in p.items():
-                if (not isinstance(value, float)) and (not isinstance(value, int)):
+                if (
+                    (not isinstance(value, float))
+                    and (not isinstance(value, int))
+                    and (not isinstance(value, np.ndarray))
+                ):
                     raise TypeError(
-                        f"'params[{state}][{key}]' must be a float, "
+                        f"'params[{state}][{key}]' must be a float/int/np.ndarray, "
                         f"but {type(value)} was given"
                     )
 

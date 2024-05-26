@@ -296,3 +296,57 @@ def decay_amplitude_2d_pdf(
     prob = prob_para * prob_perp
 
     return prob
+
+
+def pdf_from_hist1d(x, bins, pdf_values):
+    """
+    Returns the PDF value from the 1D histogram bins closest to `x`.
+
+    Parameters
+    ----------
+    x: np.array(...)
+        Points in the 1D space.
+    bins: np.ndarray(n_bins)
+        Centers of the bins of the 1D histogram.
+    pdf_values: np.ndarray(n_bins)
+        Normalized counts of the 1D histogram.
+
+    Returns
+    -------
+    prob: np.ndarray(...)
+        Values of the probability density function.
+    """
+    idxs = np.searchsorted(bins, x + np.diff(bins)[0] / 2, side="right") - 1
+    return pdf_values[idxs]
+
+
+def pdf_from_hist2d(z, bins_x, bins_y, pdf_values):
+    """
+    Returns the PDF value from the 2D histogram bins closest to `x`.
+
+    Parameters
+    ----------
+    z: np.array(..., 2)
+        Points in the 2D space.
+    bins_x: np.ndarray(n_bins_x)
+        Centers of the X-axis bins of the 2D histogram.
+    bins_y: np.ndarray(n_bins_y)
+        Centers of the Y-axis bins of the 2D histogram.
+    pdf_values: np.ndarray(n_bins_x, n_bins_y)
+        Normalized counts of the 2D histogram.
+
+    Returns
+    -------
+    prob: np.ndarray(...)
+        Values of the probability density function.
+    """
+    check_2d_input(z)
+    idxs_x = (
+        np.searchsorted(bins_x, z[..., 0] + np.diff(bins_x)[0] / 2, side="right") - 1
+    )
+    idxs_y = (
+        np.searchsorted(bins_y, z[..., 1] + np.diff(bins_y)[0] / 2, side="right") - 1
+    )
+    prob = pdf_values[idxs_x.flatten(), idxs_y.flatten()]
+    prob = prob.reshape(np.shape(z)[:-1])
+    return prob
