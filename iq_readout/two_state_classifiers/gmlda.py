@@ -1,7 +1,7 @@
 from __future__ import annotations
 import warnings
+from typing import Dict
 
-from copy import deepcopy
 import numpy as np
 from scipy.optimize import curve_fit
 
