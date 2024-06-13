@@ -11,7 +11,7 @@ def test_tests():
     mod_dir = pathlib.Path("iq_readout")
     for path, dirs, files in os.walk(mod_dir):
         for file in files:
-            if file[-3:] != ".py":
+            if file[-3:] != ".py" or file[0] == "_":
                 continue
 
             # change root dir from "iq_readout" to test_dir
