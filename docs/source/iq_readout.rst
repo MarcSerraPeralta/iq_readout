@@ -1,55 +1,15 @@
-iq\_readout package
-===================
-
-Subpackages
------------
+iq\_readout 
+===========
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
-   iq_readout.plots
    iq_readout.three_state_classifiers
    iq_readout.two_state_classifiers
 
-Submodules
-----------
+.. toctree::
+   :maxdepth: 3
 
-iq\_readout.classifiers module
-------------------------------
+   iq_readout.plots
+   iq_readout.metrics
 
-.. automodule:: iq_readout.classifiers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-iq\_readout.metrics module
---------------------------
-
-.. automodule:: iq_readout.metrics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-iq\_readout.pdfs module
------------------------
-
-.. automodule:: iq_readout.pdfs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-iq\_readout.utils module
-------------------------
-
-.. automodule:: iq_readout.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: iq_readout
-   :members:
-   :undoc-members:
-   :show-inheritance:
