@@ -36,3 +36,4 @@ six==1.16.0
     # via python-dateutil
 zipp==3.17.0
     # via importlib-resources
+PyYAML==6.0.1
