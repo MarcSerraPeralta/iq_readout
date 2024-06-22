@@ -7,7 +7,7 @@
 # Autogenerate documentation from the comments of the code
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../iq_readout/'))
+sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -20,7 +20,10 @@ release = '0.0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = [
+        'sphinx.ext.autodoc', # autogenerate documentation
+        'sphinx.ext.viewcode' # adds link to view source code
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
