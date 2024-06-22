@@ -28,7 +28,7 @@ include = ["iq_readout", "iq_readout.*"]  # package names should match these glo
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [project.optional-dependencies]
-dev = ["pip-tools", "pytest", "scalene", "black"]
+dev = ["pip-tools", "pytest", "scalene", "black", "sphinx", "sphinx-rtd-theme"]
 
 [tool.pytest.ini_options]
 addopts = [
