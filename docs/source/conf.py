@@ -22,7 +22,7 @@ release = '0.0.1'
 
 extensions = [
         'sphinx.ext.autodoc', # autogenerate documentation
-        'sphinx.ext.viewcode' # adds link to view source code
+        'sphinx.ext.viewcode', # adds link to view source code
 ]
 
 templates_path = ['_templates']
