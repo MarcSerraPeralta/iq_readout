@@ -11,10 +11,5 @@ IQ readout
    :caption: Contents
 
    intro
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Module
-
-   iq_readout
+   api
 
