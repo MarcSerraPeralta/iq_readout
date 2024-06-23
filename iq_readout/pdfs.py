@@ -40,7 +40,7 @@ def simple_1d_gaussian_double_mixture(
 ) -> np.ndarray:
     """
     Probability density function corresponding to the sum of two
-    `simple_1d_gaussian`s
+    `simple_1d_gaussian`
 
     Parameters
     ----------
@@ -109,7 +109,7 @@ def simple_2d_gaussian_double_mixture(
 ) -> np.ndarray:
     """
     Probability density function corresponding to the sum of two
-    `simple_2d_gaussian`s
+    `simple_2d_gaussian`
 
     Parameters
     ----------
@@ -156,7 +156,7 @@ def simple_2d_gaussian_triple_mixture(
 ) -> np.ndarray:
     """
     Probability density function corresponding to the sum of three
-    `simple_2d_gaussian`s
+    `simple_2d_gaussian`
 
     Parameters
     ----------
