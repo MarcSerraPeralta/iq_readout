@@ -36,3 +36,11 @@ exclude_patterns = []
 
 html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
+html_logo = "_static/logo.svg"
+html_theme_options = {
+        "logo": {
+            "text": "IQ readout",
+            "image_dark": "_static/logo_dark.svg",
+            },
+        }
+
