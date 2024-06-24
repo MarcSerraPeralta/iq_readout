@@ -11,3 +11,5 @@ API Documentation
    iq_readout.plots
    iq_readout.metrics
    iq_readout.utils
+   iq_readout.classifiers
+   iq_readout.pdfs

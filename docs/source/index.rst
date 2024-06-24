@@ -11,5 +11,6 @@ IQ readout
    :caption: Contents
 
    intro
+   classifier_docs
    api
 

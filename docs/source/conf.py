@@ -36,6 +36,7 @@ numpydoc_show_class_members = False
 autosummary_ignore_module_all = False # create summary for elements in __all__
 autosummary_imported_members = False
 add_module_names = False
+autodoc_inherit_docstrings = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
