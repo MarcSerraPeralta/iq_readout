@@ -9,6 +9,21 @@ def generate_parameters(funct):
     params = signature(funct).parameters
     my_params = {}
 
+    # pdfs built from hist use args which are not float
+    if "pdf_from_hist1d" == funct.__name__:
+        params = {
+                "bins": np.linspace(-1, 2, 10),
+                "pdf_values": np.ones(10)/3,
+        }
+        return params
+    if "pdf_from_hist2d" == funct.__name__:
+        params = {
+                "bins_x": np.linspace(-1, 2, 10),
+                "bins_y": np.linspace(-2, 1, 20),
+                "pdf_values": np.ones((10, 20))/9,
+        }
+        return params
+
     # need to set mu_0 to avoid division by 0 errors in PDF from decay
     for key, var_type in list(params.items())[1:]:
         if "mu_0" in key:
@@ -45,7 +60,6 @@ def test_pdf_normalized():
     for name, pdf in pdfs.__dict__.items():
         if not callable(pdf) or name in IMPORTED_FUNCTS:
             continue
-        print(name)
         if "1d" in name:
             assert is_normalized_1d(pdf)
         elif "2d" in name:

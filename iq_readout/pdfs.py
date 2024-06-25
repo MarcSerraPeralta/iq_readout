@@ -366,8 +366,11 @@ def pdf_from_hist1d(x, bins, pdf_values):
     prob: np.ndarray(...)
         Values of the probability density function.
     """
-    idxs = np.searchsorted(bins, x + np.diff(bins)[0] / 2, side="right") - 1
-    return pdf_values[idxs]
+    bin_sep = bins[1] - bins[0]
+    idxs = np.searchsorted(bins, x + bin_sep / 2, side="right") - 1
+    prob = pdf_values[idxs]
+    prob[(x < bins[0] - bin_sep / 2) | (x > bins[-1] - bin_sep / 2)] = 0
+    return prob
 
 
 def pdf_from_hist2d(z, bins_x, bins_y, pdf_values):
@@ -391,12 +394,16 @@ def pdf_from_hist2d(z, bins_x, bins_y, pdf_values):
         Values of the probability density function.
     """
     check_2d_input(z)
+    bin_sep_x = bins_x[1] - bins_x[0]
+    bin_sep_y = bins_y[1] - bins_y[0]
     idxs_x = (
-        np.searchsorted(bins_x, z[..., 0] + np.diff(bins_x)[0] / 2, side="right") - 1
+        np.searchsorted(bins_x, z[..., 0] + bin_sep_x / 2, side="right") - 1
     )
     idxs_y = (
-        np.searchsorted(bins_y, z[..., 1] + np.diff(bins_y)[0] / 2, side="right") - 1
+        np.searchsorted(bins_y, z[..., 1] + bin_sep_y / 2, side="right") - 1
     )
     prob = pdf_values[idxs_x.flatten(), idxs_y.flatten()]
     prob = prob.reshape(np.shape(z)[:-1])
+    prob[(z[..., 0] < bins_x[0] - bin_sep_x / 2) | (z[..., 0] > bins_x[-1] - bin_sep_x / 2)] = 0
+    prob[(z[..., 1] < bins_y[0] - bin_sep_y / 2) | (z[..., 1] > bins_y[-1] - bin_sep_y / 2)] = 0
     return prob
