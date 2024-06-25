@@ -5,3 +5,4 @@ Classifier Documentation
    :maxdepth: 1
    
    classifiers/gmlda
+   classifiers/decaylda
