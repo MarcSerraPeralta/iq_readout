@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict
+from typing import Dict, Callable
 
 import numpy as np
 
@@ -32,8 +32,10 @@ def _get_mean_from_hist2d(
     mean: np.ndarray(2)
         Mean of the 2D histogram data.
     """
-    mu_x = (bin_centers_x * density.sum(axis=1)).sum()
-    mu_y = (bin_centers_y * density.sum(axis=0)).sum()
+    dx = bin_centers_x[1] - bin_centers_x[0]
+    dy = bin_centers_y[1] - bin_centers_y[0]
+    mu_x = (bin_centers_x * density.sum(axis=1)).sum() * dx * dy
+    mu_y = (bin_centers_y * density.sum(axis=0)).sum() * dx * dy
     return np.array([mu_x, mu_y])
 
 
@@ -41,7 +43,7 @@ def _get_hist1d_from_hist2d(
     bin_centers_x: np.ndarray,
     bin_centers_y: np.ndarray,
     density: np.ndarray,
-    project_funct: callable,
+    project_funct: Callable,
     bins1d=None,
 ):
     """
@@ -80,7 +82,7 @@ def _get_hist1d_from_hist2d(
     zz = np.concatenate([xx[..., np.newaxis], yy[..., np.newaxis]], axis=-1)
     zz_proj = project_funct(zz)
     density_1d, xedges = np.histogram(
-        zz_proj.flatten(), weights=density.flatten(), bins=bins1d, density=True
+        zz_proj.flatten(), weights=density.T.flatten(), bins=bins1d, density=True
     )
     bin_centers_1d = 0.5 * (xedges[:-1] + xedges[1:])
     return bin_centers_1d, density_1d
