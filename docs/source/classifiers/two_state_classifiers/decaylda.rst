@@ -98,7 +98,7 @@ The algorithm for setting up the classifier from the readout calibraton data is 
 As the classifier is linear, the data can be projected to the axis orthogonal to the decision boundary. 
 The projection axis corresponds to the line with direction :math:`\vec{\mu}_1 - \vec{\mu}_0` that crosses these two means. 
 The direction is chosen this way to have the *blob* from state 0 on the left and the *blob* from state 1 on the right. 
-The projection axis be estimated from the means of the data for each class :math:`c` (:math:`\\{\vec{z}^{(i)}_c\\}_i`) given by
+The projection axis can be estimated from the means of the data for each class :math:`c`, :math:`\{\vec{z}^{(i)}_c\}_i`, given by
 
 .. math ::
    \vec{\nu}_c = \frac{1}{N}\sum_{i=1}^N \vec{z}^{(i)}_c, 

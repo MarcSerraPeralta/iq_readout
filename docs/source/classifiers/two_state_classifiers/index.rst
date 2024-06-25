@@ -6,3 +6,4 @@ Two-state classifiers
    
    gmlda
    decaylda
+   maxflda
