@@ -25,6 +25,7 @@ extensions = [
         'sphinx.ext.autosummary', # autogenerate documentation rst files
         'sphinx.ext.viewcode', # adds link to view source code
         'numpydoc', # use numpy docstring format
+        'matplotlib.sphinxext.plot_directive', # generate plots from code
 ]
 
 templates_path = ['_templates']
@@ -37,6 +38,10 @@ autosummary_ignore_module_all = False # create summary for elements in __all__
 autosummary_imported_members = False
 add_module_names = False
 autodoc_inherit_docstrings = True
+
+# avoid source, png, pdf links after every figure
+plot_html_show_source_link = False
+plot_html_show_formats = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

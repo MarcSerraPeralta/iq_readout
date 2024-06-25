@@ -30,6 +30,35 @@ with
 a 2D multivariate Gaussian with covariance matrix :math:`\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)`. 
 
 
+Example
+-------
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+   from iq_readout.two_state_classifiers import GaussMixLinearClassifier
+   from iq_readout.plots.shots1d import plot_two_pdfs_projected
+   from iq_readout.plots.shots2d import plot_shots_2d, plot_boundaries_2d
+   
+   shots_0, shots_1 = np.load("data_two_state_calibration.npy")
+   classifier = GaussMixLinearClassifier.fit(shots_0, shots_1)
+
+   fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4.5))
+   axes[0] = plot_shots_2d(axes[0], shots_0, shots_1)
+   axes[1] = plot_two_pdfs_projected(
+        axes[1],
+        classifier,
+        shots_0,
+        shots_1,
+   )
+   axes[0] = plot_boundaries_2d(axes[0], classifier)
+
+   axes[0].set_title("Decision boundaries")
+   axes[1].set_title("PDFs")
+   plt.show()
+
+
 Max-likelihood classifier
 -------------------------
 
