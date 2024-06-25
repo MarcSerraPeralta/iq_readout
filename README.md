@@ -5,14 +5,14 @@
 
 Classifiers for the IQ readout data from superconducting qubits.
 
-# Summary of classifiers
+For more information, check the [documentation website](https://iq-readout.readthedocs.io/en/latest/index.html).
 
-## 2-state classifiers
+## Installation
 
-1. [Gaussian-Mixture Linear Discriminant Analysis](iq_readout/two_state_classifiers/gmlda.md)
-1. [Decay Linear Discriminant Analysis](iq_readout/two_state_classifiers/decaylda.md)
-1. [Max-Fidelity Linear Discriminant Analysis](iq_readout/two_state_classifiers/maxflda.md)
+As the package has not been published on PyPi yet, it CANNOT be installed directly using pip. 
+One can use the following commands to install the package:
 
-## 3-state classifiers
-
-1. [Gaussian-Mixture Discriminant Analsys](iq_readout/three_state_classifiers/gmda.md)
+```
+git clone git@github.com:MarcSerraPeralta/iq_readout.git
+pip install iq_readout/
+```
