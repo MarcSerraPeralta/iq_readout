@@ -2,7 +2,6 @@ Classifier Documentation
 ========================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    
-   classifiers/gmlda
-   classifiers/decaylda
+   classifiers/two_state_classifiers/index
