@@ -1,6 +1,8 @@
 Gaussian-Mixture Discriminant Analysis
 ======================================
 
+Documentation for :py:mod:`iq_readout.three_state_classifiers.GaussMixClassifier`
+
 Characteristics
 ---------------
 
@@ -31,6 +33,61 @@ with
    \tilde{N}(\vec{z}; \vec{\mu}, \sigma) = \frac{1}{2 \pi \sigma^2} \exp \left( - \frac{|\vec{z} - \vec{\mu}|^2}{2\sigma^2}\right)
 
 a 2D multivariate Gaussian with covariance matrix :math:`\Sigma=\mathrm{diag}(\sigma^2, \sigma^2)`. 
+
+
+Example
+-------
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+   from iq_readout.three_state_classifiers import GaussMixClassifier
+   from iq_readout.plots.shots1d import plot_several_pdfs_along_line
+   from iq_readout.plots.shots2d import plot_shots_2d, plot_boundaries_2d 
+   
+   shots_0, shots_1, shots_2 = np.load("data_three_state_calibration.npy")
+   classifier = GaussMixClassifier.fit(shots_0, shots_1, shots_2)
+
+   fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 9))
+   axes[0, 0] = plot_shots_2d(axes[0, 0], shots_0, shots_1, shots_2)
+   axes[0, 0] = plot_boundaries_2d(axes[0, 0], classifier)
+
+   params = classifier.params
+   mu_0 = [params[0]["mu_0_x"], params[0]["mu_0_y"]]
+   mu_1 = [params[1]["mu_1_x"], params[1]["mu_1_y"]]
+   mu_2 = [params[2]["mu_2_x"], params[2]["mu_2_y"]]
+
+   plot_several_pdfs_along_line(
+       axes[0, 1],
+       [mu_0, mu_1],
+       classifier,
+       shots_0,
+       shots_1,
+       shots_2,
+   )
+   plot_several_pdfs_along_line(
+       axes[1, 0],
+       [mu_1, mu_2],
+       classifier,
+       shots_0,
+       shots_1,
+       shots_2,
+   )
+   plot_several_pdfs_along_line(
+       axes[1, 1],
+       [mu_0, mu_2],
+       classifier,
+       shots_0,
+       shots_1,
+       shots_2,
+   )
+
+   axes[0, 0].set_title("Decision boundaries")
+   axes[0, 1].set_title("PDFs projected in 0-1 axis")
+   axes[1, 0].set_title("PDFs projected in 1-2 axis")
+   axes[1, 1].set_title("PDFs projected in 0-2 axis")
+   plt.show()
 
 
 Max-likelihood classifier
