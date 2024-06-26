@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, Callable
+from typing import Dict, Callable, Union, Tuple
 
 import numpy as np
 
@@ -191,7 +191,7 @@ class MaxFidLinearClassifier(TwoStateLinearClassifier):
         cls: MaxFidLinearClassifier,
         shots_0: np.ndarray,
         shots_1: np.ndarray,
-        n_bins: int = 100,
+        n_bins: Union[Tuple[int, int], int] = 100,
     ) -> MaxFidLinearClassifier:
         """
         Fits the given data to extract the best parameters for classification.
@@ -212,7 +212,10 @@ class MaxFidLinearClassifier(TwoStateLinearClassifier):
         check_2d_input(shots_0, axis=1)
         check_2d_input(shots_1, axis=1)
         if isinstance(n_bins, int):
-            n_bins = [n_bins, n_bins]
+            n_bins = (n_bins, n_bins)
+        if (n_bins[0] <= 1) or (n_bins[1] <= 1):
+            raise ValueError("Each element of `n_bins` must be strictly larger"
+                             f" than 1, but {n_bins} was given.")
 
         # populate `params` during fitting
         params = {state: {} for state in range(2)}
