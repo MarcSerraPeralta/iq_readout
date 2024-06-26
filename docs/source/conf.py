@@ -43,6 +43,9 @@ autodoc_inherit_docstrings = True
 plot_html_show_source_link = False
 plot_html_show_formats = False
 
+# to be able to use ".. code-block::"
+pygments_style = 'sphinx'
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
