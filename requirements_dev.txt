@@ -39,3 +39,4 @@ zipp==3.17.0
 PyYAML==6.0.1
 pydata_sphinx_theme
 numpydoc
+sphinx-design
