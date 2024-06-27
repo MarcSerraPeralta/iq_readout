@@ -1,3 +1,6 @@
+"""Functions to plot the readout metrics.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 

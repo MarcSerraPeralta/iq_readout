@@ -1,3 +1,6 @@
+"""Readout metrics.
+"""
+
 import numpy as np
 
 
