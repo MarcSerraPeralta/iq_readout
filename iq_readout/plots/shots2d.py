@@ -1,3 +1,6 @@
+"""Functions to plot in 2D.
+"""
+
 from typing import Optional, Tuple, List
 
 import numpy as np
