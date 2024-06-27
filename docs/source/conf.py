@@ -26,6 +26,7 @@ extensions = [
         'sphinx.ext.viewcode', # adds link to view source code
         'numpydoc', # use numpy docstring format
         'matplotlib.sphinxext.plot_directive', # generate plots from code
+        'sphinx_design', # for grids
 ]
 
 templates_path = ['_templates']
@@ -43,12 +44,16 @@ autodoc_inherit_docstrings = True
 plot_html_show_source_link = False
 plot_html_show_formats = False
 
+# to be able to use ".. code-block::"
+pygments_style = 'sphinx'
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
 html_logo = "_static/logo.svg"
+html_css_files = ["options.css"]
 html_theme_options = {
         "logo": {
             "text": "IQ readout",

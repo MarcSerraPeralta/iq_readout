@@ -1,6 +1,8 @@
 Max-Fidelity Linear Discriminant Analysis
 =========================================
 
+Documentation for :py:mod:`iq_readout.two_state_classifiers.MaxFidLinearClassifier`
+
 Characteristics
 ---------------
 

@@ -12,19 +12,16 @@ T3 = TypeVar("T3", bound="ThreeStateClassifier")
 
 
 class TwoStateClassifier:
-    """
-    Template for creating two-state classifiers.
+    """Template for creating two-state classifiers.
 
     The functions to be rewritten for each specific classifier are:
-    * <class attributes>
-        specify the pdf functions and parameter names
-    * statistics
-        compute the statistics
-    * fit
-        perform the fit
 
-    NB: if the classifier does not use max-likelihood classification,
-        then `predict` needs to the overwritten.
+    * ``class attributes``. specify the pdf functions and parameter names
+    * ``statistics``. compute the statistics
+    * ``fit``. perform the fit
+
+    NB. if the classifier does not use max-likelihood classification,
+    then ``predict`` needs to the overwritten.
     """
 
     _pdf_func_0 = None
@@ -37,17 +34,20 @@ class TwoStateClassifier:
     _num_states = 2
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
-        """
-        Loads params to `TwoStateClassifier`.
+        """Loads params to ``TwoStateClassifier``.
 
         Parameters
         ----------
-        params
-            The structure of the dictionary must be:
-            {
-                0: {"param1": float, ...},
-                1: {"param1": float, ...}
-            }
+        params : dict
+            The structure of the dictionary must be
+
+            .. code-block:: python
+            
+               {
+                   0: {"param1": float, ...},
+                   1: {"param1": float, ...}
+               }
+
         """
         self._check_params(params)
 
@@ -244,21 +244,18 @@ class TwoStateClassifier:
 
 
 class TwoStateLinearClassifier(TwoStateClassifier):
-    """
-    Template for creating two-state linear classifiers.
+    """Template for creating two-state linear classifiers.
 
     The functions to be rewritten for each specific classifier are:
-    * <class attributes>
-        specify the pdf functions and parameter names
-    * statistics
-        compute the statistics
-    * params_proj
-        compute parameters for projected pdf from `params`
-    * fit
-        perform the fit
 
-    NB: if the classifier does not use max-likelihood classification,
-        then `predict` needs to the overwritten.
+    * class attributes. specify the pdf functions and parameter names
+    * statistics. compute the statistics
+    * params_proj. compute parameters for projected pdf from `params`
+    * fit. perform the fit
+
+    NB. if the classifier does not use max-likelihood classification,
+    then ``predict`` needs to the overwritten.
+
     """
 
     _pdf_func_0 = None
@@ -279,16 +276,20 @@ class TwoStateLinearClassifier(TwoStateClassifier):
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
         """
-        Loads params to `TwoStateLinearClassifier`.
+        Loads params to ``TwoStateLinearClassifier``.
 
         Parameters
         ----------
         params
-            The structure of the dictionary must be:
-            {
-                0: {"param1": float, ...},
-                1: {"param1": float, ...}
-            }
+            The structure of the dictionary must be 
+
+            .. code-block:: python
+
+               {
+                   0: {"param1": float, ...},
+                   1: {"param1": float, ...}
+               }
+
         """
         self._check_params(params)
 
@@ -404,19 +405,16 @@ class TwoStateLinearClassifier(TwoStateClassifier):
 
 
 class ThreeStateClassifier:
-    """
-    Template for creating three-state classifiers.
+    """Template for creating three-state classifiers.
 
     The functions to be rewritten for each specific classifier are:
-    * <class attributes>
-        specify the pdf functions and parameter names
-    * statistics
-        compute the statistics
-    * fit
-        perform the fit
+    * class attributes. specify the pdf functions and parameter names
+    * statistics. compute the statistics
+    * fit. perform the fit
 
-    NB: if the classifier does not use max-likelihood classification,
-        then `predict` needs to the overwritten.
+    NB. if the classifier does not use max-likelihood classification,
+    then ``predict`` needs to the overwritten.
+
     """
 
     _pdf_func_0 = None
@@ -431,18 +429,21 @@ class ThreeStateClassifier:
     _num_states = 3
 
     def __init__(self, params: Dict[int, Dict[str, float]]):
-        """
-        Loads params to `ThreeStateClassifier`.
+        """Loads params to ``ThreeStateClassifier``.
 
         Parameters
         ----------
         params
-            The structure of the dictionary must be:
-            {
-                0: {"param1": float, ...},
-                1: {"param1": float, ...},
-                2: {"param1": float, ...},
-            }
+            The structure of the dictionary must be
+
+            .. code-block:: python
+
+               {
+                   0: {"param1": float, ...},
+                   1: {"param1": float, ...},
+                   2: {"param1": float, ...},
+               }
+
         """
         self._check_params(params)
 
