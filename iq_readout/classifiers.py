@@ -68,6 +68,16 @@ class TwoStateClassifier:
         """
         data = {"params": self.params, "extra": self.statistics}
 
+        # convert data to lists or floats to avoid having numpy objects
+        # inside the YAML file, which do not render correctly
+        def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
+            def funct(x):
+                if x.shape == ():
+                    return float(x)
+                return x.tolist()
+            return dumper.represent_list(funct(array))
+        yaml.add_representer(np.ndarray, ndarray_representer)   
+
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
         return
@@ -321,6 +331,12 @@ class TwoStateLinearClassifier(TwoStateClassifier):
             "extra": self.statistics,
         }
 
+        # convert data to lists or floats to avoid having numpy objects
+        # inside the YAML file, which do not render correctly
+        def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
+            return dumper.represent_list(array.tolist())
+        yaml.add_representer(np.ndarray, ndarray_representer)   
+
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
         return
@@ -338,6 +354,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         """
 
         # compute `params_proj` from `params` ...
+        params_proj = {}
 
         return params_proj
 
@@ -463,6 +480,12 @@ class ThreeStateClassifier:
             the `from_yaml` function
         """
         data = {"params": self.params, "extra": self.statistics}
+
+        # convert data to lists or floats to avoid having numpy objects
+        # inside the YAML file, which do not render correctly
+        def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
+            return dumper.represent_list(array.tolist())
+        yaml.add_representer(np.ndarray, ndarray_representer)   
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
