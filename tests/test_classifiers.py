@@ -1,3 +1,5 @@
+import numpy as np
+
 from iq_readout import classifiers
 
 
@@ -27,3 +29,25 @@ def test_ThreeStateClassifier():
     ATTRIBUTES = GENERAL_ATTRS + ["pdf_0", "pdf_1", "pdf_2"]
     assert set(dir(classifiers.ThreeStateClassifier)) >= set(ATTRIBUTES)
     return
+
+def test_to_from_yaml(tmp_path):
+    clfs = [
+        classifiers.TwoStateLinearClassifier, 
+        classifiers.TwoStateClassifier,
+        classifiers.ThreeStateClassifier,
+    ]
+
+    for clf in clfs:
+        clf._param_names = {i: ["a"] for i in range(clf._num_states)}
+        setattr(clf, "statistics", np.array([1., 2.]))
+        clf_1 = clf({i: {"a": 1.} for i in range(clf._num_states)})
+        clf_1.to_yaml(tmp_path / "clf.yaml")
+
+        with open(tmp_path / "clf.yaml", "r") as file:
+            data = file.read()
+        assert "numpy" not in data
+
+        clf_2 = clf.from_yaml(tmp_path / "clf.yaml")
+
+        assert clf_1.params == clf_2.params
+        
