@@ -81,6 +81,17 @@ def test_load():
     return
 
 
+def test_from_to_yaml(tmp_path):
+    cla = DecayLinearClassifier(PARAMS)
+    cla.to_yaml(tmp_path / "clf.yaml")
+
+    cla_loaded = DecayLinearClassifier.from_yaml(tmp_path / "clf.yaml")
+
+    assert cla.params == cla_loaded.params
+
+    return
+
+
 def test_pdfs():
     # needs rot angle to be 0
     params = {
