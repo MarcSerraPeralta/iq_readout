@@ -1,8 +1,7 @@
 from __future__ import annotations
 import warnings
-from typing import Tuple
+from typing import Dict
 
-from copy import deepcopy
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -20,7 +19,7 @@ class GaussMixClassifier(ThreeStateClassifier):
     _pdf_func_1 = simple_2d_gaussian_triple_mixture
     _pdf_func_2 = simple_2d_gaussian_triple_mixture
     # parameter name ordering must match the ordering in the pdf functions
-    names = [
+    _names = [
         "mu_0_x",
         "mu_0_y",
         "mu_1_x",
@@ -32,25 +31,25 @@ class GaussMixClassifier(ThreeStateClassifier):
         "angle2",
     ]
     _param_names = {
-        0: names,
-        1: names,
-        2: names,
+        0: _names,
+        1: _names,
+        2: _names,
     }
 
     @property
     def statistics(self) -> Dict[str, np.ndarray]:
         """
         Returns dictionary with general statistical data:
-        - mu_0: np.array([float, float])
-        - mu_1: np.array([float, float])
-        - mu_2: np.array([float, float])
-        - cov_0: np.array([[float, float], [float, float]])
-        - cov_1: np.array([[float, float], [float, float]])
-        - cov_2: np.array([[float, float], [float, float]])
-        It can also include other information.
+
+        * ``mu_0``: ``np.array([float, float])``
+        * ``mu_1``: ``np.array([float, float])``
+        * ``mu_2``: ``np.array([float, float])``
+        * ``cov_0``: ``np.array([[float, float], [float, float]])``
+        * ``cov_1``: ``np.array([[float, float], [float, float]])``
+        * ``cov_2``: ``np.array([[float, float], [float, float]])``
 
         NB: this property is used for plotting and for storing useful
-            information in the YAML file
+        information in the YAML file.
         """
         statistics = {}
 

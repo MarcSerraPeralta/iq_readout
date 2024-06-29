@@ -60,5 +60,6 @@ html_theme_options = {
             "image_dark": "_static/logo_dark.svg",
             },
         "show_prev_next": False,
+        "github_url": "https://github.com/MarcSerraPeralta/iq_readout",
         }
 
