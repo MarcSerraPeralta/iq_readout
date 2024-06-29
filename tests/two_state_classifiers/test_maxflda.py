@@ -81,6 +81,21 @@ def test_load():
     return
 
 
+def test_from_to_yaml(tmp_path):
+    cla = MaxFidLinearClassifier(PARAMS)
+    cla.to_yaml(tmp_path / "clf.yaml")
+
+    cla_loaded = MaxFidLinearClassifier.from_yaml(tmp_path / "clf.yaml")
+
+    assert cla.params.keys() == cla_loaded.params.keys()
+    # the params contain numpy arrays
+    for s in cla.params.keys():
+        assert cla.params[s].keys() == cla_loaded.params[s].keys()
+        for k in cla.params[s].keys():
+            assert np.array(cla.params[s][k] == cla_loaded.params[s][k]).all()
+    return
+
+
 def test_prediction():
     params = deepcopy(PARAMS)
     cla = MaxFidLinearClassifier(params)
