@@ -32,14 +32,18 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
 
     @property
     def params_proj(self) -> Dict[int, Dict[str, float]]:
-        """
-        Returns the parameters for the projected pdfs, computed
-        from `params`.
+        """Returns the parameters for the projected PDFs, computed
+        from ``params``.
+
         The structure of the output dictionary is:
-        {
-            0: {"param1": float, ...},
-            1: {"param1": float, ...}
-        }
+
+        .. code-block:: python
+        
+           {
+               0: {"param1": float, ...},
+               1: {"param1": float, ...},
+           }
+
         """
         params_proj = {state: {} for state in range(2)}
 
@@ -58,14 +62,14 @@ class GaussMixLinearClassifier(TwoStateLinearClassifier):
     def statistics(self) -> Dict[str, np.ndarray]:
         """
         Returns dictionary with general statistical data:
-        - mu_0: np.array([float, float])
-        - mu_1: np.array([float, float])
-        - cov_0: np.array([[float, float], [float, float]])
-        - cov_1: np.array([[float, float], [float, float]])
-        It can also include other information such as rot_angle, rot_shift, ...
+
+        * ``mu_0``: ``np.array([float, float])``
+        * ``mu_1``: ``np.array([float, float])``
+        * ``cov_0``: ``np.array([[float, float], [float, float]])``
+        * ``cov_1``: ``np.array([[float, float], [float, float]])``
 
         NB: this property is used for plotting and for storing useful
-            information in the YAML file
+        information in the YAML file.
         """
         statistics = {}
 

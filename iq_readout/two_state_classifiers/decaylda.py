@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Dict
 import warnings
 
 from copy import deepcopy
@@ -38,14 +39,18 @@ class DecayLinearClassifier(TwoStateLinearClassifier):
 
     @property
     def params_proj(self) -> Dict[int, Dict[str, float]]:
-        """
-        Returns the parameters for the projected pdfs, computed
-        from `params`.
+        """Returns the parameters for the projected PDFs, computed
+        from ``params``.
+
         The structure of the output dictionary is:
-        {
-            0: {"param1": float, ...},
-            1: {"param1": float, ...}
-        }
+
+        .. code-block:: python
+        
+           {
+               0: {"param1": float, ...},
+               1: {"param1": float, ...},
+           }
+
         """
         params_proj = {state: {} for state in range(2)}
 
