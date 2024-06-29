@@ -71,12 +71,18 @@ class TwoStateClassifier:
         # convert data to lists or floats to avoid having numpy objects
         # inside the YAML file, which do not render correctly
         def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
-            def funct(x):
-                if x.shape == ():
-                    return float(x)
-                return x.tolist()
-            return dumper.represent_list(funct(array))
+            return dumper.represent_list(array.tolist())
         yaml.add_representer(np.ndarray, ndarray_representer)   
+        # the values in "self.params" are np.core.multiarray.scalars,
+        # not "np.ndarray".
+        np_types = [np.int64, np.int32, np.float64, np.float32]
+        for np_type in np_types:
+            def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
+                if "int" in np_type.__name__:
+                    return dumper.represent_int(int(scalar))
+                else:
+                    return dumper.represent_float(float(scalar))
+            yaml.add_representer(np_type, nptype_representer)   
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
@@ -336,6 +342,16 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
             return dumper.represent_list(array.tolist())
         yaml.add_representer(np.ndarray, ndarray_representer)   
+        # the values in "self.params" are np.core.multiarray.scalars,
+        # not "np.ndarray".
+        np_types = [np.int64, np.int32, np.float64, np.float32]
+        for np_type in np_types:
+            def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
+                if "int" in np_type.__name__:
+                    return dumper.represent_int(int(scalar))
+                else:
+                    return dumper.represent_float(float(scalar))
+            yaml.add_representer(np_type, nptype_representer)   
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
@@ -486,6 +502,16 @@ class ThreeStateClassifier:
         def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
             return dumper.represent_list(array.tolist())
         yaml.add_representer(np.ndarray, ndarray_representer)   
+        # the values in "self.params" are np.core.multiarray.scalars,
+        # not "np.ndarray".
+        np_types = [np.int64, np.int32, np.float64, np.float32]
+        for np_type in np_types:
+            def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
+                if "int" in np_type.__name__:
+                    return dumper.represent_int(int(scalar))
+                else:
+                    return dumper.represent_float(float(scalar))
+            yaml.add_representer(np_type, nptype_representer)   
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
