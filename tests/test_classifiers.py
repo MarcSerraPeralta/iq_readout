@@ -39,8 +39,8 @@ def test_to_from_yaml(tmp_path):
 
     for clf in clfs:
         clf._param_names = {i: ["a"] for i in range(clf._num_states)}
-        setattr(clf, "statistics", np.array([1., 2.]))
-        clf_1 = clf({i: {"a": 1.} for i in range(clf._num_states)})
+        setattr(clf, "statistics", {"p": np.array([1., 2.])})
+        clf_1 = clf({i: {"a": np.core.multiarray.scalar(np.dtype(np.float64))} for i in range(clf._num_states)})
         clf_1.to_yaml(tmp_path / "clf.yaml")
 
         with open(tmp_path / "clf.yaml", "r") as file:
