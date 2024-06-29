@@ -33,7 +33,7 @@ class TwoStateClassifier:
     }
     _num_states = 2
 
-    def __init__(self, params: Dict[int, Dict[str, float]]):
+    def __init__(self, params: Dict[int, Dict[str, Union[float, np.ndarray]]]):
         """Loads params to ``TwoStateClassifier``.
 
         Parameters
@@ -68,6 +68,27 @@ class TwoStateClassifier:
         """
         data = {"params": self.params, "extra": self.statistics}
 
+        # convert data to lists or floats to avoid having numpy objects
+        # inside the YAML file, which do not render correctly
+        def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
+            if array.shape == (): # corresponds to a scalar
+                if "int" in array.dtype.__str__():
+                    return dumper.represent_int(int(array))
+                else:
+                    return dumper.represent_float(float(array))
+            return dumper.represent_list(array.tolist())
+        yaml.add_representer(np.ndarray, ndarray_representer)   
+        # the values in "self.params" are np.core.multiarray.scalars,
+        # not "np.ndarray".
+        np_types = [np.int64, np.int32, np.float64, np.float32]
+        for np_type in np_types:
+            def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
+                if "int" in np_type.__name__:
+                    return dumper.represent_int(int(scalar))
+                else:
+                    return dumper.represent_float(float(scalar))
+            yaml.add_representer(np_type, nptype_representer)   
+
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
         return
@@ -82,10 +103,13 @@ class TwoStateClassifier:
         with open(filename, "r") as file:
             data = yaml.safe_load(file)
 
-        return cls(data["params"])
+        # transform all parameters to np.arrays
+        params = {s: {n: np.array(v) for n, v in p.items()} for s, p in data["params"].items()}
+
+        return cls(params)
 
     @property
-    def params(self) -> Dict[int, Dict[str, float]]:
+    def params(self) -> Dict[int, Dict[str, Union[float, np.ndarray]]]:
         """
         Returns the parameters required to set up the classifier.
         The structure of the output dictionary is:
@@ -210,7 +234,7 @@ class TwoStateClassifier:
         # thus they are available in the class of `self`, not the instance of `self`
         return self.__class__._pdf_func_1(z, *self._param_values[1])
 
-    def _check_params(self, params: Dict[int, Dict[str, float]]):
+    def _check_params(self, params: Dict[int, Dict[str, Union[float, np.ndarray]]]):
         if not isinstance(params, dict):
             raise TypeError(f"'params' must be a dict, but {type(params)} was given")
         if set(params) != set([0, 1]):
@@ -274,7 +298,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
     }
     _num_states = 2
 
-    def __init__(self, params: Dict[int, Dict[str, float]]):
+    def __init__(self, params: Dict[int, Dict[str, Union[float, np.ndarray]]]):
         """
         Loads params to ``TwoStateLinearClassifier``.
 
@@ -321,12 +345,33 @@ class TwoStateLinearClassifier(TwoStateClassifier):
             "extra": self.statistics,
         }
 
+        # convert data to lists or floats to avoid having numpy objects
+        # inside the YAML file, which do not render correctly
+        def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
+            if array.shape == (): # corresponds to a scalar
+                if "int" in array.dtype.__str__():
+                    return dumper.represent_int(int(array))
+                else:
+                    return dumper.represent_float(float(array))
+            return dumper.represent_list(array.tolist())
+        yaml.add_representer(np.ndarray, ndarray_representer)   
+        # the values in "self.params" can be np.core.multiarray.scalars,
+        # not "np.ndarray".
+        np_types = [np.int64, np.int32, np.float64, np.float32]
+        for np_type in np_types:
+            def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
+                if "int" in np_type.__name__:
+                    return dumper.represent_int(int(scalar))
+                else:
+                    return dumper.represent_float(float(scalar))
+            yaml.add_representer(np_type, nptype_representer)   
+
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
         return
 
     @property
-    def params_proj(self) -> Dict[int, Dict[str, float]]:
+    def params_proj(self) -> Dict[int, Dict[str, Union[float, np.ndarray]]]:
         """
         Returns the parameters for the projected pdfs, computed
         from `params`.
@@ -338,6 +383,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         """
 
         # compute `params_proj` from `params` ...
+        params_proj = {}
 
         return params_proj
 
@@ -428,7 +474,7 @@ class ThreeStateClassifier:
     }
     _num_states = 3
 
-    def __init__(self, params: Dict[int, Dict[str, float]]):
+    def __init__(self, params: Dict[int, Dict[str, Union[float, np.ndarray]]]):
         """Loads params to ``ThreeStateClassifier``.
 
         Parameters
@@ -464,6 +510,27 @@ class ThreeStateClassifier:
         """
         data = {"params": self.params, "extra": self.statistics}
 
+        # convert data to lists or floats to avoid having numpy objects
+        # inside the YAML file, which do not render correctly
+        def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
+            if array.shape == (): # corresponds to a scalar
+                if "int" in array.dtype.__str__():
+                    return dumper.represent_int(int(array))
+                else:
+                    return dumper.represent_float(float(array))
+            return dumper.represent_list(array.tolist())
+        yaml.add_representer(np.ndarray, ndarray_representer)   
+        # the values in "self.params" are np.core.multiarray.scalars,
+        # not "np.ndarray".
+        np_types = [np.int64, np.int32, np.float64, np.float32]
+        for np_type in np_types:
+            def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
+                if "int" in np_type.__name__:
+                    return dumper.represent_int(int(scalar))
+                else:
+                    return dumper.represent_float(float(scalar))
+            yaml.add_representer(np_type, nptype_representer)   
+
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
         return
@@ -478,10 +545,13 @@ class ThreeStateClassifier:
         with open(filename, "r") as file:
             data = yaml.safe_load(file)
 
-        return cls(data["params"])
+        # transform all parameters to np.arrays
+        params = {s: {n: np.array(v) for n, v in p.items()} for s, p in data["params"].items()}
+
+        return cls(params)
 
     @property
-    def params(self) -> Dict[int, Dict[str, float]]:
+    def params(self) -> Dict[int, Dict[str, Union[float, np.ndarray]]]:
         """
         Returns the parameters required to set up the classifier.
         The structure of the output dictionary is:
@@ -647,7 +717,7 @@ class ThreeStateClassifier:
         # thus they are available in the class of `self`, not the instance of `self`
         return self.__class__._pdf_func_2(z, *self._param_values[2])
 
-    def _check_params(self, params: Dict[int, Dict[str, float]]):
+    def _check_params(self, params: Dict[int, Dict[str, Union[float, np.ndarray]]]):
         if not isinstance(params, dict):
             raise TypeError(f"'params' must be a dict, but {type(params)} was given")
         if set(params) != set([0, 1, 2]):
@@ -667,9 +737,13 @@ class ThreeStateClassifier:
                 )
 
             for key, value in p.items():
-                if (not isinstance(value, float)) and (not isinstance(value, int)):
+                if (
+                    (not isinstance(value, float))
+                    and (not isinstance(value, int))
+                    and (not isinstance(value, np.ndarray))
+                ):
                     raise TypeError(
-                        f"'params[{state}][{key}]' must be a float, "
+                        f"'params[{state}][{key}]' must be a float/int/np.ndarray, "
                         f"but {type(value)} was given"
                     )
 

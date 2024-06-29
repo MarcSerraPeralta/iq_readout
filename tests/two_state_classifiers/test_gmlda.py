@@ -44,7 +44,6 @@ def test_GaussMixLinearClassifier():
     )
 
     cla = GaussMixLinearClassifier.fit(shots_0, shots_1)
-
     params = cla.params
 
     assert pytest.approx(params[0]["mu_0_x"], abs=2e-2) == mu_0[0]
@@ -78,6 +77,16 @@ def test_load():
     params["angle"] = None
     with pytest.raises(ValueError) as e_info:
         cla = GaussMixLinearClassifier(params)
+    return
+
+def test_from_to_yaml(tmp_path):
+    cla = GaussMixLinearClassifier(PARAMS)
+    cla.to_yaml(tmp_path / "clf.yaml")
+
+    cla_loaded = GaussMixLinearClassifier.from_yaml(tmp_path / "clf.yaml")
+
+    assert cla.params == cla_loaded.params
+
     return
 
 

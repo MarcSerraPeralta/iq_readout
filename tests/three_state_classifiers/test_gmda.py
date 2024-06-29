@@ -99,6 +99,17 @@ def test_load():
     return
 
 
+def test_from_to_yaml(tmp_path):
+    cla = GaussMixClassifier(PARAMS)
+    cla.to_yaml(tmp_path / "clf.yaml")
+
+    cla_loaded = GaussMixClassifier.from_yaml(tmp_path / "clf.yaml")
+
+    assert cla.params == cla_loaded.params
+
+    return
+
+
 def test_pdfs():
     cla = GaussMixClassifier(PARAMS)
 
