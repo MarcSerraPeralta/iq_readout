@@ -9,9 +9,12 @@ For more information, check the [documentation website](https://iq-readout.readt
 
 ## Installation
 
-As the package has not been published on PyPi yet, it CANNOT be installed directly using pip. 
-One can use the following commands to install the package:
+This package can be installed directly from PyPI via
+```
+pip install iq_readout
+```
 
+Alternatively, it can be installed from source via
 ```
 git clone git@github.com:MarcSerraPeralta/iq_readout.git
 pip install iq_readout/
