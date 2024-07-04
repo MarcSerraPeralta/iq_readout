@@ -45,7 +45,7 @@ class DecayLinearClassifier(TwoStateLinearClassifier):
         The structure of the output dictionary is:
 
         .. code-block:: python
-        
+
            {
                0: {"param1": float, ...},
                1: {"param1": float, ...},

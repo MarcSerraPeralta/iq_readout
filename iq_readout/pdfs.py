@@ -5,6 +5,7 @@ they will be used for fitting using ``scipy.optimize.curve_fit``, thus all
 its arguments are split into scalars while the input points have been
 grouped into a single multidimensional variable.
 """
+
 import numpy as np
 from scipy.special import erf
 
@@ -47,7 +48,7 @@ def simple_1d_gaussian_double_mixture(
 ) -> np.ndarray:
     """
     Probability density function corresponding to the sum of two
-    1D Gaussians with the same standard deviation.  
+    1D Gaussians with the same standard deviation.
 
     It has mean ``mu_0`` and ``mu_1``, and standard deviation ``sigma``.
 
@@ -88,9 +89,9 @@ def simple_2d_gaussian(
     sigma: float,
 ) -> np.ndarray:
     """
-    Probability density function of a 2D Gaussian. 
+    Probability density function of a 2D Gaussian.
 
-    It has mean ``(mu_x, mu_y)`` and covariance matrix 
+    It has mean ``(mu_x, mu_y)`` and covariance matrix
     ``diag(sigma**2, sigma**2)``.
 
     Parameters
@@ -127,7 +128,7 @@ def simple_2d_gaussian_double_mixture(
 ) -> np.ndarray:
     """
     Probability density function corresponding to the sum of two
-    2D Gaussians. 
+    2D Gaussians.
 
     The two Gaussians have means ``(mu_0_x, mu_0_y)`` and ``(mu_1_x, mu_1_y)``,
     and same covariance matrix ``diag(sigma**2, sigma**2)``.
@@ -186,7 +187,7 @@ def simple_2d_gaussian_triple_mixture(
     2D Gaussians.
 
     The three Gaussians have means ``(mu_0_x, mu_0_y)``, ``(mu_1_x, mu_1_y)``,
-    and ``(mu_2_x, mu_2_y)``, and same covariance matrix 
+    and ``(mu_2_x, mu_2_y)``, and same covariance matrix
     ``diag(sigma**2, sigma**2)``.
 
     The weight of the fist Gaussian is ``sin(angle2)**2 * cos(angle1)**2``
@@ -396,14 +397,16 @@ def pdf_from_hist2d(z, bins_x, bins_y, pdf_values):
     check_2d_input(z)
     bin_sep_x = bins_x[1] - bins_x[0]
     bin_sep_y = bins_y[1] - bins_y[0]
-    idxs_x = (
-        np.searchsorted(bins_x, z[..., 0] + bin_sep_x / 2, side="right") - 1
-    )
-    idxs_y = (
-        np.searchsorted(bins_y, z[..., 1] + bin_sep_y / 2, side="right") - 1
-    )
+    idxs_x = np.searchsorted(bins_x, z[..., 0] + bin_sep_x / 2, side="right") - 1
+    idxs_y = np.searchsorted(bins_y, z[..., 1] + bin_sep_y / 2, side="right") - 1
     prob = pdf_values[idxs_x.flatten(), idxs_y.flatten()]
     prob = prob.reshape(np.shape(z)[:-1])
-    prob[(z[..., 0] < bins_x[0] - bin_sep_x / 2) | (z[..., 0] > bins_x[-1] - bin_sep_x / 2)] = 0
-    prob[(z[..., 1] < bins_y[0] - bin_sep_y / 2) | (z[..., 1] > bins_y[-1] - bin_sep_y / 2)] = 0
+    prob[
+        (z[..., 0] < bins_x[0] - bin_sep_x / 2)
+        | (z[..., 0] > bins_x[-1] - bin_sep_x / 2)
+    ] = 0
+    prob[
+        (z[..., 1] < bins_y[0] - bin_sep_y / 2)
+        | (z[..., 1] > bins_y[-1] - bin_sep_y / 2)
+    ] = 0
     return prob

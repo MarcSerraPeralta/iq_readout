@@ -12,15 +12,15 @@ def generate_parameters(funct):
     # pdfs built from hist use args which are not float
     if "pdf_from_hist1d" == funct.__name__:
         params = {
-                "bins": np.linspace(-1, 2, 10),
-                "pdf_values": np.ones(10)/3,
+            "bins": np.linspace(-1, 2, 10),
+            "pdf_values": np.ones(10) / 3,
         }
         return params
     if "pdf_from_hist2d" == funct.__name__:
         params = {
-                "bins_x": np.linspace(-1, 2, 10),
-                "bins_y": np.linspace(-2, 1, 20),
-                "pdf_values": np.ones((10, 20))/9,
+            "bins_x": np.linspace(-1, 2, 10),
+            "bins_y": np.linspace(-2, 1, 20),
+            "pdf_values": np.ones((10, 20)) / 9,
         }
         return params
 

@@ -79,6 +79,7 @@ def test_load():
         cla = GaussMixLinearClassifier(params)
     return
 
+
 def test_from_to_yaml(tmp_path):
     cla = GaussMixLinearClassifier(PARAMS)
     cla.to_yaml(tmp_path / "clf.yaml")

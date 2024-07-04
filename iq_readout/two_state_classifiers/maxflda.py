@@ -116,7 +116,7 @@ class MaxFidLinearClassifier(TwoStateLinearClassifier):
         The structure of the output dictionary is:
 
         .. code-block:: python
-        
+
            {
                0: {"param1": float, ...},
                1: {"param1": float, ...},
@@ -223,8 +223,10 @@ class MaxFidLinearClassifier(TwoStateLinearClassifier):
         if isinstance(n_bins, int):
             n_bins = (n_bins, n_bins)
         if (n_bins[0] <= 1) or (n_bins[1] <= 1):
-            raise ValueError("Each element of `n_bins` must be strictly larger"
-                             f" than 1, but {n_bins} was given.")
+            raise ValueError(
+                "Each element of `n_bins` must be strictly larger"
+                f" than 1, but {n_bins} was given."
+            )
 
         # populate `params` during fitting
         params = {state: {} for state in range(2)}
