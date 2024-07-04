@@ -13,8 +13,7 @@ from .metrics import plot_probs_prep_meas
 
 
 def summary(classifier, *shots: List[np.ndarray]) -> plt.Figure:
-    """Figure to show a general overview of the performance of the classifier.
-    """
+    """Figure to show a general overview of the performance of the classifier."""
     if classifier._num_states == 2:
         fig = two_state_classifier(classifier, *shots)
     elif classifier._num_states == 3:

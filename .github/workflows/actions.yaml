@@ -23,6 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
           pip install pytest
+          pip install pytest-black
           
       - name: execute pytest
         run: pytest tests/

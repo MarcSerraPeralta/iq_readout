@@ -16,7 +16,7 @@ class TwoStateClassifier:
 
     The elements to be rewritten for each specific classifier are:
 
-    * ``_pdf_func_...``, which specify the PDFs 
+    * ``_pdf_func_...``, which specify the PDFs
     * ``_param_names``, which specify the parameter names of the PDFs
     * ``statistics``, which computes the relevant statistics
     * ``fit``, which performs the fit
@@ -43,7 +43,7 @@ class TwoStateClassifier:
             The structure of the dictionary must be
 
             .. code-block:: python
-            
+
                {
                    0: {"param1": float, ...},
                    1: {"param1": float, ...}
@@ -71,23 +71,26 @@ class TwoStateClassifier:
         # convert data to lists or floats to avoid having numpy objects
         # inside the YAML file, which do not render correctly
         def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
-            if array.shape == (): # corresponds to a scalar
+            if array.shape == ():  # corresponds to a scalar
                 if "int" in array.dtype.__str__():
                     return dumper.represent_int(int(array))
                 else:
                     return dumper.represent_float(float(array))
             return dumper.represent_list(array.tolist())
-        yaml.add_representer(np.ndarray, ndarray_representer)   
+
+        yaml.add_representer(np.ndarray, ndarray_representer)
         # the values in "self.params" are np.core.multiarray.scalars,
         # not "np.ndarray".
         np_types = [np.int64, np.int32, np.float64, np.float32]
         for np_type in np_types:
+
             def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
                 if "int" in np_type.__name__:
                     return dumper.represent_int(int(scalar))
                 else:
                     return dumper.represent_float(float(scalar))
-            yaml.add_representer(np_type, nptype_representer)   
+
+            yaml.add_representer(np_type, nptype_representer)
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
@@ -105,7 +108,9 @@ class TwoStateClassifier:
             data = yaml.safe_load(file)
 
         # transform all parameters to np.arrays
-        params = {s: {n: np.array(v) for n, v in p.items()} for s, p in data["params"].items()}
+        params = {
+            s: {n: np.array(v) for n, v in p.items()} for s, p in data["params"].items()
+        }
 
         return cls(params)
 
@@ -116,7 +121,7 @@ class TwoStateClassifier:
         The structure of the output dictionary is:
 
         .. code-block:: python
-        
+
            {
                0: {"param1": float, ...},
                1: {"param1": float, ...},
@@ -186,7 +191,7 @@ class TwoStateClassifier:
             Points to classify.
         p_0
             Probability to measure outcome 0.
-            By default 1/2, which in this case :math:`p(0|z) > p(1|z)` is 
+            By default 1/2, which in this case :math:`p(0|z) > p(1|z)` is
             equivalent to :math:`p(z|0) > p(z|0)`.
 
         Returns
@@ -282,7 +287,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
 
     The elements to be rewritten for each specific classifier are:
 
-    * ``_pdf_func_...``, which specify the PDFs 
+    * ``_pdf_func_...``, which specify the PDFs
     * ``_pdf_func_..._proj``, which specify the PDFs for the projected data
     * ``_param_names``, which specify the parameter names of the PDFs
     * ``_param_names_proj``, which specify the parameter names of the PDFs for the projected data.
@@ -316,7 +321,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         Parameters
         ----------
         params
-            The structure of the dictionary must be 
+            The structure of the dictionary must be
 
             .. code-block:: python
 
@@ -358,23 +363,26 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         # convert data to lists or floats to avoid having numpy objects
         # inside the YAML file, which do not render correctly
         def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
-            if array.shape == (): # corresponds to a scalar
+            if array.shape == ():  # corresponds to a scalar
                 if "int" in array.dtype.__str__():
                     return dumper.represent_int(int(array))
                 else:
                     return dumper.represent_float(float(array))
             return dumper.represent_list(array.tolist())
-        yaml.add_representer(np.ndarray, ndarray_representer)   
+
+        yaml.add_representer(np.ndarray, ndarray_representer)
         # the values in "self.params" can be np.core.multiarray.scalars,
         # not "np.ndarray".
         np_types = [np.int64, np.int32, np.float64, np.float32]
         for np_type in np_types:
+
             def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
                 if "int" in np_type.__name__:
                     return dumper.represent_int(int(scalar))
                 else:
                     return dumper.represent_float(float(scalar))
-            yaml.add_representer(np_type, nptype_representer)   
+
+            yaml.add_representer(np_type, nptype_representer)
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
@@ -388,7 +396,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         The structure of the output dictionary is:
 
         .. code-block:: python
-        
+
            {
                0: {"param1": float, ...},
                1: {"param1": float, ...},
@@ -466,7 +474,7 @@ class ThreeStateClassifier:
 
     The elements to be rewritten for each specific classifier are:
 
-    * ``_pdf_func_...``, which specify the PDFs 
+    * ``_pdf_func_...``, which specify the PDFs
     * ``_param_names``, which specify the parameter names of the PDFs
     * ``statistics``, which computes the relevant statistics
     * ``fit``, which performs the fit
@@ -524,23 +532,26 @@ class ThreeStateClassifier:
         # convert data to lists or floats to avoid having numpy objects
         # inside the YAML file, which do not render correctly
         def ndarray_representer(dumper: yaml.Dumper, array: np.ndarray) -> yaml.Node:
-            if array.shape == (): # corresponds to a scalar
+            if array.shape == ():  # corresponds to a scalar
                 if "int" in array.dtype.__str__():
                     return dumper.represent_int(int(array))
                 else:
                     return dumper.represent_float(float(array))
             return dumper.represent_list(array.tolist())
-        yaml.add_representer(np.ndarray, ndarray_representer)   
+
+        yaml.add_representer(np.ndarray, ndarray_representer)
         # the values in "self.params" are np.core.multiarray.scalars,
         # not "np.ndarray".
         np_types = [np.int64, np.int32, np.float64, np.float32]
         for np_type in np_types:
+
             def nptype_representer(dumper: yaml.Dumper, scalar: np_type) -> yaml.Node:
                 if "int" in np_type.__name__:
                     return dumper.represent_int(int(scalar))
                 else:
                     return dumper.represent_float(float(scalar))
-            yaml.add_representer(np_type, nptype_representer)   
+
+            yaml.add_representer(np_type, nptype_representer)
 
         with open(filename, "w") as file:
             yaml.dump(data, file, default_flow_style=False)
@@ -558,7 +569,9 @@ class ThreeStateClassifier:
             data = yaml.safe_load(file)
 
         # transform all parameters to np.arrays
-        params = {s: {n: np.array(v) for n, v in p.items()} for s, p in data["params"].items()}
+        params = {
+            s: {n: np.array(v) for n, v in p.items()} for s, p in data["params"].items()
+        }
 
         return cls(params)
 
@@ -569,7 +582,7 @@ class ThreeStateClassifier:
         The structure of the output dictionary is:
 
         .. code-block:: python
-        
+
            {
                0: {"param1": float, ...},
                1: {"param1": float, ...},
@@ -641,7 +654,7 @@ class ThreeStateClassifier:
         self, z: np.ndarray, p_0: float = 1 / 3, p_1: float = 1 / 3
     ) -> np.ndarray:
         """
-        Classifies the given data to 0, 1 or 2 using maximum-likelihood 
+        Classifies the given data to 0, 1 or 2 using maximum-likelihood
         classification, which is defined by
 
         * 0 if :math:`p(0|z) > p(1|z), p(2|z)`

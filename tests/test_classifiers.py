@@ -30,17 +30,23 @@ def test_ThreeStateClassifier():
     assert set(dir(classifiers.ThreeStateClassifier)) >= set(ATTRIBUTES)
     return
 
+
 def test_to_from_yaml(tmp_path):
     clfs = [
-        classifiers.TwoStateLinearClassifier, 
+        classifiers.TwoStateLinearClassifier,
         classifiers.TwoStateClassifier,
         classifiers.ThreeStateClassifier,
     ]
 
     for clf in clfs:
         clf._param_names = {i: ["a"] for i in range(clf._num_states)}
-        setattr(clf, "statistics", {"p": np.array([1., 2.])})
-        clf_1 = clf({i: {"a": np.core.multiarray.scalar(np.dtype(np.float64))} for i in range(clf._num_states)})
+        setattr(clf, "statistics", {"p": np.array([1.0, 2.0])})
+        clf_1 = clf(
+            {
+                i: {"a": np.core.multiarray.scalar(np.dtype(np.float64))}
+                for i in range(clf._num_states)
+            }
+        )
         clf_1.to_yaml(tmp_path / "clf.yaml")
 
         with open(tmp_path / "clf.yaml", "r") as file:
@@ -50,4 +56,3 @@ def test_to_from_yaml(tmp_path):
         clf_2 = clf.from_yaml(tmp_path / "clf.yaml")
 
         assert clf_1.params == clf_2.params
-        
