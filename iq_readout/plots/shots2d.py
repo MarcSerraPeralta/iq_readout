@@ -6,6 +6,8 @@ from typing import Optional, Tuple, List
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ..classifiers import Classifier
+
 
 def plot_shots_2d(
     ax: plt.Axes,
@@ -76,7 +78,7 @@ def plot_shots_2d(
 
 def plot_boundaries_2d(
     ax: plt.Axes,
-    classifier,
+    classifier: Classifier,
     xlim: Tuple[float, float] = None,
     ylim: Tuple[float, float] = None,
 ) -> plt.Axes:
