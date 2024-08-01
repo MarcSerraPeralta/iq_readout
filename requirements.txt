@@ -33,7 +33,7 @@ python-dateutil==2.8.2
 scipy==1.10.1
     # via iq_readout (pyproject.toml)
 six==1.16.0
-    # via python-dateutil
-zipp==3.17.0
+    # updated manually due to security vulnerability (CVE-2024-5569)
+zipp==3.19.2
     # via importlib-resources
 PyYAML==6.0.1
