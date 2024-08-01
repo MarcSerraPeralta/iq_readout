@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ..utils import get_angle, rotate_data
+from ..classifiers import Classifier
 
 
 def plot_pdf_projected(
@@ -65,7 +66,7 @@ def plot_pdf_projected(
 
 def plot_two_pdfs_projected(
     ax: plt.Axes,
-    classifier,
+    classifier: Classifier,
     shots_0: np.ndarray,
     shots_1: np.ndarray,
     labels: Optional[Tuple[str, str]] = ["0", "1"],
@@ -225,7 +226,7 @@ def plot_pdf_along_line(
 def plot_several_pdfs_along_line(
     ax: plt.Axes,
     points: Tuple[Tuple[float, float], Tuple[float, float]],
-    classifier,
+    classifier: Classifier,
     *shots: List[np.ndarray],
     labels: Optional[List[str]] = None,
     colors: Optional[List[str]] = None,

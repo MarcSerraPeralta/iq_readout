@@ -9,6 +9,7 @@ from .utils import check_2d_input, rotate_data, get_angle
 
 T2 = TypeVar("T2", bound="TwoStateClassifier")
 T3 = TypeVar("T3", bound="ThreeStateClassifier")
+Classifier = Union[T2, T3]
 
 
 class TwoStateClassifier:

@@ -7,12 +7,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ..metrics import get_probs_prep_meas
+from ..classifiers import Classifier, TwoStateClassifier, ThreeStateClassifier
 from .shots1d import plot_two_pdfs_projected, plot_several_pdfs_along_line
 from .shots2d import plot_shots_2d, plot_boundaries_2d, plot_contour_pdf_2d
 from .metrics import plot_probs_prep_meas
 
 
-def summary(classifier, *shots: List[np.ndarray]) -> plt.Figure:
+def summary(classifier: Classifier, *shots: List[np.ndarray]) -> plt.Figure:
     """Figure to show a general overview of the performance of the classifier."""
     if classifier._num_states == 2:
         fig = two_state_classifier(classifier, *shots)
@@ -28,7 +29,7 @@ def summary(classifier, *shots: List[np.ndarray]) -> plt.Figure:
 
 
 def two_state_classifier(
-    classifier,
+    classifier: TwoStateClassifier,
     shots_0: np.ndarray,
     shots_1: np.ndarray,
 ) -> plt.Figure:
@@ -53,7 +54,7 @@ def two_state_classifier(
 
 
 def three_state_classifier(
-    classifier,
+    classifier: ThreeStateClassifier,
     shots_0: np.ndarray,
     shots_1: np.ndarray,
     shots_2: np.ndarray,
