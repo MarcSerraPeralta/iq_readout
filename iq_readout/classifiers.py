@@ -9,10 +9,21 @@ from .utils import check_2d_input, rotate_data, get_angle
 
 T2 = TypeVar("T2", bound="TwoStateClassifier")
 T3 = TypeVar("T3", bound="ThreeStateClassifier")
-Classifier = Union[T2, T3]
 
 
-class TwoStateClassifier:
+class Classifier:
+    """General class for any classifier. 
+    Any classifier is a subclass of this class.
+
+    The purpose of this general class is for:
+
+    * typing hints
+    * ``isinstance``
+    """
+    pass
+
+
+class TwoStateClassifier(Classifier):
     """Template for creating two-state classifiers.
 
     The elements to be rewritten for each specific classifier are:
@@ -470,7 +481,7 @@ class TwoStateLinearClassifier(TwoStateClassifier):
         return self.__class__._pdf_func_1_proj(z_proj, *self._param_values_proj[1])
 
 
-class ThreeStateClassifier:
+class ThreeStateClassifier(Classifier):
     """Template for creating three-state classifiers.
 
     The elements to be rewritten for each specific classifier are:
