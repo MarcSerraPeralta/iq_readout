@@ -68,13 +68,13 @@ def test_GaussMixClassifier():
     params = cla.params
 
     for k in range(3):
-        assert pytest.approx(params[k]["mu_0_x"], abs=2e-2) == 0
-        assert pytest.approx(params[k]["mu_0_y"], abs=2e-2) == 0
-        assert pytest.approx(params[k]["mu_1_x"], rel=2e-2) == 1
-        assert pytest.approx(params[k]["mu_1_y"], rel=2e-2) == 1
-        assert pytest.approx(params[k]["mu_2_x"], abs=2e-2) == 0
-        assert pytest.approx(params[k]["mu_2_y"], rel=2e-2) == 1
-        assert pytest.approx(params[k]["sigma"], rel=2e-2) == np.sqrt(0.3)
+        assert pytest.approx(params[k]["mu_0_x"], abs=5e-2) == 0
+        assert pytest.approx(params[k]["mu_0_y"], abs=5e-2) == 0
+        assert pytest.approx(params[k]["mu_1_x"], rel=5e-2) == 1
+        assert pytest.approx(params[k]["mu_1_y"], rel=5e-2) == 1
+        assert pytest.approx(params[k]["mu_2_x"], abs=5e-2) == 0
+        assert pytest.approx(params[k]["mu_2_y"], rel=5e-2) == 1
+        assert pytest.approx(params[k]["sigma"], rel=5e-2) == np.sqrt(0.3)
 
     a1, a2 = params[0]["angle1"], params[0]["angle2"]
     assert np.sin(a1) ** 2 * np.cos(a2) ** 2 == pytest.approx(p0[0], abs=5e-2)

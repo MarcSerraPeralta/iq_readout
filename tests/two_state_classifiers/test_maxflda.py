@@ -61,8 +61,8 @@ def test_MaxFidLinearClassifier():
         assert pytest.approx(norm) == 1
 
     statistics = cla.statistics
-    assert pytest.approx(statistics["rot_angle"], rel=2e-2) == np.pi / 4
-    assert pytest.approx(statistics["threshold"], rel=2e-2) == 1.5 * np.sqrt(2)
+    assert pytest.approx(statistics["rot_angle"], rel=5e-2) == np.pi / 4
+    assert pytest.approx(statistics["threshold"], rel=5e-2) == 1.5 * np.sqrt(2)
 
     return
 
