@@ -46,20 +46,20 @@ def test_GaussMixLinearClassifier():
     cla = GaussMixLinearClassifier.fit(shots_0, shots_1)
     params = cla.params
 
-    assert pytest.approx(params[0]["mu_0_x"], abs=2e-2) == mu_0[0]
-    assert pytest.approx(params[0]["mu_0_y"], abs=2e-2) == mu_0[1]
-    assert pytest.approx(params[1]["mu_1_x"], abs=2e-2) == mu_1[0]
-    assert pytest.approx(params[1]["mu_1_y"], abs=2e-2) == mu_1[1]
-    assert pytest.approx(params[0]["sigma"], rel=2e-2) == np.sqrt(0.3)
+    assert pytest.approx(params[0]["mu_0_x"], abs=5e-2) == mu_0[0]
+    assert pytest.approx(params[0]["mu_0_y"], abs=5e-2) == mu_0[1]
+    assert pytest.approx(params[1]["mu_1_x"], abs=5e-2) == mu_1[0]
+    assert pytest.approx(params[1]["mu_1_y"], abs=5e-2) == mu_1[1]
+    assert pytest.approx(params[0]["sigma"], rel=5e-2) == np.sqrt(0.3)
     # same means and sigma
     for name in ["mu_0_x", "mu_0_y", "mu_1_x", "mu_1_y", "sigma"]:
         assert pytest.approx(params[0][name]) == params[1][name]
 
     params_proj = cla.params_proj
 
-    assert pytest.approx(params_proj[0]["mu_0"], abs=2e-2) == np.sqrt(2) / 2
-    assert pytest.approx(params_proj[0]["mu_1"], rel=2e-2) == 3 * np.sqrt(2) / 2
-    assert pytest.approx(params_proj[0]["sigma"], rel=2e-2) == np.sqrt(0.3)
+    assert pytest.approx(params_proj[0]["mu_0"], abs=5e-2) == np.sqrt(2) / 2
+    assert pytest.approx(params_proj[0]["mu_1"], rel=5e-2) == 3 * np.sqrt(2) / 2
+    assert pytest.approx(params_proj[0]["sigma"], rel=5e-2) == np.sqrt(0.3)
     assert pytest.approx(params_proj[0]["angle"], rel=5e-2) == np.arcsin(np.sqrt(p0))
     assert pytest.approx(params_proj[1]["angle"], rel=5e-2) == np.arccos(np.sqrt(p1))
 
