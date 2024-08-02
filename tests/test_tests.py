@@ -9,7 +9,7 @@ FILE_EXCEPTIONS = ["__init__.py"]
 def test_tests():
     test_dir = pathlib.Path("tests")
     mod_dir = pathlib.Path("iq_readout")
-    for path, dirs, files in os.walk(mod_dir):
+    for path, _, files in os.walk(mod_dir):
         for file in files:
             if file[-3:] != ".py" or file[0] == "_":
                 continue
@@ -20,6 +20,6 @@ def test_tests():
             if file not in FILE_EXCEPTIONS:
                 if not os.path.exists(os.path.join(testpath, "test_" + file)):
                     raise ValueError(
-                        f"test file for {os.path.join(mod_dir, file)}" "does not exist"
+                        f"test file for {os.path.join(mod_dir, file)}" " does not exist"
                     )
     return

@@ -20,7 +20,10 @@ class Classifier:
     * typing hints
     * ``isinstance``
     """
-    pass
+    _num_states = 0
+
+    def predict(self, x: np.ndarray):
+        return np.zeros_like(x)
 
 
 class TwoStateClassifier(Classifier):

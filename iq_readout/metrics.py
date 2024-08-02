@@ -1,55 +1,81 @@
 """Readout metrics.
 """
 
+from typing import List
+
 import numpy as np
+
+from .classifiers import Classifier
 
 
 def get_probs_prep_meas(
-    classifier,
-    shots_0: np.ndarray,
-    shots_1: np.ndarray,
-    shots_2: np.ndarray = None,
+    classifiers: List[Classifier] | Classifier, *shots: np.ndarray
 ) -> np.ndarray:
     """
-    Returns matrix whose element i,j corresponds to:
-    p(measure state j | prepared state i)
+    Returns matrix whose element ``probs[s,o]`` corresponds to:
+    p(measured bitstring o | prepared bitstring s),
+    with s and o in the corresponding base 2, 3 or 10. 
 
     Parameters
     ----------
-    classifier
-        A classifier from the iq_readout package
-    shots_0: np.ndarray(N, 2)
-        Data when preparaing state 0
-    shots_1: np.ndarray(N, 2)
-        Data when preparaing state 1
-    shots_2: np.ndarray(N, 2)
-        Data when preparaing state 2
+    classifiers
+        A list of classifiers from the iq_readout package.
+        It can also be a single classifier.
+    shots: list(np.ndarray(num_qubits, num_shots, 2))
+        Tuple of shots when preparing all the possible bistrings. 
+        The bitstrings should be sorted in the *standard binary order*, e.g.
+        ``000``, ``001``, ``010``, ``011``, ...
+        In the case that ``classifiers`` is a single classifier (not a list), 
+        each element of this variable can have shape ``(num_shots, 2)``. 
 
     Returns
     -------
-    probs: np.ndarray(2,2) or np.ndarray(3,3)
+    probs: np.ndarray(2**num_qubits, 2**num_qubits) | np.ndarray(3**num_qubits, 3**num_qubits)
         The size of the array depends on the number of states that
         the classifier can discriminate.
     """
-    if set(["pdf_0", "pdf_1"]) > set(dir(classifier)):
-        raise ValueError(
-            "'classifier' must have the following methods: "
-            f"'pdf_0', 'pdf_1'; but it has {dir(classifier)}"
+    if isinstance(classifiers, Classifier):
+        classifiers = [classifiers]
+        shots = [np.array([shots_k]) for shots_k in shots]
+    if not (isinstance(classifiers, list) or isinstance(classifiers, tuple)):
+        raise TypeError(
+            f"'classifiers' must be a list or a tuple, but {type(classifiers)} was given."
         )
-    if "pdf_2" in dir(classifier) and (shots_2 is None):
-        raise ValueError("For 3-state classifiers, one must specify 'shots_2'")
+    num_qubits = len(classifiers)
+    if not isinstance(classifiers[0], Classifier):
+        raise TypeError(f"The given object is not a classifier, it is a {type(classifiers[0])}.")
+    num_states = classifiers[0]._num_states
+    for clf in classifiers[1:]:
+        if not isinstance(clf, Classifier):
+            raise TypeError(f"The given object is not a classifier, it is a {type(clf)}.")
+        if clf._num_states != num_states:
+            raise TypeError(
+                "All given classifiers must have the same number of states."
+            )
 
-    states = [0, 1]
-    shots = [shots_0, shots_1]
-    probs = np.zeros((2, 2))
-    if "pdf_2" in dir(classifier):
-        states = [0, 1, 2]
-        shots = [shots_0, shots_1, shots_2]
-        probs = np.zeros((3, 3))
+    if len(shots) != num_states**num_qubits:
+        raise ValueError(
+            "The number of bitstrings in 'shots' must be num_states**num_qubits, "
+            f"but {len(shots)} != {num_states}**{num_qubits} was given."
+        )
+    for k, shots_k in enumerate(shots):
+        if len(shots_k) != num_qubits:
+            raise ValueError(
+                f"Each bitstring must include all qubits ({num_qubits}), "
+                f"but only {len(shots_k)} were given for bitstring index {k}."
+            )
 
-    for i, (state, shot) in enumerate(zip(states, shots)):
-        prediction = classifier.predict(shot)
-        for j, _ in enumerate(states):
-            probs[i, j] = np.average(prediction == j)
+    probs = np.zeros((num_states**num_qubits, num_states**num_qubits))
+    powers = num_states**np.arange(num_qubits)[::-1] # to convert to base 10
+    for k, shots_k in enumerate(shots):
+        # shots_k.shape = (num_qubits, num_shots, 2)
+        num_total = shots_k.shape[1]
+        outcomes = np.array(
+            [clf.predict(shots_k[q]) for q, clf in enumerate(classifiers)]
+        )
+        unique, counts = np.unique(outcomes.T, axis=0, return_counts=True)
+        for vec, count in zip(unique, counts):
+            idx = np.sum(vec*powers) # base 2 or 3 conversion to base 10
+            probs[k, idx] = count / num_total
 
     return probs
