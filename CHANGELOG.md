@@ -6,8 +6,10 @@
 
 - Classifiers
     - Add metaclass for `Classifier` (#67).
-    - Generalise `iq_readout.metrics.get_probs_prep_meas` to multiqubit (#68).
-    - Hotfix update python version to >=3.10 for typing hints (#69).
+    - Generalise `iq_readout.metrics.get_probs_prep_meas` to multiqubit readout (#68).
+
+- Requirements
+    - Hotfix: update python version to >=3.10 for typing hints (#69).
 
 ### Merged branches and closed issues
 
