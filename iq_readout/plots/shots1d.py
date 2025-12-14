@@ -9,6 +9,66 @@ from ..utils import get_angle, rotate_data
 from ..classifiers import Classifier
 
 
+def plot_hist_projected_shots(
+    ax: plt.Axes,
+    *projected_shots: List[np.ndarray],
+    labels: Optional[List[str]] = None,
+    colors: Optional[List[str]] = None,
+    bins: Optional[int] = 50,
+    rescale_factor: Optional[int] = 1,
+) -> plt.Axes:
+    """
+    Plots the histogram of the experimental projected shots.
+    For linear classifiers, the projected shots can be obtained from
+    ``classifier.project(...)``.
+
+    Parameters
+    ----------
+    ax:
+        Matplotlib axis
+    projected_shots: [np.ndarray(N), np.ndarray(N), ...]
+        Experimental data for state 0, 1, ...
+    labels: (label_0, label_1)
+        Labels for the state 0 and 1 data.
+    colors: (color_0, color_1, color_2)
+        Colors for the state 0 and 1 data.
+    bins:
+        Number of bins in the plot.
+    rescale_factor:
+        Factor for multiplying the histogram bar heights.
+        By default ``1``, so no rescaling.
+        This is useful for three-state classifiers.
+
+    Returns
+    -------
+    ax:
+        Matplotlib axis with the data plotted
+    """
+    if labels is None:
+        labels = [f"{i}" for i, _ in enumerate(projected_shots)]
+    if colors is None:
+        all_colors = ["orange", "blue"]
+        colors = all_colors[: len(projected_shots)]
+
+    for k, projected_shot in enumerate(projected_shots):
+        hist, bin_edges = np.histogram(projected_shot, bins=bins, density=True)
+        hist *= rescale_factor
+        ax.stairs(
+            hist, bin_edges, color=colors[k], alpha=0.5, label=labels[k], fill=True
+        )
+        ymin, _ = ax.get_ylim()
+        ymin = max([np.inf, ymin])  # avoid initial axis limit being 0
+        new_ymin = np.min(hist[hist > 0]) * 0.1
+        if ymin > new_ymin:
+            ax.set_ylim(ymin=new_ymin)
+
+    ax.set_xlabel("projected data, z")
+    ax.set_ylabel("PDF(z)")
+    ax.set_yscale("log")
+
+    return ax
+
+
 def plot_pdf_projected(
     ax: plt.Axes,
     shots_proj: np.ndarray,
@@ -190,9 +250,13 @@ def plot_pdf_along_line(
         return ax
 
     # plot experimental histogram
-    hist, bin_edges = np.histogram(shots_proj, bins=50, density=True)
-    hist = hist * len(shots_proj) / len(shots)
-    ax.stairs(hist, bin_edges, color=color, alpha=0.5, label=label, fill=True)
+    ax = plot_hist_projected_shots(
+        ax,
+        shots_proj,
+        colors=[color],
+        labels=[label],
+        rescale_factor=len(shots_proj) / len(shots),
+    )
 
     # get theoretical data
     # 1) create grid in rectangle
@@ -215,7 +279,6 @@ def plot_pdf_along_line(
     ax.set_xlabel("projected data, z")
     ax.set_ylabel("PDF(z)")
     ax.set_yscale("log")
-    ax.set_ylim(ymin=np.min(hist[hist > 0]) * 0.1)
     if label is not None:
         ax.legend(loc="best")
 
