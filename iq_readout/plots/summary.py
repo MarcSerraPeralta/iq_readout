@@ -1,5 +1,4 @@
-"""Plot summaries for the classifiers.
-"""
+"""Plot summaries for the classifiers."""
 
 from typing import List
 

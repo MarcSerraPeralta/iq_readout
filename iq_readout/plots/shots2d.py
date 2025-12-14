@@ -1,5 +1,4 @@
-"""Functions to plot in 2D.
-"""
+"""Functions to plot in 2D."""
 
 from typing import Optional, Tuple, List
 
