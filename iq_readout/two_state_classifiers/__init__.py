@@ -1,5 +1,4 @@
-"""Two-state classifiers.
-"""
+"""Two-state classifiers."""
 
 from .gmlda import GaussMixLinearClassifier
 from .decaylda import DecayLinearClassifier
