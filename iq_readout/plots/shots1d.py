@@ -27,11 +27,11 @@ def plot_hist_projected_shots(
     ax:
         Matplotlib axis
     projected_shots: [np.ndarray(N), np.ndarray(N), ...]
-        Experimental data for state 0, 1, ...
-    labels: (label_0, label_1)
-        Labels for the state 0 and 1 data.
-    colors: (color_0, color_1, color_2)
-        Colors for the state 0 and 1 data.
+        Experimental projected data for state 0, 1, ...
+    labels: (label_0, label_1, ...)
+        Labels for the state 0, 1, ... data.
+    colors: (color_0, color_1, ...)
+        Colors for the state 0, 1, ... data.
     bins:
         Number of bins in the plot.
     rescale_factor:
@@ -47,7 +47,7 @@ def plot_hist_projected_shots(
     if labels is None:
         labels = [f"{i}" for i, _ in enumerate(projected_shots)]
     if colors is None:
-        all_colors = ["orange", "blue"]
+        all_colors = ["orange", "blue", "green"]
         colors = all_colors[: len(projected_shots)]
 
     for k, projected_shot in enumerate(projected_shots):
