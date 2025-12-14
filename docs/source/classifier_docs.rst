@@ -1,5 +1,5 @@
-Classifier Documentation
-========================
+Classifiers
+===========
 
 .. toctree::
    :maxdepth: 2
