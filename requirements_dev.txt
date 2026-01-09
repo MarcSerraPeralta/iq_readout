@@ -34,8 +34,10 @@ docutils==0.21.2
     # via
     #   sphinx
     #   sphinx-rtd-theme
-fonttools==4.47.2
-    # via matplotlib
+fonttools==4.61.1
+    # via
+    #   iq_readout (pyproject.toml)
+    #   matplotlib
 idna==3.11
     # via requests
 imagesize==1.4.1
@@ -120,9 +122,7 @@ requests==2.32.5
 rich==14.2.0
     # via scalene
 roman-numerals==4.1.0
-    # via
-    #   roman-numerals-py
-    #   sphinx
+    # via roman-numerals-py
 roman-numerals-py==4.1.0
     # via sphinx
 scalene==2.0.1
