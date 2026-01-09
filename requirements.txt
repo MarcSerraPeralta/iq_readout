@@ -8,8 +8,10 @@ contourpy==1.1.1
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-fonttools==4.47.2
-    # via matplotlib
+fonttools==4.61.1
+    # via
+    #   iq_readout (pyproject.toml)
+    #   matplotlib
 kiwisolver==1.4.5
     # via matplotlib
 matplotlib==3.7.4
