@@ -40,13 +40,15 @@ each state the qubit was prepared on before measurement. It can be structured as
 * ``shots_1``: a numpy array of shape ``(num_shots_1, 2)`` with the IQ points when the qubit was prepared in state 1. 
 * ... 
 
+Complex IQ arrays can be converted to the format above using ``iq_readout.utils.from_complex``.
+
 Currently, IQ readout supports up to three-state discrimination classifiers. 
 
 Setting up a classifier can be done via
 
 .. code-block:: python
 
-   from iq_readout.two_state_classifiers.DecayLinearClassifier
+   from iq_readout.two_state_classifiers import DecayLinearClassifier
 
    # load readout calibration data
    shots_0, shots_1 = ...

@@ -1,5 +1,4 @@
-"""Three-state classifiers.
-"""
+"""Three-state classifiers."""
 
 from .gmda import GaussMixClassifier
 

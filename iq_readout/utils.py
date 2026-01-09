@@ -1,5 +1,4 @@
-"""Common functions used in IQ readout.
-"""
+"""Common functions used in IQ readout."""
 
 from typing import Tuple
 
@@ -151,3 +150,36 @@ def reshape_histogram_2d(
     xx, yy = xx.reshape(-1, 1), yy.reshape(-1, 1)
     zz = np.concatenate([xx, yy], axis=1)
     return counts, zz
+
+
+def from_complex(complex_shots: np.ndarray) -> np.ndarray:
+    """
+    Converts a complex numpy tensor to new float numpy tensor
+    with an extra dimension at the end with the real and imaginary values.
+    Useful to convert a vector with complex shots to the standard numpy
+    arrays used in this package.
+
+    Parameters
+    ----------
+    complex_shots
+        Complex numpy array.
+
+    Returns
+    -------
+    shots
+        Corresponding floating numpy array with shape ``(*complex_shots.shape, 2)``
+        where the last axis corresponds to the real and imaginary values.
+    """
+    if not isinstance(complex_shots, np.ndarray):
+        raise TypeError(
+            f"'complex_shots' must be a numpy array, but {type(complex_shots)} was given."
+        )
+    if not np.iscomplexobj(complex_shots):
+        raise TypeError(
+            f"'complex_shots' dtype must be complex, but {complex_shots.dtype} was given."
+        )
+
+    return np.concatenate(
+        [complex_shots.real[..., np.newaxis], complex_shots.imag[..., np.newaxis]],
+        axis=-1,
+    )

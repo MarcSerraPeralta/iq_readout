@@ -92,9 +92,9 @@ with solution
 
 .. math ::
 
-   \vec{d}(t) = \mu_{\perp} t + \frac{\vec{\mu}_0 + \vec{\mu}_1}{2} + \frac{\vec{\mu}_0 - \vec{\mu}_1}{|\vec{\mu}_0 - \vec{\mu}_1|} \sigma^2 \log(P),
+   \vec{d}(t) = \vec{\mu}_{\perp} t + \frac{\vec{\mu}_0 + \vec{\mu}_1}{2} + \frac{\vec{\mu}_0 - \vec{\mu}_1}{|\vec{\mu}_0 - \vec{\mu}_1|} \sigma^2 \log(P),
 
-with :math:`t \in \mathbb{R}` and :math:`\mu_{\perp}` the vector perpendicular to :math:`\vec{\mu}_0 - \vec{\mu}_1`. This curve is a line that is perpendicular with the axis defined by the two *blobs* in the IQ plane. In the particular case :math:`p(0) = 1/2`, then :math:`P=1` and thus the line is in the middle of the two *blobs*. 
+with :math:`t \in \mathbb{R}` and :math:`\vec{\mu}_{\perp}` the vector perpendicular to :math:`\vec{\mu}_0 - \vec{\mu}_1`. This curve is a line that is perpendicular with the axis defined by the two *blobs* in the IQ plane. In the particular case :math:`p(0) = 1/2`, then :math:`P=1` and thus the line is in the middle of the two *blobs*. 
 
 
 Notes on the algorithm

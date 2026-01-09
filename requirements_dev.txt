@@ -67,6 +67,8 @@ numpy==1.26.4
     #   matplotlib
     #   scalene
     #   scipy
+nvidia-ml-py==13.590.44
+    # via scalene
 packaging==23.2
     # via
     #   black

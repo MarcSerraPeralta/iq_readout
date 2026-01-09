@@ -1,5 +1,4 @@
-"""Readout metrics.
-"""
+"""Readout metrics."""
 
 from typing import List
 
@@ -14,7 +13,7 @@ def get_probs_prep_meas(
     """
     Returns matrix whose element ``probs[s,o]`` corresponds to:
     p(measured bitstring o | prepared bitstring s),
-    with s and o in the corresponding base 2, 3 or 10. 
+    with s and o in the corresponding base 2, 3 or 10.
 
     Parameters
     ----------
@@ -22,11 +21,11 @@ def get_probs_prep_meas(
         A list of classifiers from the iq_readout package.
         It can also be a single classifier.
     shots: list(np.ndarray(num_qubits, num_shots, 2))
-        Tuple of shots when preparing all the possible bistrings. 
+        Tuple of shots when preparing all the possible bistrings.
         The bitstrings should be sorted in the *standard binary order*, e.g.
         ``000``, ``001``, ``010``, ``011``, ...
-        In the case that ``classifiers`` is a single classifier (not a list), 
-        each element of this variable can have shape ``(num_shots, 2)``. 
+        In the case that ``classifiers`` is a single classifier (not a list),
+        each element of this variable can have shape ``(num_shots, 2)``.
 
     Returns
     -------
@@ -43,11 +42,15 @@ def get_probs_prep_meas(
         )
     num_qubits = len(classifiers)
     if not isinstance(classifiers[0], Classifier):
-        raise TypeError(f"The given object is not a classifier, it is a {type(classifiers[0])}.")
+        raise TypeError(
+            f"The given object is not a classifier, it is a {type(classifiers[0])}."
+        )
     num_states = classifiers[0]._num_states
     for clf in classifiers[1:]:
         if not isinstance(clf, Classifier):
-            raise TypeError(f"The given object is not a classifier, it is a {type(clf)}.")
+            raise TypeError(
+                f"The given object is not a classifier, it is a {type(clf)}."
+            )
         if clf._num_states != num_states:
             raise TypeError(
                 "All given classifiers must have the same number of states."
@@ -66,7 +69,7 @@ def get_probs_prep_meas(
             )
 
     probs = np.zeros((num_states**num_qubits, num_states**num_qubits))
-    powers = num_states**np.arange(num_qubits)[::-1] # to convert to base 10
+    powers = num_states ** np.arange(num_qubits)[::-1]  # to convert to base 10
     for k, shots_k in enumerate(shots):
         # shots_k.shape = (num_qubits, num_shots, 2)
         num_total = shots_k.shape[1]
@@ -75,7 +78,7 @@ def get_probs_prep_meas(
         )
         unique, counts = np.unique(outcomes.T, axis=0, return_counts=True)
         for vec, count in zip(unique, counts):
-            idx = np.sum(vec*powers) # base 2 or 3 conversion to base 10
+            idx = np.sum(vec * powers)  # base 2 or 3 conversion to base 10
             probs[k, idx] = count / num_total
 
     return probs
