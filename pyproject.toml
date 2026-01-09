@@ -16,7 +16,7 @@ maintainers = [
 license = {file = "LICENSE"}
 readme = "README.md"
 dependencies = [
-    "numpy",
+    "numpy>=1.26.4", # python >=3.12
     "scipy",
     "matplotlib",
     "pyyaml",
