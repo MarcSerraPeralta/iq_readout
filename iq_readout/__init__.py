@@ -1,5 +1,4 @@
-"""IQ readout module.
-"""
+"""IQ readout module."""
 
 from . import (
     two_state_classifiers,

@@ -12,7 +12,7 @@ T3 = TypeVar("T3", bound="ThreeStateClassifier")
 
 
 class Classifier:
-    """General class for any classifier. 
+    """General class for any classifier.
     Any classifier is a subclass of this class.
 
     The purpose of this general class is for:
@@ -20,6 +20,7 @@ class Classifier:
     * typing hints
     * ``isinstance``
     """
+
     _num_states = 0
 
     def predict(self, x: np.ndarray):
